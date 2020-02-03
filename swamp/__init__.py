@@ -1,8 +1,17 @@
 """This is SWAMP: Solving Structures With Alpha Membrane Pairs"""
 
 __author__ = "Filomeno Sanchez Rodriguez"
-__credits__ = "Daniel Rigden, & Ronan Keegan"
+__credits__ = "Daniel Rigden & Ronan Keegan"
 __email__ = "filomeno.sanchez-rodriguez@liv.ac.uk"
+
+# ------------------ NEED TO CHANGE THIS -----------------------
+
+SRC_MAPALIGN = "/home/filo/opt/map_align_v1/map_align/map_align"
+SRC_ALEIGEN = "/home/filo/opt/AL_Eigen/aleigen"
+SRC_WEIGENVECT = "/home/filo/opt/AL_Eigen/weigenvect"
+
+# ------------------ DON'T CHANGE BELOW THIS ------------------
+
 
 from swamp import version
 
@@ -16,6 +25,7 @@ import conkit
 import pandas
 import numpy
 import Bio
+import warnings
 
 from distutils.version import StrictVersion
 
@@ -43,15 +53,13 @@ if StrictVersion(pandas.__version__) < StrictVersion("0.24"):
 TMP_DIR = os.environ["CCP4_SCR"]
 PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")
 IDEALHELICES_DIR = os.path.join(PACKAGE_PATH, "idealhelices")
-FRAG_MAPALIGN_DB = os.path.join(PACKAGE_PATH, "frag_db", "mapalign")
-FRAG_EIGEN_DB = os.path.join(PACKAGE_PATH, "frag_db", "eigen")
-FRAG_ALEIGEN_DB = os.path.join(PACKAGE_PATH, "frag_db", "aleigen")
-FRAG_PDB_DB = os.path.join(PACKAGE_PATH, "frag_db", "pdb")
-ENSEMBLE_DIR = os.path.join(PACKAGE_PATH, 'frag_db', 'ensembles')
-DIST_MTX_DIR = os.path.join(PACKAGE_PATH, 'frag_db', 'distance_mtx')
-SRC_MAPALIGN = "/home/filo/opt/map_align_v1/map_align/map_align"
-SRC_ALEIGEN = "/home/filo/opt/AL_Eigen/aleigen"
-SRC_WEIGENVECT = "/home/filo/opt/AL_Eigen/weigenvect"
+LIBRARY = os.path.join(PACKAGE_PATH, "library")
+FRAG_MAPALIGN_DB = os.path.join(LIBRARY, "mapalign")
+FRAG_EIGEN_DB = os.path.join(LIBRARY, "eigen")
+FRAG_ALEIGEN_DB = os.path.join(LIBRARY, "aleigen")
+FRAG_PDB_DB = os.path.join(LIBRARY, "pdb")
+ENSEMBLE_DIR = os.path.join(LIBRARY, 'ensembles')
+DIST_MTX_DIR = os.path.join(LIBRARY, 'distance_mtx')
 CLUSTER_COMPOSITION_PCKL = os.path.join(ENSEMBLE_DIR, 'cluster_composition.pckl')
 CENTROID_DICT_PCKL = os.path.join(ENSEMBLE_DIR, 'centroid_dict.pckl')
 QSCORE_MTX_CSV = os.path.join(DIST_MTX_DIR, 'qscore_mtx.csv')
@@ -69,3 +77,6 @@ if not os.path.isfile(SRC_ALEIGEN):
     SRC_ALEIGEN = None
 if not os.path.isfile(SRC_MAPALIGN):
     SRC_MAPALIGN = None
+
+if not os.path.isdir(LIBRARY):
+    warnings.warn('SWAMP cannot find ensemble library. You can create this library using swamp-make-library')

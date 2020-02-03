@@ -16,9 +16,9 @@ from swamp.searchmodel_prepare.core import Core
 def parse_arguments():
     """Parse command line arguments"""
 
-    parser = argparse.ArgumentParser(description='SWAMP-MR: Contact assisted fragment based molecular replacement',
+    parser = argparse.ArgumentParser(description='SWAMP-MAKE-LIBRARY: Create an ensemble library for SWAMP',
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("workdir", type=str, help='Working directory to perform clustering')
+    parser.add_argument("workdir", type=str, help='Working directory to perform ensemble clustering')
     parser.add_argument("-nprocs", type=int, nargs="?", default=1, help='Number of processors to use')
     parser.add_argument("-homologs", type=check_file_exists, nargs="?", default=None,
                         help='A file with the list of homolog structures to exclude')
