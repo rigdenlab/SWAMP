@@ -8,6 +8,9 @@ __pychache__/
 /swamp/library/distance_mtx/
 /swamp/library/gesamt_scan/
 /swamp/library/pdb/
+*distance_mtx/
+*gesamt_scan/
+*pdb/
 
 # Environments
 .env
