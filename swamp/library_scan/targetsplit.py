@@ -1,9 +1,9 @@
 import os
 import gemmi
-import logging
 import itertools
 import conkit.io
 from swamp.parsers.topcons import TopconsParser
+from swamp.logger.swamplogger import SwampLogger
 from swamp.library_tools.pdb_tools import extract_hierarchy_seqnumber
 from swamp.library_tools.contact_tools import extract_interhelical_cmap
 
@@ -27,17 +27,20 @@ class SplitTarget(object):
 
     """
 
-    def __init__(self, workdir, conpred, sspred, conformat="psicov", pdb_benchmark=None):
+    def __init__(self, workdir, conpred, sspred, conformat="psicov", pdb_benchmark=None, logger=None):
         self._workdir = workdir
         self._conpred = conkit.io.read(conpred, conformat).top_map
         self._sspred = TopconsParser(sspred)
         self.sspred.parse()
         self._make_workdir()
-        self._logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
         self._subtargets = None
         self._subtargets_pdb = None
         self._pdb_benchmark = pdb_benchmark
+        if logger is None:
+            self._logger = SwampLogger(__name__)
+            self.logger.init(logfile=None, use_console=True, console_level='info')
+        else:
+            self._logger = logger
 
     # ------------------ Some general properties ------------------
 

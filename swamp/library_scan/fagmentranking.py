@@ -382,7 +382,7 @@ class FragmentRanking(object):
         # Get the subtargets
         self.con_precision_dict = {}
         self.logger.info("Splitting the target into sets of contacting helical pairs\n")
-        self.splitter = SplitTarget(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred,
+        self.splitter = SplitTarget(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred, logger=self.logger,
                                     conformat=self.conformat, pdb_benchmark=self.target_pdb_benchmark)
         self.splitter.split()
 

@@ -105,6 +105,7 @@ def main():
             my_rank.ranked_searchmodels[my_rank.ranked_searchmodels.searchmodels == searchmodels].consco.tolist()[0])
         searchmodels = tuple([get_centroid_id(x) for x in searchmodels.split()])
         logger.debug('Loading search model no. %s/%s (CMO %s)' % (rank, n_searchmodels, cmo))
+        # TODO: Only make this directory if it won't be empty...
         workdir = os.path.join(my_array.workdir, 'search_%s' % rank)
         os.mkdir(workdir)
 
