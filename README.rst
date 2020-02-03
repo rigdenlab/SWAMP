@@ -30,7 +30,7 @@ SWAMP pipeline is divided into three steps.
 Depiction of SWAMP flowchart:
 
 
-.. image:: https://github.com/FilomenoSanchez/swamp/blob/master/docs/pipeline_scheme.png
+.. image:: https://github.com/rigdenlab/SWAMP/blob/master/docs/pipeline_scheme.png
    :width: 50%
    :align: center
 
