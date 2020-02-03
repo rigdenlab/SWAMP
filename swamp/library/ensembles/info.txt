@@ -1,0 +1,2 @@
+Library created using
+	swamp-make-library $CCP4/lib/py2/swamp/library -nprocs 45 -overwrite_library
