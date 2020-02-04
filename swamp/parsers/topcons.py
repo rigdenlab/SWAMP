@@ -52,7 +52,7 @@ class TopconsParser(Parser):
             self.inputfile_contents = fhandle.readlines()
             try:
                 topcons_prediction = self.inputfile_contents[
-                    self.inputfile_contents.index('TOPCONS predicted topology:\n') + 1]
+                    self.inputfile_contents.index('TOPCONS predicted topology:\n') + 1].rstrip()
             except ValueError as e:
                 raise ValueError('TOPCONS file cannot be parsed. Please check it is TOPCONS format!')
             residues = []
