@@ -539,8 +539,9 @@ class MrRun(Mr):
             os.chdir(os.path.dirname(self.workdir))
             self._cleanup_files()
 
-        # Exit and print the table with the results
-        self.logger.info('MR run finished. Table of results:\n%s\n' % self.table_contents)
+        # Exit and show the results unless this was an ideal helix run
+        if not self.is_extended:
+            self.logger.info('MR run finished. Table of results:\n\n%s\n' % self.table_contents)
 
     def fit_helices(self):
         """Method to extend the solution with ideal helices

@@ -1,2 +1,2 @@
 #!/bin/sh
-phenix.python -m swamp.command_line.swamp-mr "$@"
+ccp4-python -m swamp.command_line.swamp-mr "$@"

@@ -31,6 +31,9 @@ class MrJob(object):
         self._parent_array = None
         self._searchmodel_list = []
 
+        if not os.path.isdir(self.workdir):
+            os.makedirs(self.workdir)
+
     def __repr__(self):
         return '{}(id={}, workdir="{}")'.format(self.__class__.__name__, self.id, self.workdir)
 
