@@ -1,6 +1,6 @@
 import os
 from swamp.wrappers.mapalign import MapAlign
-from swamp.scan.scan import Scan
+from swamp.library.scan.scan import Scan
 
 
 class MapAlignScan(Scan):

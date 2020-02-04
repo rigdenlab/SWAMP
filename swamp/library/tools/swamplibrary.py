@@ -6,8 +6,8 @@ import pandas as pd
 from swamp.wrappers.gesamt import Gesamt
 from swamp.parsers.pdbtm_xml import PdbtmXmlParser
 from swamp.logger.swamplogger import SwampLogger
-import swamp.tools.pdb_tools as pdb_tools
-from swamp.tools.contact_tools import extract_fragment_cmap, invert_contactmap
+import swamp.library.tools.pdb_tools as pdb_tools
+from swamp.library.tools.contact_tools import extract_fragment_cmap, invert_contactmap
 
 
 class SwampLibrary(object):

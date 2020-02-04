@@ -10,7 +10,7 @@ from swamp.mr.mrjob import MrJob
 from swamp.mr.mrarray import MrArray
 from swamp.logger.swamplogger import SwampLogger
 from swamp.command_line import check_file_exists
-from swamp.library_scan.fagmentranking import FragmentRanking
+from swamp.library.scan import FragmentRanking
 
 
 def parse_arguments():

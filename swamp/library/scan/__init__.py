@@ -1,6 +1,6 @@
 """This is SWAMP: Solving Structures With Alpha Membrane Pairs
 
-This module implements classes and methods to prepare search models before molecular replacement takes place.
+This module implements classes and methods to scan the SWAMP library using contact information
 """
 
 __author__ = "Filomeno Sanchez Rodriguez"

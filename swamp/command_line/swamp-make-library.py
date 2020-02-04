@@ -7,9 +7,9 @@ import argparse
 import traceback
 import pandas as pd
 from swamp.command_line import check_file_exists
-from swamp.clustering.optics import Optics
+from swamp.library.clustering.optics import Optics
 from swamp.logger.swamplogger import SwampLogger
-from swamp.library_tools.swamplibrary import SwampLibrary
+from swamp.library.tools.swamplibrary import SwampLibrary
 from swamp.searchmodel_prepare.core import Core
 
 

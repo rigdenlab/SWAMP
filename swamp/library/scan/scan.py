@@ -2,9 +2,9 @@ import os
 import abc
 import threading
 import logging
-from swamp.library_tools.swamplibrary import SwampLibrary
+from swamp.library.tools.swamplibrary import SwampLibrary
 from swamp.logger.swamplogger import SwampLogger
-from swamp.scan.threading_results import Results
+from swamp.library.scan.threading_results import Results
 
 ABC = abc.ABCMeta('ABC', (object,), {})
 

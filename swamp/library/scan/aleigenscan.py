@@ -1,7 +1,7 @@
 import os
 import swamp
 from swamp.wrappers.aleigen import AlEigen
-from swamp.scan.scan import Scan
+from swamp.library.scan.scan import Scan
 
 
 class AlEigenScan(Scan):

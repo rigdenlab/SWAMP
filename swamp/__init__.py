@@ -43,8 +43,8 @@ if StrictVersion(pandas.__version__) < StrictVersion("0.24"):
 
 TMP_DIR = os.environ["CCP4_SCR"]
 PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")
-IDEALHELICES_DIR = os.path.join(PACKAGE_PATH, "idealhelices")
-LIBRARY = os.path.join(PACKAGE_PATH, "library")
+LIBRARY = os.path.join(PACKAGE_PATH, "library", "db")
+IDEALHELICES_DIR = os.path.join(LIBRARY, "idealhelices")
 FRAG_MAPALIGN_DB = os.path.join(LIBRARY, "mapalign")
 FRAG_EIGEN_DB = os.path.join(LIBRARY, "eigen")
 FRAG_ALEIGEN_DB = os.path.join(LIBRARY, "aleigen")

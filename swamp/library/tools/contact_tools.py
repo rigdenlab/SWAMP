@@ -1,6 +1,6 @@
 import os
 import conkit.io
-from swamp.tools.pdb_tools import get_tempfile
+from swamp.library.tools.pdb_tools import get_tempfile
 from conkit.core import Contact, ContactMap, Sequence
 
 

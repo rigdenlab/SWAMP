@@ -1,4 +1,3 @@
-import os
 import swamp.mr.mrjob
 from swamp.mr.mr import Mr
 from pyjob import TaskFactory

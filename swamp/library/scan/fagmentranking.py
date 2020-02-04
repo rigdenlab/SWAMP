@@ -4,11 +4,11 @@ import conkit.io
 import itertools
 import pandas as pd
 from swamp.logger.swamplogger import SwampLogger
-from swamp.scan.targetsplit import SplitTarget
-from swamp.scan.mapalignscan import MapAlignScan
-from swamp.scan.aleigenscan import AlEigenScan
-from swamp.library_tools.swamplibrary import SwampLibrary
-from swamp.library_tools.pdb_tools import renumber_hierarchy
+from swamp.library.scan.targetsplit import SplitTarget
+from swamp.library.scan.mapalignscan import MapAlignScan
+from swamp.library.scan.aleigenscan import AlEigenScan
+from swamp.library.tools.swamplibrary import SwampLibrary
+from swamp.library.tools.pdb_tools import renumber_hierarchy
 
 
 class FragmentRanking(object):

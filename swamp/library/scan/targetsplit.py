@@ -4,8 +4,8 @@ import itertools
 import conkit.io
 from swamp.parsers.topcons import TopconsParser
 from swamp.logger.swamplogger import SwampLogger
-from swamp.library_tools.pdb_tools import extract_hierarchy_seqnumber
-from swamp.library_tools.contact_tools import extract_interhelical_cmap
+from swamp.library.tools.pdb_tools import extract_hierarchy_seqnumber
+from swamp.library.tools.contact_tools import extract_interhelical_cmap
 
 
 class SplitTarget(object):
