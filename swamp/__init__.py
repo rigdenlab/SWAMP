@@ -4,15 +4,6 @@ __author__ = "Filomeno Sanchez Rodriguez"
 __credits__ = "Daniel Rigden & Ronan Keegan"
 __email__ = "filomeno.sanchez-rodriguez@liv.ac.uk"
 
-# ------------------ NEED TO CHANGE THIS -----------------------
-
-SRC_MAPALIGN = "/home/filo/opt/map_align_v1/map_align/map_align"
-SRC_ALEIGEN = "/home/filo/opt/AL_Eigen/aleigen"
-SRC_WEIGENVECT = "/home/filo/opt/AL_Eigen/weigenvect"
-
-# ------------------ DON'T CHANGE BELOW THIS ------------------
-
-
 from swamp import version
 
 __version__ = version.__version__
@@ -60,6 +51,7 @@ FRAG_ALEIGEN_DB = os.path.join(LIBRARY, "aleigen")
 FRAG_PDB_DB = os.path.join(LIBRARY, "pdb")
 ENSEMBLE_DIR = os.path.join(LIBRARY, 'ensembles')
 DIST_MTX_DIR = os.path.join(LIBRARY, 'distance_mtx')
+
 CLUSTER_COMPOSITION_PCKL = os.path.join(ENSEMBLE_DIR, 'cluster_composition.pckl')
 CENTROID_DICT_PCKL = os.path.join(ENSEMBLE_DIR, 'centroid_dict.pckl')
 QSCORE_MTX_CSV = os.path.join(DIST_MTX_DIR, 'qscore_mtx.csv')
@@ -73,8 +65,14 @@ else:
     QSCORE_MTX_PCKL = os.path.join(DIST_MTX_DIR, 'qscore_mtx_protocol2.pckl')
     RMSD_MTX_PCKL = os.path.join(DIST_MTX_DIR, 'rmsd_mtx_protocol2.pckl')
     NALIGN_MTX_PCKL = os.path.join(DIST_MTX_DIR, 'nalign_mtx_protocol2.pckl')
+
+SRC_MAPALIGN = os.path.join(os.environ["CCP4"], "bin", "map_align")
+SRC_ALEIGEN = os.path.join(os.environ["CCP4"], "bin", "aleigen")
+SRC_WEIGENVECT = os.path.join(os.environ["CCP4"], "bin", "weigenvect")
 if not os.path.isfile(SRC_ALEIGEN):
     SRC_ALEIGEN = None
+if not os.path.isfile(SRC_WEIGENVECT):
+    SRC_WEIGENVECT = None
 if not os.path.isfile(SRC_MAPALIGN):
     SRC_MAPALIGN = None
 
