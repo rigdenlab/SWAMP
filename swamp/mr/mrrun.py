@@ -6,6 +6,7 @@ import subprocess
 from Bio import SeqIO
 from Bio.Alphabet import generic_protein
 from Bio.SeqUtils import molecular_weight
+from simbad.db import convert_dat_to_pdb
 from simbad.util.mtz_util import GetLabels
 from simbad.parsers.anode_parser import AnodeParser
 from simbad.mr.anomalous_util import AnodeSearch
@@ -397,7 +398,7 @@ class MrRun(Mr):
     @property
     def idealhelix_fname(self):
         """File name of the ideal helix to be used to extend the solution"""
-        return os.path.join(swamp.IDEALHELICES_DIR, 'ensemble_20_nativebfact_homogenous.pdb')
+        return os.path.join(swamp.IDEALHELICES_DIR, 'ensemble_20_nativebfact_homogenous.dat')
 
     @property
     def idealhelices_workdir(self):
@@ -426,15 +427,19 @@ class MrRun(Mr):
         """
 
         if ensemble_code == 'idealhelix':
-            pdbfile = os.path.join(self.idealhelix_fname)
+            datfile = os.path.join(self.idealhelix_fname)
+            pdbfile = os.path.join(self.workdir, 'idealhelix.pdb')
         else:
-            pdbfile = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.pdb' % ensemble_code)
+            datfile = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.dat' % ensemble_code)
+            pdbfile = os.path.join(self.workdir, 'ensemble_%s.pdb' % ensemble_code)
 
-        if not os.path.isfile(pdbfile):
-            self.logger.error('Searchmodel pdb file was not found! %s\nPlease make sure the '
-                              'ensemble code is correct!' % pdbfile)
+        if not os.path.isfile(datfile):
+            self.logger.error('Search model file not found! %s\nMake sure the ensemble code is correct!' % datfile)
             self.error = True
             return
+
+        convert_dat_to_pdb(datfile, pdbfile)
+
         if self.searchmodel_list and id in [x['id'] for x in self.searchmodel_list]:
             self.logger.error('A searchmodel with the same id has been already added!')
             self.error = True

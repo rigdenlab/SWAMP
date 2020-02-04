@@ -22,7 +22,7 @@ SWAMP pipeline is divided into three steps.
 
 1. SWAMP will process the target's transmembrane topology and residue contact predictions to split the structure into subtargets, each formed by residues predicted to constitute a contacting transmembrane helical pair.
 
-2. For each of these subtargets, SWAMP will use the predicted interhelical contacts to scan its library of ensembles, searching for a matching pattern of contacts. The contact maximum overlap (CMO) between the target's predicted contacts and the observed contacts of the members of the library is used to asses the likeliness to solve the structure using each search model.
+2. For each of these subtargets, SWAMP will use the predicted interhelical contacts to scan its library of ensembles, searching for a matching pattern of contacts. The contact maximum overlap (CMO) between the target's predicted contacts and the observed contacts of the members of the library is used to assess the likeliness to solve the structure using each search model.
 
 3. Finally, SWAMP will take those ensembles with the highest CMO into a molecular replacement subroutine. If possible, SWAMP will also try to combine and place multiple search models if these are found to have a high CMO across subtargets.
 
