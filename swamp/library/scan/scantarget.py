@@ -7,7 +7,7 @@ import pandas as pd
 from pyjob import TaskFactory
 from swamp.library.scan.scanjob import ScanJob
 from swamp.logger.swamplogger import SwampLogger
-from swamp.library.tools.targetsplit import SplitTarget
+from swamp.library.tools.targetsplit import TargetSplit
 from swamp.library.tools.swamplibrary import SwampLibrary
 from swamp.library.tools.pdb_tools import renumber_hierarchy
 
@@ -67,7 +67,7 @@ class ScanTarget(object):
                              logfile_level='debug')
         else:
             self._logger = logger
-        self._target = SplitTarget(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred, logger=self.logger,
+        self._target = TargetSplit(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred, logger=self.logger,
                                    conformat=self.conformat, pdb_benchmark=self.target_pdb_benchmark)
         self._con_precision_dict = None
         self._scan_pickle_dict = None
