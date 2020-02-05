@@ -72,6 +72,7 @@ class ScanTarget(object):
         self._con_precision_dict = None
         self._scan_pickle_dict = None
         self._scripts = None
+        self._results = None
 
     def __repr__(self):
 
@@ -223,6 +224,13 @@ class ScanTarget(object):
     @conpred.setter
     def conpred(self, value):
         self._conpred = value
+    @property
+    def results(self):
+        return self._results
+
+    @results.setter
+    def results(self, value):
+        self._results = value
 
     @property
     def target_pdb_benchmark(self):
@@ -459,7 +467,10 @@ class ScanTarget(object):
 
         # Get the valid searchmodels (subtarget with enough contacts and fragment with enough consco)
         valid_searchmodels = self.results.loc[self.results.CON_SCO >= consco_threshold,]
-        if not combine_searchmodels:
+        if len(set(list(valid_searchmodels.SUBTRGT_ID))) == 0:
+            self.logger.warning('None of the search models meet CMO criteria!')
+            return
+        elif not combine_searchmodels:
             self.logger.info('%s search models meet CMO criteria' % len(set(valid_searchmodels.CENTROID_ID.tolist())))
             self.ranked_searchmodels = pd.DataFrame()
             self.ranked_searchmodels['searchmodels'] = valid_searchmodels.CENTROID_ID
@@ -472,9 +483,6 @@ class ScanTarget(object):
             self.ranked_searchmodels['searchmodels'] = valid_searchmodels.CENTROID_ID
             self.ranked_searchmodels['consco'] = valid_searchmodels.CON_SCO
             self.ranked_searchmodels.sort_values(by='consco', inplace=True, ascending=False)
-            return
-        elif len(set(list(valid_searchmodels.SUBTRGT_ID))) == 0:
-            self.logger.warning('None of the subtargets had valid searchmodels!')
             return
 
         self.logger.info('Retrieving ranked combinations of search models...')
