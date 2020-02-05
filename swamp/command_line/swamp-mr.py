@@ -109,7 +109,7 @@ def main():
         if len(searchmodels) == 1:
             combination = tuple(searchmodels)
             if not combination in loaded_arrangements.keys():
-                logger.debug('Only one search model has been found in this search')
+                logger.debug('Only one search model has been found in this search: %s' % combination)
                 mr_run_dir = os.path.join(workdir, 'run_1')
                 mr_job = MrJob('search_%s_run_1' % rank, mr_run_dir, python_interpreter=args.python_interpreter)
                 mr_job.add_searchmodel(id='1', ensemble_code=combination[0])
@@ -122,7 +122,7 @@ def main():
         # Several searchmodels must be combined
         else:
             # For each searchmodel, we get all the combinations
-            logger.debug('%s search models found in this search' % len(searchmodels))
+            logger.debug('%s search models found in this search: %s' % (len(searchmodels), searchmodels))
             search_list = []
             for nsearch in range(1, len(searchmodels) + 1):
                 search_list += list(itertools.combinations(searchmodels, nsearch))
