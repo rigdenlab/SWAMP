@@ -8,7 +8,7 @@ from swamp.library.tools.pdb_tools import extract_hierarchy_seqnumber
 from swamp.library.tools.contact_tools import extract_interhelical_cmap
 
 
-class SplitTarget(object):
+class TargetSplit(object):
     """Class to split a given target protein into pairs of TM helices and their interhelical contact information
 
     :param str workdir: working directory
@@ -21,8 +21,8 @@ class SplitTarget(object):
 
     :example
 
-    >>> from swamp.scan.targetsplit import SplitTarget
-    >>> splitter = SplitTarget('<workdir>', '<conpred>', '<sspred>')
+    >>> from swamp.library.tools.targetsplit import TargetSplit
+    >>> splitter = TargetSplit('<workdir>', '<conpred>', '<sspred>')
     >>> splitter.split()
 
     """

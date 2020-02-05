@@ -1,7 +1,6 @@
 import os
 import sys
 import joblib
-import shutil
 import swamp
 import argparse
 import traceback
@@ -10,7 +9,7 @@ from swamp.mr.mrjob import MrJob
 from swamp.mr.mrarray import MrArray
 from swamp.logger.swamplogger import SwampLogger
 from swamp.command_line import check_file_exists
-from swamp.library.scan import FragmentRanking
+from swamp.library.scan.scantarget import ScanTarget
 
 
 def parse_arguments():
@@ -27,7 +26,7 @@ def parse_arguments():
     parser.add_argument("-nprocs", type=int, nargs="?", default=1, help="Number of parallel processors to use")
     parser.add_argument("-pdb_benchmark", type=check_file_exists, nargs="?", default=None,
                         help="PDB file with the solve structure (for benchmarking)")
-    parser.add_argument("-queue_platform", type=str, nargs="?", default='sge', help="Platform to execute MR runs")
+    parser.add_argument("-platform", type=str, nargs="?", default='sge', help="Platform to execute MR runs")
     parser.add_argument("-mtz_phases", type=check_file_exists, nargs="?", default=None,
                         help="MTZ file with phase information (for benchmarking)")
     parser.add_argument("-job_kill_time", type=int, nargs="?", default=4320, help='Maximum runtime of each MR run')
@@ -81,20 +80,19 @@ def main():
     logger.init(logfile=os.path.join(args.workdir, "swamp_%s.debug" % args.id), use_console=True,
                 console_level='info', logfile_level='debug')
 
-    # Fragment ranking based on the centroids
-    my_rank = FragmentRanking(os.path.join(args.workdir, 'ranking'), conpred=args.conpred, template_subset=centroids,
-                              nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
-                              alignment_algorithm_name='aleigen', logger=logger)
+    # Fragment ranking based on the centroid CMO with the predicted contacts of the target
+    my_rank = ScanTarget(os.path.join(args.workdir, 'swamp_scan'), conpred=args.conpred, template_subset=centroids,
+                         alignment_algorithm_name='aleigen', n_contacts_threshold=args.ncontacts_threshold,
+                         nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
+                         logger=logger, platform=args.platform)
     logger.info('Using contacts to assess search model quality: matching predicted contacts with observed contacts\n')
-    my_rank.rank(n_contacts_threshold=args.ncontacts_threshold)
-    my_rank.rank_searchmodels(ncontacts_threshold=args.ncontacts_threshold, consco_threshold=args.consco_threshold,
-                              combine_searchmodels=args.combine_searchmodels)
-    shutil.rmtree(my_rank.workdir)
+    my_rank.scan()
+    my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)
 
     # Create a new empty mr array
     my_array = MrArray(id=args.id, target_mtz=args.mtzfile, max_concurrent_nprocs=args.nprocs, target_fa=args.fastafile,
-                       job_kill_time=args.job_kill_time, workdir=os.path.join(args.workdir, 'mr_array'), logger=logger,
-                       platform=args.queue_platform, phased_mtz=args.mtz_phases)
+                       job_kill_time=args.job_kill_time, workdir=os.path.join(args.workdir, 'swamp_mr'), logger=logger,
+                       platform=args.platform, phased_mtz=args.mtz_phases)
 
     # Create MR runs for each of the ranked searchmodels
     loaded_arrangements = {}
@@ -105,12 +103,13 @@ def main():
             my_rank.ranked_searchmodels[my_rank.ranked_searchmodels.searchmodels == searchmodels].consco.tolist()[0])
         searchmodels = tuple([get_centroid_id(x) for x in searchmodels.split()])
         logger.debug('Loading search model no. %s/%s (CMO %s)' % (rank, n_searchmodels, cmo))
+        workdir = os.path.join(my_array.workdir, 'search_%s' % rank)
 
         # Only one searchmodel
         if len(searchmodels) == 1:
             combination = tuple(searchmodels)
             if not combination in loaded_arrangements.keys():
-                logger.debug('Only one search model has been found in this search')
+                logger.debug('Only one search model has been found in this search: %s' % combination)
                 mr_run_dir = os.path.join(workdir, 'run_1')
                 mr_job = MrJob('search_%s_run_1' % rank, mr_run_dir, python_interpreter=args.python_interpreter)
                 mr_job.add_searchmodel(id='1', ensemble_code=combination[0])
@@ -123,7 +122,7 @@ def main():
         # Several searchmodels must be combined
         else:
             # For each searchmodel, we get all the combinations
-            logger.debug('%s search models found in this search' % len(searchmodels))
+            logger.debug('%s search models found in this search: %s' % (len(searchmodels), searchmodels))
             search_list = []
             for nsearch in range(1, len(searchmodels) + 1):
                 search_list += list(itertools.combinations(searchmodels, nsearch))

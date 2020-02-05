@@ -2,8 +2,8 @@ import threading
 import logging
 
 
-class Results(object):
-    """Class to hold the results from a multi-threaded CMO scan search
+class ThreadResults(object):
+    """Class to hold the results from a multi-threaded process
 
        Implements semaphore methods to regulate thread I/O into the result list
 

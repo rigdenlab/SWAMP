@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pyjob import cexec
 from swamp.wrappers.wrapper import Wrapper
-from swamp.library.scan.threading_results import Results
+from swamp.library.tools.threadresults import ThreadResults
 from swamp.library.tools.pdb_tools import invert_hiearchy, get_tempfile
 
 
@@ -442,7 +442,7 @@ class Gesamt(Wrapper):
         tmp_files = [tmp_pdbout]
         child_threads = []
         semaphore = threading.Semaphore(value=nthreads)
-        results = Results()
+        results = ThreadResults()
 
         # Write the inverted pdb files
         for pdbfile in pdbfiles:
