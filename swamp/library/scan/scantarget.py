@@ -39,6 +39,7 @@ class ScanTarget(object):
 
     >>> from swamp.library.scan.scantarget import ScanTarget
     >>> my_rank = ScanTarget('<workdir>', '<conpred>', '<sspred>')
+    >>> my_rank.scan()
     >>> my_rank.rank()
     """
 

@@ -10,7 +10,7 @@ from swamp.mr.mrjob import MrJob
 from swamp.mr.mrarray import MrArray
 from swamp.logger.swamplogger import SwampLogger
 from swamp.command_line import check_file_exists
-from swamp.library.scan import FragmentRanking
+from swamp.library.scan.scantarget import ScanTarget
 
 
 def parse_arguments():
@@ -81,19 +81,17 @@ def main():
     logger.init(logfile=os.path.join(args.workdir, "swamp_%s.debug" % args.id), use_console=True,
                 console_level='info', logfile_level='debug')
 
-    # Fragment ranking based on the centroids
-    my_rank = FragmentRanking(os.path.join(args.workdir, 'ranking'), conpred=args.conpred, template_subset=centroids,
-                              nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
-                              alignment_algorithm_name='aleigen', logger=logger)
+    # Fragment ranking based on the centroid CMO with the predicted contacts of the target
+    my_rank = ScanTarget(os.path.join(args.workdir, 'swamp_scan'), conpred=args.conpred, template_subset=centroids,
+                         alignment_algorithm_name='aleigen', n_contacts_threshold=args.n_contacts_threshold,
+                         nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
+                         logger=logger)
     logger.info('Using contacts to assess search model quality: matching predicted contacts with observed contacts\n')
-    my_rank.rank(n_contacts_threshold=args.ncontacts_threshold)
-    my_rank.rank_searchmodels(ncontacts_threshold=args.ncontacts_threshold, consco_threshold=args.consco_threshold,
-                              combine_searchmodels=args.combine_searchmodels)
-    shutil.rmtree(my_rank.workdir)
+    my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)
 
     # Create a new empty mr array
     my_array = MrArray(id=args.id, target_mtz=args.mtzfile, max_concurrent_nprocs=args.nprocs, target_fa=args.fastafile,
-                       job_kill_time=args.job_kill_time, workdir=os.path.join(args.workdir, 'mr_array'), logger=logger,
+                       job_kill_time=args.job_kill_time, workdir=os.path.join(args.workdir, 'swamp_mr'), logger=logger,
                        platform=args.queue_platform, phased_mtz=args.mtz_phases)
 
     # Create MR runs for each of the ranked searchmodels
