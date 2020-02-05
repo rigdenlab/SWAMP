@@ -105,6 +105,7 @@ def main():
             my_rank.ranked_searchmodels[my_rank.ranked_searchmodels.searchmodels == searchmodels].consco.tolist()[0])
         searchmodels = tuple([get_centroid_id(x) for x in searchmodels.split()])
         logger.debug('Loading search model no. %s/%s (CMO %s)' % (rank, n_searchmodels, cmo))
+        workdir = os.path.join(my_array.workdir, 'search_%s' % rank)
 
         # Only one searchmodel
         if len(searchmodels) == 1:

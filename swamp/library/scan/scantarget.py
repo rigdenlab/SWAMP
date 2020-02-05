@@ -1,25 +1,25 @@
 import os
 import swamp
+import joblib
 import conkit.io
 import itertools
 import pandas as pd
+from pyjob import TaskFactory
+from swamp.library.scan.scanjob import ScanJob
 from swamp.logger.swamplogger import SwampLogger
 from swamp.library.tools.targetsplit import SplitTarget
-from swamp.library.scan.mapalignscan import MapAlignScan
-from swamp.library.scan.aleigenscan import AlEigenScan
 from swamp.library.tools.swamplibrary import SwampLibrary
 from swamp.library.tools.pdb_tools import renumber_hierarchy
 
 
-class FragmentRanking(object):
-    """Class to manage the rank of fragments in the library as potentially successful search models for a given set
-    of predicted contacts for a target.
+class ScanTarget(object):
+    """Class to scan the library and rank search models according to their CMO with a given target.
 
     Using CMO alignment tools determine the best fragments in the library to be used as search models. The target
     will be split into several subtargets (one for each helical pair with enough interhelical contact information,
-    and several contact scan instances will be created.
+    and several scan jobs will take place (one for each subtarget).
 
-    :param str workdir: working directory where the MR tasks will be executed
+    :param str workdir: working directory where the scan tasks will be executed
     :param str conpred: contact prediction file of the target
     :param str sspred: secondary structure prediction file of the target (must be topcons file)
     :param str conformat: format of the contact prediction file for the target
@@ -27,23 +27,37 @@ class FragmentRanking(object):
     :param list template_subset: set of templates to be used rather than the full fragment library (deafult: None)
     :param str target_pdb_benchmark: target's pdb file for benchmark purposes (default: None)
     :param str alignment_algorithm_name: algorithm used for CMO calculation (default: 'mapalign')
+    :param None, :obj:`swamp.logger.swamplogger.SwampLogger` logger: logging interface for the scan (default: None)
+    :param int n_contacts_threshold: min. no. of interhelical contacts to include a subtarget in the scan (default: 28)
+    :param str platform: queueing system used in the HPC where the array will be executed (default 'sge')
+    :param str queue_name: name of the HPC qeue where the tasks should be sent (default None)
+    :param str queue_environment: name of the HPC queue environment where the tasks should be sent (default None)
+    :ivar str shell_interpreter: location of the shell interpreter to be used for task execution (default '/bin/bash')
     :ivar bool error: True if errors have occurred at some point on the pipeline
 
     :example
 
-    >>> from swamp.scan.fagmentranking import FragmentRanking
-    >>> my_rank = FragmentRanking('<workdir>', '<conpred>', '<sspred>')
+    >>> from swamp.library.scan.scantarget import ScanTarget
+    >>> my_rank = ScanTarget('<workdir>', '<conpred>', '<sspred>')
     >>> my_rank.rank()
-    >>> my_rank.rank_searchmodels()
     """
 
-    def __init__(self, workdir, conpred, sspred, conformat="psicov", nthreads=1, template_subset=None,
-                 target_pdb_benchmark=None, alignment_algorithm_name='mapalign', logger=None):
+    def __init__(self, workdir, conpred, sspred, conformat="psicov", nthreads=1, template_subset=None, logger=None,
+                 target_pdb_benchmark=None, alignment_algorithm_name='mapalign', n_contacts_threshold=28,
+                 platform='sge', queue_name=None, queue_environment=None):
         self._workdir = workdir
         self._conpred = conpred
         self._sspred = sspred
         self._conformat = conformat
         self._nthreads = nthreads
+        self._target_pdb_benchmark = target_pdb_benchmark
+        self._alignment_algorithm_name = alignment_algorithm_name
+        self._template_subset = template_subset
+        self._n_contacts_threshold = n_contacts_threshold
+        self._platform = platform
+        self._queue_name = queue_name
+        self._queue_environment = queue_environment
+        self._shell_interpreter = '/bin/bash'
         self._make_workdir()
         if logger is None:
             self._logger = SwampLogger(__name__)
@@ -52,14 +66,11 @@ class FragmentRanking(object):
                              logfile_level='debug')
         else:
             self._logger = logger
-        self._results = None
-        self._ranked_searchmodels = None
-        self._target_pdb_benchmark = target_pdb_benchmark
-        self._alignment_algorithm_name = alignment_algorithm_name
-        self._template_subset = template_subset
-        self._splitter = None
+        self._target = SplitTarget(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred, logger=self.logger,
+                                   conformat=self.conformat, pdb_benchmark=self.target_pdb_benchmark)
         self._con_precision_dict = None
-        self.__metadata_scanresult_raw = None
+        self._scan_pickle_dict = None
+        self._scripts = None
 
     def __repr__(self):
 
@@ -68,7 +79,7 @@ class FragmentRanking(object):
                'target_pdb_benchmark="{_target_pdb_benchmark}", alignment_algorithm_name="{_alignment_algorithm_name}' \
                '")'.format(self.__class__.__name__, **self.__dict__)
 
-        # ------------------ Some properties ------------------
+    # ------------------ Properties ------------------
 
     @property
     def scan_header(self):
@@ -90,6 +101,54 @@ class FragmentRanking(object):
         self._ranked_searchmodels = value
 
     @property
+    def n_contacts_threshold(self):
+        return self._n_contacts_threshold
+
+    @n_contacts_threshold.setter
+    def n_contacts_threshold(self, value):
+        self._n_contacts_threshold = value
+
+    @property
+    def queue_environment(self):
+        return self._queue_environment
+
+    @queue_environment.setter
+    def queue_environment(self, value):
+        self._queue_environment = value
+
+    @property
+    def queue_name(self):
+        return self._queue_name
+
+    @queue_name.setter
+    def queue_name(self, value):
+        self._queue_name = value
+
+    @property
+    def shell_interpreter(self):
+        return self._shell_interpreter
+
+    @shell_interpreter.setter
+    def shell_interpreter(self, value):
+        self._shell_interpreter = value
+
+    @property
+    def platform(self):
+        return self._platform
+
+    @platform.setter
+    def platform(self, value):
+        self._platform = value
+
+    @property
+    def scripts(self):
+        return self._scripts
+
+    @scripts.setter
+    def scripts(self, value):
+        self._scripts = value
+
+    @property
     def logger(self):
         """Property to store the logger interface :obj:`~swamp.logger.swamplogger.SwampLogger`"""
         return self._logger
@@ -97,15 +156,6 @@ class FragmentRanking(object):
     @logger.setter
     def logger(self, value):
         self._logger = value
-
-    @property
-    def _metadata_scanresult_raw(self):
-        """Property to store the raw metadata of the scans"""
-        return self.__metadata_scanresult_raw
-
-    @_metadata_scanresult_raw.setter
-    def _metadata_scanresult_raw(self, value):
-        self.__metadata_scanresult_raw = value
 
     @property
     def con_precision_dict(self):
@@ -117,13 +167,13 @@ class FragmentRanking(object):
         self._con_precision_dict = value
 
     @property
-    def splitter(self):
+    def target(self):
         """Target splitter :obj:`~swamp.scan.targetsplit.SplitTarget`"""
-        return self._splitter
+        return self._target
 
-    @splitter.setter
-    def splitter(self, value):
-        self._splitter = value
+    @target.setter
+    def target(self, value):
+        self._target = value
 
     @property
     def template_subset(self):
@@ -140,15 +190,6 @@ class FragmentRanking(object):
     @alignment_algorithm_name.setter
     def alignment_algorithm_name(self, value):
         self._alignment_algorithm_name = value
-
-    @property
-    def results(self):
-        """Property to store the results obtained from the CMO scan"""
-        return self._results
-
-    @results.setter
-    def results(self, value):
-        self._results = value
 
     @property
     def nthreads(self):
@@ -199,37 +240,27 @@ class FragmentRanking(object):
         self._workdir = value
 
     @property
+    def scan_pickle_dict(self):
+        return self._scan_pickle_dict
+
+    @scan_pickle_dict.setter
+    def scan_pickle_dict(self, value):
+        self._scan_pickle_dict = value
+
+    @property
     def _tmp_cmap(self):
-        return os.path.join(self.workdir, "tmp_cmap.map")
+        return os.path.join(self.workdir, "tmp_cmap_{}.map")
+
+    @property
+    def _scan_workdir(self):
+        return os.path.join(self.workdir, "scan_{}")
 
     @property
     def _tmp_pdb(self):
         if self.target_pdb_benchmark is not None:
-            return os.path.join(self.workdir, 'tmp_strct.pdb')
+            return os.path.join(self.workdir, 'tmp_strct_{}.pdb')
         else:
             return None
-
-    @property
-    def _alignment_tool(self):
-        """Wrapper class for the CMO alignment to be used during the ranking"""
-
-        if self.alignment_algorithm_name == 'aleigen':
-            return AlEigenScan
-        elif self.alignment_algorithm_name == 'mapalign':
-            return MapAlignScan
-        else:
-            raise ValueError("Unrecognised alignment tool! %s" % self.alignment_algorithm_name)
-
-    @property
-    def _column_reference(self):
-        """Fields of the result table for each of the CMO algorithms"""
-
-        return {
-            'aleigen': ["SUBTRGT_RANK", "SUBTRGT_ID", "N_CON_MAP_A", "MAP_A", "MAP_B", "CON_SCO", "C1", "C2", "CMO",
-                        "ALI_LEN", "QSCORE", "RMSD", "SEQ_ID", "N_ALIGN"],
-            'mapalign': ["SUBTRGT_RANK", "SUBTRGT_ID", "N_CON_MAP_A", "MAP_A", "MAP_B", "CON_SCO", "GAP_SCO",
-                         "TOTAL_SCO", "ALI_LEN", "QSCORE", "RMSD", "SEQ_ID", "N_ALIGN"]
-        }
 
     @property
     def template_library(self):
@@ -253,7 +284,33 @@ class FragmentRanking(object):
         else:
             raise ValueError("Unrecognised alignment tool! %s" % self.alignment_algorithm_name)
 
-    # ------------------ Some general methods ------------------
+    @property
+    def _other_task_info(self):
+        """Dictionary with extra arguments for :obj:pyjob.TaskFactory"""
+
+        info = {'cwd': self.workdir, 'shell': self.shell_interpreter}
+
+        if self.platform == 'local':
+            info['processes'] = self.nthreads
+        else:
+            info['max_array_size'] = self.nthreads
+
+        return info
+
+    @property
+    def _column_reference(self):
+        """A list of fields of the result table for each of the CMO algorithms"""
+
+        if self.alignment_algorithm_name == 'aleigen':
+            return ["SUBTRGT_RANK", "SUBTRGT_ID", "N_CON_MAP_A", "MAP_A", "MAP_B", "CON_SCO", "C1", "C2", "CMO",
+                    "ALI_LEN", "QSCORE", "RMSD", "SEQ_ID", "N_ALIGN"]
+        elif self.alignment_algorithm_name == 'mapalign':
+            return ["SUBTRGT_RANK", "SUBTRGT_ID", "N_CON_MAP_A", "MAP_A", "MAP_B", "CON_SCO", "GAP_SCO",
+                    "TOTAL_SCO", "ALI_LEN", "QSCORE", "RMSD", "SEQ_ID", "N_ALIGN"]
+        else:
+            raise ValueError("Unrecognised alignment tool! %s" % self.alignment_algorithm_name)
+
+    # ------------------ Hidden methods ------------------
 
     def _make_workdir(self):
         """Create the working directory"""
@@ -261,8 +318,49 @@ class FragmentRanking(object):
         if not os.path.isdir(self.workdir):
             os.mkdir(self.workdir)
 
+    def _create_scripts(self):
+        """Create a list with all the :obj:`pyjob.Script` instances that need to be executed. There is one instance
+        for each of the subtargets that pass the no. interhelical contact threshoold"""
+
+        self.scripts = []
+        self.con_precision_dict = {}
+        self.scan_pickle_dict = {}
+
+        for idx, subtarget in enumerate(self.target.ranked_subtargets, 1):
+            self.logger.info("%s interhelical contacts found for subtarget %s" % (subtarget.ncontacts, idx))
+
+            if subtarget.ncontacts >= self.n_contacts_threshold:
+
+                self.logger.info('The no. of contacts passes the threshold. Creating a task array for subtarget.')
+                conkit.io.write(fname=self._tmp_cmap.format(idx), format=self.library_format, hierarchy=subtarget)
+
+                if self.target_pdb_benchmark is not None:
+                    renumber_hierarchy(self.target.subtargets_pdb[subtarget.id])
+                    self.target.subtargets_pdb[subtarget.id].write_pdb(self._tmp_pdb.format(idx))
+                    perfect_contacts = conkit.io.read(self._tmp_pdb.format(idx), 'pdb').top_map
+                    subtarget.sequence = perfect_contacts.sequence.deepcopy()
+                    subtarget.set_sequence_register()
+                    precision = subtarget.match(perfect_contacts).precision
+                    self.con_precision_dict[subtarget.id] = precision
+
+                scanner = ScanJob(id=idx, workdir=self._scan_workdir.format(idx),
+                                  query=self._tmp_cmap.format(idx), pdb_library=swamp.FRAG_PDB_DB,
+                                  template_subset=self.template_subset, algorithm=self.alignment_algorithm_name,
+                                  template_library=self.template_library, library_format=self.library_format,
+                                  query_pdb_benchmark=self._tmp_pdb.format(idx), logger=self.logger,
+                                  con_format=self.library_format)
+
+                self.scripts.append(scanner.script)
+                self.scan_pickle_dict[scanner.pickle_fname] = subtarget
+
+            else:
+                self.logger.info("No. of contacts below the %s threshold. "
+                                 "Subtarget will not be used in the scan." % self.n_contacts_threshold)
+
+        self.logger.info('%s subtargets will be used in the scan. Creating task now.' % len(self.scan_pickle_dict))
+
     def _make_dataframe(self, results, **kwargs):
-        """Convert the results into a :obj:`pd.Dataframe`
+        """Convert the results list into a :obj:`pd.Dataframe`
 
         :param results: Nested list with the results of each of the CMO scans
         :type results: list
@@ -272,7 +370,7 @@ class FragmentRanking(object):
         """
 
         self.results = pd.DataFrame(results)
-        self.results.columns = self._column_reference[self.alignment_algorithm_name]
+        self.results.columns = self._column_reference
         self.results["CENTROID_ID"] = [os.path.basename(fname).split('.')[0] for fname in self.results.MAP_B.to_list()]
         self._get_best_alignment(**kwargs)
 
@@ -296,25 +394,70 @@ class FragmentRanking(object):
             self.results.drop("max_score", 1, inplace=True)
             self.results.drop_duplicates(subset=list(select_by), inplace=True)
 
-    def rank_searchmodels(self, ncontacts_threshold=28, consco_threshold=0.75, combine_searchmodels=False):
-        """Get fragments groupings ranked by their combined scores. Takes in consideration same combination of fragments
-        may appear more than once with fragments in different subtargets (then the combined_consco is the maximum
-        possible)
+    # ------------------ Some general methods ------------------
 
-        :param ncontacts_threshold: no. ofinterhelical contacts to consider the search models of subtarget (default 28)
-        :type ncontacts_threshold: int
-        :param consco_threshold: contact score threshold to consider a CMO alignment valid (default 0.75)
-        :type consco_threshold: float
-        :param combine_searchmodels: if True combine search models matching different subtargets (default False)
-        :type combine_searchmodels: bool
+    def recover_results(self):
+        """Recover the results from all the :obj:`swamp.library.scan.scanjob` in the :obj:`pyjob.TaskFactory`
+
+        :returns results: a list with the results obtained for the contact map alignment across all subtargets
+        :rtype list
         """
+
+        results = []
+        for pickle_fname, subtarget in zip(self.scan_pickle_dict.keys(), self.scan_pickle_dict.values()):
+
+            if os.path.isfile(pickle_fname):
+                self.logger.debug('Retrieving results from %s' % pickle_fname)
+                current_job_results = joblib.load(pickle_fname)
+                for result in current_job_results:
+                    results.append([self.target.ranked_subtargets.index(subtarget) + 1, subtarget.id,
+                                    subtarget.ncontacts] + result)
+
+            else:
+                self.logger.warning('Cannot find pickle file! %s' % pickle_fname)
+
+        return results
+
+    def scan(self):
+        """Scan the library and compute the CMO between the observed contacts and the predicted contacts of the target.
+
+        This method will run a :obj:`` instance that contains one scan job for each of the subtargets that met the
+        no. contacts threshold.
+        """
+
+        self.logger.info(self.scan_header)
+        self.logger.info("Splitting the target into sets of contacting helical pairs")
+        self.target.split()
+        self.logger.info('Creating a list of jobs to scan the library using contacts.')
+        self._create_scripts()
+        self.logger.info('Sending jobs now.')
+        with TaskFactory(self.platform, tuple(self.scripts), **self._other_task_info) as task:
+            task.id = 'swamp_scan'
+            task.queue_name = self.queue_name
+            task.queue_environment = self.queue_environment
+            self.logger.info('Waiting for workers...')
+            task.run()
+        self.logger.info('All scan tasks have been completed! Retrieving results')
+        results = self.recover_results()
+        self._make_dataframe(results)
+
+    def rank(self, consco_threshold=0.75, combine_searchmodels=False):
+        """Get fragments groupings ranked by their combined scores. Takes in consideration same combination of fragments
+         may appear more than once with fragments in different subtargets (then the combined_consco is the maximum
+         possible)
+
+         :param consco_threshold: contact score threshold to consider a CMO alignment valid (default 0.75)
+         :type consco_threshold: float
+         :param combine_searchmodels: if True combine search models matching different subtargets (default False)
+         :type combine_searchmodels: bool
+         """
 
         if self.results is None:
             self.logger.error('Need to rank the fragments first!')
             return
 
         # Get the valid searchmodels (subtarget with enough contacts and fragment with enough consco)
-        valid_searchmodels = self.results.loc[(self.results.N_CON_MAP_A >= ncontacts_threshold) & (self.results.CON_SCO >= consco_threshold),]
+        valid_searchmodels = self.results.loc[self.results.CON_SCO >= consco_threshold,]
         if not combine_searchmodels:
             self.logger.info('%s search models meet CMO criteria' % len(set(valid_searchmodels.CENTROID_ID.tolist())))
             self.ranked_searchmodels = pd.DataFrame()
@@ -367,55 +510,3 @@ class FragmentRanking(object):
         self.ranked_searchmodels = pd.DataFrame(ranked_combination)
         self.ranked_searchmodels.columns = ['searchmodels', 'consco']
         self.ranked_searchmodels.sort_values(by='consco', inplace=True, ascending=False)
-
-    def rank(self, n_contacts_threshold=28):
-        """Rank the fragments in the library according to their contact similarity with the different helical pairs
-         in the target.
-
-         :param n_contacts_threshold: number of interhelical contacts to consider the result CMO alignments of a subtrgt
-         :type n_contacts_threshold: int
-         """
-
-        self.logger.info(self.scan_header)
-
-        tmp_results = []
-        # Get the subtargets
-        self.con_precision_dict = {}
-        self.logger.info("Splitting the target into sets of contacting helical pairs\n")
-        self.splitter = SplitTarget(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred, logger=self.logger,
-                                    conformat=self.conformat, pdb_benchmark=self.target_pdb_benchmark)
-        self.splitter.split()
-
-        # Scan the library with each subtarget
-        for idx, subtarget in enumerate(self.splitter.ranked_subtargets):
-
-            if subtarget.ncontacts >= n_contacts_threshold:
-                self.logger.info("Scanning library with subtarget %s (%s contacts)" % (idx + 1, subtarget.ncontacts))
-                conkit.io.write(fname=self._tmp_cmap, format=self.library_format, hierarchy=subtarget)
-
-                if self.target_pdb_benchmark is not None:
-                    renumber_hierarchy(self.splitter.subtargets_pdb[subtarget.id])
-                    self.splitter.subtargets_pdb[subtarget.id].write_pdb(self._tmp_pdb)
-                    perfect_contacts = conkit.io.read(self._tmp_pdb, 'pdb').top_map
-                    subtarget.sequence = perfect_contacts.sequence.deepcopy()
-                    subtarget.set_sequence_register()
-                    precision = subtarget.match(perfect_contacts).precision
-                    self.con_precision_dict[subtarget.id] = precision
-
-                scanner = self._alignment_tool(workdir=self.workdir, query=self._tmp_cmap, nthreads=self.nthreads,
-                                               pdb_library=swamp.FRAG_PDB_DB, library_format=self.library_format,
-                                               template_library=self.template_library, con_format=self.library_format,
-                                               query_pdb_benchmark=self._tmp_pdb, template_subset=self.template_subset,
-                                               logger=self.logger)
-                scanner.run()
-
-                for x in scanner.results.value:
-                    tmp_results.append([idx + 1, subtarget.id, subtarget.ncontacts] + x)
-                os.remove(self._tmp_cmap)
-
-            else:
-                self.logger.info("The number of interhelical contacts for subtarget %s is too small for a precise"
-                                 " alignment! (%s contacts)\n" % (idx + 1, subtarget.ncontacts))
-
-        self._metadata_scanresult_raw = tmp_results
-        self._make_dataframe(tmp_results)

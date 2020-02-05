@@ -21,7 +21,7 @@ class SplitTarget(object):
 
     :example
 
-    >>> from swamp.scan.targetsplit import SplitTarget
+    >>> from swamp.library.tools.targetsplit import SplitTarget
     >>> splitter = SplitTarget('<workdir>', '<conpred>', '<sspred>')
     >>> splitter.split()
 

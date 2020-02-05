@@ -5,6 +5,8 @@ Solving structures With Alpha helical Membrane Pairs
 About SWAMP
 +++++++++++
 
+Please note SWAMP is currently under development.
+
 SWAMP is an unconventional molecular replacement pipeline developed by the `Rigden <https://github.com/rigdenlab>`_ group at the University of Liverpool that exploits covariance information to determine the most suitable search models. SWAMP includes a library of ensembles built by clustering commonly observed folds of transmembrane helical pairs in close contact, mined from the `PDBTM <http://pdbtm.enzim.hu/>`_. It has been observed that there can be a high structural similarity between such small search models and an unknown structure, even when the search model comes from unrelated structures, which makes SWAMP ideal for those cases where no homolog information is available.
 
 This pipeline has been developed with the following user cases in mind:

@@ -15,7 +15,7 @@ class MrArray(Mr):
     :param str target_fa: target's fasta filename
     :param str platform: queueing system used in the HPC where the array will be executed (default 'sge')
     :param str queue_name: name of the HPC qeue where the tasks should be sent (default None)
-    :param str queue_environment: name of the HPC queue environment where the tasks should be sent (only used when queueing_system is sge (default None)
+    :param str queue_environment: name of the HPC queue environment where the tasks should be sent (default None)
     :param str phased_mtz: target's mtz filename containing phases (default None)
     :param int max_concurrent_nprocs: maximum number of  concurrent tasks to be executed in the HPC (default 1)
     :param int job_kill_time: kill time to be assigned for each of the jobs (default None)

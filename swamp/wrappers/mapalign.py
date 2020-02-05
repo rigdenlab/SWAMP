@@ -87,7 +87,7 @@ class MapAlign(Wrapper):
     def input_a(self):
         """File name of the map file A to use in the alignment"""
         if self.format_a != self._reference_mapformat:
-            return self.os.path.join(self.workdir, "{}.{}").format(self.map_a_id, self._reference_mapformat)
+            return os.path.join(self.workdir, "{}.{}").format(self.map_a_id, self._reference_mapformat)
         else:
             return self.map_a
 
@@ -95,15 +95,15 @@ class MapAlign(Wrapper):
     def input_b(self):
         """File name of the map file B to use in the alignment"""
         if self.format_b != self._reference_mapformat:
-            return self.os.path.join(self.workdir, "{}.{}").format(self.map_b_id, self._reference_mapformat)
+            return os.path.join(self.workdir, "{}.{}").format(self.map_b_id, self._reference_mapformat)
         else:
             return self.map_b
 
     @property
     def keywords(self):
         """Keywords used to calculate the alignment"""
-        return ['-a', self.input_a, '-b', self.input_b, "-sep_cut", self.sep_cut, "-gap_e", self.gap_e, "-gap_o",
-                self.gap_o, '-silent']
+        return ['-a', self.input_a, '-b', self.input_b, "-sep_cut", str(self.sep_cut), "-gap_e", str(self.gap_e),
+                "-gap_o", str(self.gap_o), '-silent']
 
     @property
     def summary_results(self):
