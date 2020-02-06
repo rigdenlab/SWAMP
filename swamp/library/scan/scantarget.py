@@ -297,7 +297,7 @@ class ScanTarget(object):
     def _other_task_info(self):
         """Dictionary with extra arguments for :obj:pyjob.TaskFactory"""
 
-        info = {'cwd': self.workdir, 'shell': self.shell_interpreter}
+        info = {'directory': self.workdir, 'shell': self.shell_interpreter}
 
         if self.platform == 'local':
             info['processes'] = self.nthreads
@@ -441,9 +441,9 @@ class ScanTarget(object):
         self._create_scripts()
         self.logger.info('Sending jobs now.')
         with TaskFactory(self.platform, tuple(self.scripts), **self._other_task_info) as task:
-            task.id = 'swamp_scan'
-            task.queue_name = self.queue_name
-            task.queue_environment = self.queue_environment
+            task.name = 'swamp_scan'
+            task.queue = self.queue_name
+            task.environment = self.queue_environment
             self.logger.info('Waiting for workers...')
             task.run()
         self.logger.info('All scan tasks have been completed! Retrieving results')

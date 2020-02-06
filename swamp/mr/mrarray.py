@@ -184,7 +184,7 @@ class MrArray(Mr):
     def _other_task_info(self):
         """Dictionary with extra arguments for :obj:pyjob.TaskFactory"""
 
-        info = {'cwd': self.workdir, 'shell': self.shell_interpreter}
+        info = {'directory': self.workdir, 'shell': self.shell_interpreter}
 
         if self.platform == 'local':
             info['processes'] = self.max_concurrent_nprocs
@@ -232,12 +232,12 @@ class MrArray(Mr):
 
         self.logger.info("Sending the MR task array to the HPC for execution")
 
-        with TaskFactory(self.platform, self.scripts, **self._other_task_info) as task:
+        with TaskFactory(self.platform, tuple(self.scripts), **self._other_task_info) as task:
             task.name = self.id
             if self.queue_name is not None:
-                task.queue_name = self.queue_name
+                task.queue = self.queue_name
             if self.queue_environment is not None:
-                task.queue_environment = self.queue_environment
+                task.environment = self.queue_environment
             task.runtime = self.job_kill_time
             task.run()
 

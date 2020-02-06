@@ -194,7 +194,7 @@ class ScanJob(ABC):
     def _python_script(self):
         """Python script to create and execute the corresponding :obj:`swamp.library.scan.scanjob` instance"""
 
-        script = 'cd {}\nphenix.python << EOF\nfrom swamp.library.scan.scanjob import ScanJob\n'.format(self.workdir)
+        script = 'cd {}\nccp4-python << EOF\nfrom swamp.library.scan.scanjob import ScanJob\n'.format(self.workdir)
 
         attributes = ['id', 'workdir', 'query', 'template_library', 'con_format', 'library_format', 'pdb_library',
                       'query_pdb_benchmark', 'template_subset', 'algorithm']
