@@ -42,7 +42,8 @@ class ScanJob(ABC):
     """
 
     def __init__(self, id, workdir, query, template_library, con_format="psicov", library_format="pdb", logger=None,
-                 query_pdb_benchmark=None, pdb_library=None, template_subset=None, algorithm='mapalign'):
+                 query_pdb_benchmark=None, pdb_library=None, template_subset=None, algorithm='mapalign',
+                 python_interpreter=os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python')):
 
         self._id = id
         self._query = query
@@ -56,6 +57,7 @@ class ScanJob(ABC):
         self._pdb_library = pdb_library
         self._template_subset = template_subset
         self._algorithm = algorithm
+        self._python_interpreter = python_interpreter
         if algorithm == 'aleigen':
             self._compute_eigenvector()
 
@@ -135,6 +137,14 @@ class ScanJob(ABC):
         self._library_format = value
 
     @property
+    def python_interpreter(self):
+        return self._python_interpreter
+
+    @python_interpreter.setter
+    def python_interpreter(self, value):
+        self._python_interpreter = value
+
+    @property
     def results(self):
         return self._results
 
@@ -194,7 +204,8 @@ class ScanJob(ABC):
     def _python_script(self):
         """Python script to create and execute the corresponding :obj:`swamp.library.scan.scanjob` instance"""
 
-        script = 'cd {}\nccp4-python << EOF\nfrom swamp.library.scan.scanjob import ScanJob\n'.format(self.workdir)
+        script = 'cd {}\n{} << EOF\nfrom swamp.library.scan.scanjob import ScanJob\n'.format(self.workdir,
+                                                                                             self.python_interpreter)
 
         attributes = ['id', 'workdir', 'query', 'template_library', 'con_format', 'library_format', 'pdb_library',
                       'query_pdb_benchmark', 'template_subset', 'algorithm']

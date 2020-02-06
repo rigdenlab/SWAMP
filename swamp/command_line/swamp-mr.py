@@ -84,7 +84,7 @@ def main():
     my_rank = ScanTarget(os.path.join(args.workdir, 'swamp_scan'), conpred=args.conpred, template_subset=centroids,
                          alignment_algorithm_name='aleigen', n_contacts_threshold=args.ncontacts_threshold,
                          nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
-                         logger=logger, platform=args.platform)
+                         logger=logger, platform=args.platform, python_interpreter=args.python_interpreter)
     logger.info('Using contacts to assess search model quality: matching predicted contacts with observed contacts\n')
     my_rank.scan()
     my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)

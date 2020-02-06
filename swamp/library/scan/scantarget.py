@@ -45,6 +45,7 @@ class ScanTarget(object):
 
     def __init__(self, workdir, conpred, sspred, conformat="psicov", nthreads=1, template_subset=None, logger=None,
                  target_pdb_benchmark=None, alignment_algorithm_name='mapalign', n_contacts_threshold=28,
+                 python_interpreter=os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python'),
                  platform='sge', queue_name=None, queue_environment=None):
         self._workdir = workdir
         self._conpred = conpred
@@ -59,6 +60,7 @@ class ScanTarget(object):
         self._queue_name = queue_name
         self._queue_environment = queue_environment
         self._shell_interpreter = '/bin/bash'
+        self._python_interpreter = python_interpreter
         self._make_workdir()
         if logger is None:
             self._logger = SwampLogger(__name__)
@@ -133,6 +135,14 @@ class ScanTarget(object):
     @shell_interpreter.setter
     def shell_interpreter(self, value):
         self._shell_interpreter = value
+
+    @property
+    def python_interpreter(self):
+        return self._python_interpreter
+
+    @python_interpreter.setter
+    def python_interpreter(self, value):
+        self._python_interpreter = value
 
     @property
     def platform(self):
@@ -224,6 +234,7 @@ class ScanTarget(object):
     @conpred.setter
     def conpred(self, value):
         self._conpred = value
+
     @property
     def results(self):
         return self._results
@@ -357,7 +368,7 @@ class ScanTarget(object):
                                   template_subset=self.template_subset, algorithm=self.alignment_algorithm_name,
                                   template_library=self.template_library, library_format=self.library_format,
                                   query_pdb_benchmark=self._tmp_pdb.format(idx), logger=self.logger,
-                                  con_format=self.library_format)
+                                  con_format=self.library_format, python_interpreter=self.python_interpreter)
 
                 self.scripts.append(scanner.script)
                 self.scan_pickle_dict[scanner.pickle_fname] = subtarget
@@ -442,8 +453,10 @@ class ScanTarget(object):
         self.logger.info('Sending jobs now.')
         with TaskFactory(self.platform, tuple(self.scripts), **self._other_task_info) as task:
             task.name = 'swamp_scan'
-            task.queue = self.queue_name
-            task.environment = self.queue_environment
+            if self.queue_environment is not None:
+                task.environment = self.queue_environment
+            if self.queue_name is not None:
+                task.queue = self.queue_name
             self.logger.info('Waiting for workers...')
             task.run()
         self.logger.info('All scan tasks have been completed! Retrieving results')
