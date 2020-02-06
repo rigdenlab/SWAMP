@@ -14,7 +14,6 @@ from swamp.library.clustering.optics import Optics
 from swamp.library.tools.swamplibrary import SwampLibrary
 
 
-
 def parse_arguments():
     """Parse command line arguments"""
 
@@ -26,6 +25,8 @@ def parse_arguments():
                         help='A file with the list of homolog structures to exclude')
     parser.add_argument("-overwrite_library", action='store_true',
                         help='If set, overwrite the SWAMP library with the new ensembles')
+    parser.add_argument("-core_ensemble", action='store_true',
+                        help='If set, ensembles will be trimmed to the core alignment between the models')
     args = parser.parse_args()
 
     return args
@@ -89,7 +90,7 @@ def main():
     logger.info('Generating index of ensembles')
     my_cluster.get_cluster_dict(my_cluster.labels, inplace=True)
     my_cluster.get_centroid_dict()
-    my_cluster.get_ensemble_dict(qscore_threshold=0.83, nthreads=35)
+    my_cluster.get_ensemble_dict(qscore_threshold=0.83, nthreads=args.nprocs)
 
     if args.overwrite_library:
 
@@ -100,13 +101,16 @@ def main():
                 core_ensemble_fname = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.pdb' % ensebmle_id)
                 dat_fname = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.dat' % ensebmle_id)
                 my_cluster.ensemble_dict[ensebmle_id].write_pdb(full_ensemble_fname)
-                core = Core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), pdbin=full_ensemble_fname,
-                            pdbout=core_ensemble_fname, logger=logger)
-                core.prepare()
-                convert_pdb_to_dat(core_ensemble_fname, dat_fname)
-                os.remove(core_ensemble_fname)
+                if args.core_ensemble:
+                    core = Core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), pdbin=full_ensemble_fname,
+                                pdbout=core_ensemble_fname, logger=logger)
+                    core.prepare()
+                    convert_pdb_to_dat(core_ensemble_fname, dat_fname)
+                    os.remove(core_ensemble_fname)
+                    shutil.rmtree(core.workdir)
+                else:
+                    convert_pdb_to_dat(full_ensemble_fname, dat_fname)
                 os.remove(full_ensemble_fname)
-                shutil.rmtree(core.workdir)
 
         # Save the cluster information
         joblib.dump(my_cluster.composition_dict, swamp.CLUSTER_COMPOSITION_PCKL, protocol=2)
