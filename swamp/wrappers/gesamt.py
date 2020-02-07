@@ -413,7 +413,7 @@ class Gesamt(Wrapper):
         :rtype tuple
         """
 
-        def _align(idx, combination):
+        def _align(idx, combination, logger):
             """Align the specified combination of pdbfiles. It uses a semaphore for multiple thread coordination.
 
             :param idx: index of the combination to be aligned (used as identifier)
@@ -425,7 +425,7 @@ class Gesamt(Wrapper):
             """
 
             semaphore.acquire()
-            gesamt = Gesamt(workdir=None, logger=None, pdbin=[fname for fname in combination], mode="alignment")
+            gesamt = Gesamt(workdir=None, logger=logger, pdbin=[fname for fname in combination], mode="alignment")
             gesamt.run()
             if gesamt.qscore:
                 results.register((idx, gesamt.qscore))
@@ -456,7 +456,7 @@ class Gesamt(Wrapper):
         # Determine the alignment with the highest qscore
         all_combinations = list(itertools.product(*input_list))
         for idx, combination in enumerate(all_combinations):
-            t = threading.Thread(target=_align, args=(idx, combination,))
+            t = threading.Thread(target=_align, args=(idx, combination, logger,))
             child_threads.append(t.getName())
             t.start()
         mainthread = threading.current_thread()
