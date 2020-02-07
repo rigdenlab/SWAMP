@@ -1,0 +1,12 @@
+gemmi
+numpy
+pandas
+joblib
+dill
+prettytable
+simbad
+sklearn
+scipy
+pyjob ==0.4
+conkit ==0.11
+bio ==1.74
