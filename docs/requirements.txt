@@ -4,9 +4,9 @@ pandas
 joblib
 uqfoundation/dill 
 jazzband/prettytable 
-rigdenlab/SIMBAD
+SIMBAD
 sklearn
 scipy
 pyjob ==0.4
 conkit ==0.11
-biopython/biopython ==1.74
+biopython ==1.74
