@@ -41,8 +41,8 @@ class MrRun(Mr):
     :param str target_mtz: target's mtz filename
     :param str phased_mtz: target's mtz filename containing phases (default: None)
     :param str phaser_sgalternative: parameter to be passed to phaser as SGAL_SELE (default 'NONE')
-    :param float phaser_packcutoff: parameter to be passed to phaser as setPACK_CUTO (default 40.0)
-    :param float phaser_peaks_rotcutoff: parameter to be passed to phaser as setPEAK_ROTA_CUTO (default 80.0)
+    :param float, None phaser_packcutoff: parameter to be passed to phaser as setPACK_CUTO (default None)
+    :param float, None phaser_peaks_rotcutoff: parameter to be passed to phaser as setPEAK_ROTA_CUTO (default None)
     :param bool phaser_early_kill: pipeline will stop execution if phaser placement is incorrect when True (default False)
     :param int phaser_timeout: parameter to be passed to phaser as KILL_TIME (default 360)
     :param bool extend_solution: if True then solutions will be completed with ideal helices (default False)
@@ -63,8 +63,8 @@ class MrRun(Mr):
 
     def __init__(self, id, workdir, target_fa, target_mtz, phased_mtz=None, threads=1, phaser_sgalternative="NONE",
                  phaser_early_kill=True, ignore_anomalous=True, silent=False, save_disk_space=False, logger=None,
-                 phaser_timeout=1440, extend_solution=True, quiet_start=False, phaser_packcutoff=40.0,
-                 phaser_peaks_rotcutoff=75.0):
+                 phaser_timeout=1440, extend_solution=True, quiet_start=False, phaser_packcutoff=None,
+                 phaser_peaks_rotcutoff=None):
 
         super(MrRun, self).__init__(id, target_fa, target_mtz, workdir, phased_mtz=phased_mtz, logger=logger,
                                     silent=silent)
@@ -560,7 +560,6 @@ class MrRun(Mr):
                         'target_mtz': self.target_mtz,
                         'phased_mtz': self.phased_mtz,
                         'phaser_sgalternative': self.phaser_sgalternative,
-                        'phaser_peaks_rotcutoff': 75.0,
                         'phaser_packcutoff': 40.0,
                         'phaser_timeout': 1440,
                         'silent': False,

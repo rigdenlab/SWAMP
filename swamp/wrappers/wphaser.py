@@ -29,10 +29,10 @@ class Phaser(Wrapper):
      :type timeout: int
      :param threads: number of threads to be used with phasern(default 1)
      :type threads: int
-     :param packcutoff: parameter to be passed to phaser as setPACK_CUTO (default 5.0)
-     :type packcutoff: float
-     :param peaks_rotcutoff: parameter to be passed to phaser as setPEAK_ROTA_CUTO (default 75.0)
-     :type peaks_rotcutoff: float
+     :param packcutoff: parameter to be passed to phaser as setPACK_CUTO (default None)
+     :type packcutoff: float, None
+     :param peaks_rotcutoff: parameter to be passed to phaser as setPEAK_ROTA_CUTO (default None)
+     :type peaks_rotcutoff: float, None
      :param phased_mtz: target's mtz filename containing phases (default: None)
      :type phased_mtz: str
      :param silent_start: if True, the logger will not display the start banner (default False)
@@ -62,7 +62,7 @@ class Phaser(Wrapper):
     """
 
     def __init__(self, workdir, mtzfile, mw, nchains_asu=1, sgalternative='NONE', logger=None, early_kill=True,
-                 timeout=360, threads=1, phased_mtz=None, silent_start=False, packcutoff=5.0, peaks_rotcutoff=75.0):
+                 timeout=360, threads=1, phased_mtz=None, silent_start=False, packcutoff=None, peaks_rotcutoff=None):
 
         super(Phaser, self).__init__(logger=logger, workdir=workdir, silent_start=silent_start)
 
@@ -495,10 +495,12 @@ class Phaser(Wrapper):
         self.input_mr_auto.setREFL_DATA(self.run_mr_dat.getREFL_DATA())
         self.input_mr_auto.setMUTE(mute)
         self.input_mr_auto.setSGAL_SELE(self.sgalternative)
-        self.input_mr_auto.setPACK_SELE('PERCENT')
-        self.input_mr_auto.setPACK_CUTO(self.packcutoff)
-        self.input_mr_auto.setPEAK_ROTA_SELE('PERCENT')
-        self.input_mr_auto.setPEAK_ROTA_CUTO(self.peaks_rotcutoff)
+        if self.packcutoff is not None:
+            self.input_mr_auto.setPACK_SELE('PERCENT')
+            self.input_mr_auto.setPACK_CUTO(self.packcutoff)
+        if self.peaks_rotcutoff is not None:
+            self.input_mr_auto.setPEAK_ROTA_SELE('PERCENT')
+            self.input_mr_auto.setPEAK_ROTA_CUTO(self.peaks_rotcutoff)
         self.input_mr_auto.setCOMP_BY("ASU")
         self.input_mr_auto.addCOMP_PROT_MW_NUM(self.mw, self.nchains_asu)
 
