@@ -2,11 +2,11 @@ gemmi
 numpy
 pandas
 joblib
-dill
-prettytable
-simbad
+uqfoundation/dill 
+jazzband/prettytable 
+rigdenlab/SIMBAD
 sklearn
 scipy
 pyjob ==0.4
 conkit ==0.11
-bio ==1.74
+biopython/biopython ==1.74
