@@ -94,22 +94,34 @@ def main():
 
     if args.overwrite_library:
 
-        # Dump the ensembles into pdb files
+        # Save the ensembles into db
         for ensebmle_id in my_cluster.ensemble_dict.keys():
             if my_cluster.ensemble_dict[ensebmle_id] is not None:
-                full_ensemble_fname = os.path.join(swamp.TMP_DIR, 'ensemble_%s.pdb' % ensebmle_id)
-                core_ensemble_fname = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.pdb' % ensebmle_id)
+
+                # Copy the centroid
+                centroid_fname = os.path.join(swamp.ENSEMBLE_DIR, 'centroid_%s.pdb' % ensebmle_id)
+
+                shutil.copyfile(os.path.join(swamp.FRAG_PDB_DB, '%s.pdb' % my_cluster.centroid_dict[ensebmle_id]),
+                                centroid_fname)
+
+                # Write the ensemble
+                full_ensemble_fname = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.pdb' % ensebmle_id)
                 my_cluster.ensemble_dict[ensebmle_id].write_pdb(full_ensemble_fname)
+
+                # Write core only if requested
                 if args.core_ensemble:
+                    core_ensemble_fname = os.path.join(swamp.TMP_DIR, 'ensemble_%s.pdb' % ensebmle_id)
                     core = Core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), pdbin=full_ensemble_fname,
                                 pdbout=core_ensemble_fname, logger=logger)
                     core.prepare()
-                    compress(core_ensemble_fname)
-                    os.remove(core_ensemble_fname)
+                    shutil.move(core_ensemble_fname, full_ensemble_fname)
                     shutil.rmtree(core.workdir)
-                else:
-                    compress(full_ensemble_fname)
+
+                # Compress files
+                compress(full_ensemble_fname)
                 os.remove(full_ensemble_fname)
+                compress(centroid_fname)
+                os.remove(centroid_fname)
 
         # Save the cluster information
         joblib.dump(my_cluster.composition_dict, swamp.CLUSTER_COMPOSITION_PCKL, protocol=2)
