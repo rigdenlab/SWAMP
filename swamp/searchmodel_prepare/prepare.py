@@ -1,7 +1,8 @@
 import abc
 import os
-import logging
 import gemmi
+import shutil
+import logging
 from swamp.wrappers.gesamt import Gesamt
 
 ABC = abc.ABCMeta('ABC', (object,), {})
@@ -168,12 +169,15 @@ class PrepareSearchModel(ABC):
             self.error = True
 
     def _merge_models(self):
-
         """Create a function to merge all the modified models together"""
 
-        gesamt = Gesamt(mode='alignment', pdbin=self.modified_model_list, pdbout=self.pdbout, workdir=self.workdir,
-                        logger=self.logger)
-        gesamt.run()
+        if len(self.model_list) > 1:
+            gesamt = Gesamt(mode='alignment', pdbin=self.modified_model_list, pdbout=self.pdbout, workdir=self.workdir,
+                            logger=self.logger)
+            gesamt.run()
+
+        else:
+            shutil.copyfile(self.modified_model_list[0], self.pdbout)
 
     def make_workdir(self):
 

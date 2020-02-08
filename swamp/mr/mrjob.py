@@ -155,7 +155,7 @@ mr_run = MrRun(id='{_id}', workdir='{_workdir}', target_fa='{_target_fa}', targe
         for searchmodel in self.searchmodel_list:
             args_list = []
             for arg in searchmodel.keys():
-                args_list.append('%s=%s' % (arg, searchmodel[arg]))
+                args_list.append('%s="%s"' % (arg, searchmodel[arg]))
             script += 'mr_run.add_searchmodel(%s)\n' % ', '.join(args_list)
 
         script += """if not mr_run.error:
