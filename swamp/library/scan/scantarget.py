@@ -368,12 +368,7 @@ class ScanTarget(object):
                     precision = subtarget.match(perfect_contacts).precision
                     self.con_precision_dict[subtarget.id] = precision
 
-                scanner = ScanJob(id=idx, workdir=self._scan_workdir.format(idx),
-                                  query=self._tmp_cmap.format(idx), pdb_library=swamp.FRAG_PDB_DB,
-                                  template_subset=self.template_subset, algorithm=self.alignment_algorithm_name,
-                                  template_library=self.template_library, library_format=self.library_format,
-                                  query_pdb_benchmark=self._tmp_pdb.format(idx), logger=self.logger,
-                                  con_format=self.library_format, python_interpreter=self.python_interpreter)
+                scanner = ScanJob(**self._scan_info(idx))
 
                 self.scripts.append(scanner.script)
                 self.scan_pickle_dict[scanner.pickle_fname] = subtarget
@@ -383,6 +378,26 @@ class ScanTarget(object):
                                  "Subtarget will not be used in the scan." % self.n_contacts_threshold)
 
         self.logger.info('%s subtargets will be used in the scan. Creating task now.' % len(self.scan_pickle_dict))
+
+    def _scan_info(self, idx):
+        """Create a dictionary with the arguments for the library scan
+
+        :param idx: the index of the scan job
+        :type idx: int
+        :returns dictionary wuth the arguments to use for the library scan
+        :rtype dict
+        """
+
+        info = {'workdir': self._scan_workdir.format(idx), 'pdb_library': swamp.FRAG_PDB_DB,
+                'query': self._tmp_cmap.format(idx), 'algorithm': self.alignment_algorithm_name,
+                'template_subset': self.template_subset, 'python_interpreter': self.python_interpreter,
+                'template_library': self.template_library, 'library_format': self.library_format,
+                'logger': self.logger, 'con_format': self.library_format, 'id': idx}
+
+        if self.target_pdb_benchmark is not None:
+            info['query_pdb_benchmark'] = self._tmp_pdb.format(idx),
+
+        return info
 
     def _make_dataframe(self, results, **kwargs):
         """Convert the results list into a :obj:`pd.Dataframe`
