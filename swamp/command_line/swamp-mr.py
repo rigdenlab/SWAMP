@@ -154,7 +154,7 @@ def main():
                     logger.debug('Processing arrangement %s/%s (%s)' % (nrun, len(search_list), mr_run_dir))
                     mr_job = MrJob(job_id, mr_run_dir, python_interpreter=args.python_interpreter)
                     for idx, centroid in enumerate(combination, 1):
-                        mr_job.add_searchmodel(id=idx, ensemble_code=centroid)
+                        mr_job.add_searchmodel(id=idx, ensemble_code=centroid,  mod='polyala')
                     my_array.add(mr_job)
 
                 else:
