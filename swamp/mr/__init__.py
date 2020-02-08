@@ -8,14 +8,21 @@ __author__ = "Filomeno Sanchez Rodriguez"
 __credits__ = "Daniel Rigden, & Ronan Keegan"
 __email__ = "filomeno.sanchez-rodriguez@liv.ac.uk"
 
-import dill
-import prettytable
+import os
 from swamp import version
 from distutils.version import StrictVersion
 
 __version__ = version.__version__
 
-import os
+try:
+    import dill
+except ImportError:
+    raise ImportError('Dill must be installed before using SWAMP-MR')
+
+try:
+    import prettytable
+except ImportError:
+    raise ImportError('Prettytable must be installed before using SWAMP-MR')
 
 if "CCP4" not in os.environ:
     raise RuntimeError("Cannot find CCP4 root directory")

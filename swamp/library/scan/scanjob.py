@@ -68,6 +68,14 @@ class ScanJob(ABC):
         else:
             self._logger = logger
 
+        if self.query_pdb_benchmark is not None:
+            if self.pdb_library is None:
+                self.logger.warning('PDB benchmark was requested but a PDB template library was not set!')
+                self.query_pdb_benchmark = None
+            elif not os.path.isdir(self.pdb_library):
+                self.logger.warning('PDB benchmark was requested but %s PDB library was not found!' % self.pdb_library)
+                self.query_pdb_benchmark = None
+
     # ------------------ Some general properties ------------------
 
     @property

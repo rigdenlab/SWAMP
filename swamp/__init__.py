@@ -10,24 +10,37 @@ __version__ = version.__version__
 
 import os
 import sys
-import gemmi
-import pyjob
-import conkit
-import pandas
-import numpy
-import Bio
 import warnings
-
 from distutils.version import StrictVersion
+
+try:
+    import gemmi
+except ImportError:
+    raise ImportError('Gemmi must be installed before using SWAMP')
+try:
+    import pyjob
+except ImportError:
+    raise ImportError('Pyjob must be installed before using SWAMP')
+try:
+    import conkit
+except ImportError:
+    raise ImportError('Conkit must be installed before using SWAMP')
+try:
+    import pandas
+except ImportError:
+    raise ImportError('Pandas must be installed before using SWAMP')
+try:
+    import numpy
+except ImportError:
+    raise ImportError('Numpy must be installed before using SWAMP')
+try:
+    import Bio
+except ImportError:
+    raise ImportError('Biopython must be installed before using SWAMP')
+
 
 if "CCP4" not in os.environ:
     raise RuntimeError("Cannot find CCP4 root directory")
-
-if StrictVersion(numpy.__version__) < StrictVersion("1.16"):
-    raise RuntimeError("Numpy must be version >= 1.16")
-
-if StrictVersion(gemmi.__version__) < StrictVersion("0.3.1"):
-    raise RuntimeError("Gemmi must be version >= 0.3.1")
 
 if StrictVersion(pyjob.__version__) < StrictVersion("0.4"):
     raise RuntimeError("Pyjob must be version >= 0.4")
@@ -38,8 +51,6 @@ if StrictVersion(conkit.__version__) < StrictVersion("0.11.3"):
 if StrictVersion(Bio.__version__) < StrictVersion("1.74"):
     raise RuntimeError("Biopython must be version >= 1.74")
 
-if StrictVersion(pandas.__version__) < StrictVersion("0.24"):
-    raise RuntimeError("Pandas must be version >= 0.24")
 
 TMP_DIR = os.environ["CCP4_SCR"]
 PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")

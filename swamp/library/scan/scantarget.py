@@ -24,14 +24,14 @@ class ScanTarget(object):
     :param str sspred: secondary structure prediction file of the target (must be topcons file)
     :param str conformat: format of the contact prediction file for the target
     :param str nthreads: number of parallel threads to use for CMO calculations (default: 1)
-    :param list template_subset: set of templates to be used rather than the full fragment library (deafult: None)
-    :param str target_pdb_benchmark: target's pdb file for benchmark purposes (default: None)
+    :param list, None template_subset: set of templates to be used rather than the full fragment library (deafult: None)
+    :param str, None target_pdb_benchmark: target's pdb file for benchmark purposes (default: None)
     :param str alignment_algorithm_name: algorithm used for CMO calculation (default: 'mapalign')
     :param None, :obj:`swamp.logger.swamplogger.SwampLogger` logger: logging interface for the scan (default: None)
     :param int n_contacts_threshold: min. no. of interhelical contacts to include a subtarget in the scan (default: 28)
-    :param str platform: queueing system used in the HPC where the array will be executed (default 'sge')
-    :param str queue_name: name of the HPC qeue where the tasks should be sent (default None)
-    :param str queue_environment: name of the HPC queue environment where the tasks should be sent (default None)
+    :param str, None platform: queueing system used in the HPC where the array will be executed (default 'sge')
+    :param str, None queue_name: name of the HPC qeue where the tasks should be sent (default None)
+    :param str, None queue_environment: name of the HPC queue environment where the tasks should be sent (default None)
     :ivar str shell_interpreter: location of the shell interpreter to be used for task execution (default '/bin/bash')
     :ivar bool error: True if errors have occurred at some point on the pipeline
 
@@ -61,7 +61,12 @@ class ScanTarget(object):
         self._queue_environment = queue_environment
         self._shell_interpreter = '/bin/bash'
         self._python_interpreter = python_interpreter
+        self._con_precision_dict = None
+        self._scan_pickle_dict = None
+        self._scripts = None
+        self._results = None
         self._make_workdir()
+
         if logger is None:
             self._logger = SwampLogger(__name__)
             self.logger.init(logfile=os.path.join(self.workdir, "swamp_rank.log"), use_console=True,
@@ -71,10 +76,10 @@ class ScanTarget(object):
             self._logger = logger
         self._target = TargetSplit(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred, logger=self.logger,
                                    conformat=self.conformat, pdb_benchmark=self.target_pdb_benchmark)
-        self._con_precision_dict = None
-        self._scan_pickle_dict = None
-        self._scripts = None
-        self._results = None
+
+        if self.target_pdb_benchmark is not None and not os.path.isdir(swamp.FRAG_PDB_DB):
+            self.logger.warning('PDB benchmark was requested but %s PDB library was not found!' % swamp.FRAG_PDB_DB)
+            self.target_pdb_benchmark = None
 
     def __repr__(self):
 
