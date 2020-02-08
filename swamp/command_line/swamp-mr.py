@@ -34,10 +34,12 @@ def parse_arguments():
                         help='Minimum no. of interhelical contacts to compute CMO of subtarget')
     parser.add_argument("-consco_threshold", type=float, nargs="?", default=0.75,
                         help='Minimum CMO between predicted and observed contacts to use search model')
-    parser.add_argument('-python_interpreter', type=str, nargs='?', help='Use a given python interpreter on MR runs',
+    parser.add_argument('-python_interpreter', type=str, nargs='?', help='Indicate a python interpreter for MR runs',
                         default=os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python'))
     parser.add_argument("-combine_searchmodels", action='store_true',
-                        help='If set, SWAMP will try to combine search models matching different parts of the structure')
+                        help='If set, combine search models matching different parts of the structure')
+    parser.add_argument("-use_centroids", action='store_true',
+                        help='Centroids used as search models as well (only supported if not combining search models)')
     args = parser.parse_args()
 
     return args
@@ -68,6 +70,8 @@ def main():
     models if they are found to have a high CMO with different parts of the unkown structure.
     """
 
+    # ------------------ PARSE ARGUMENTS AND CREATE LOGGER ------------------
+
     args = parse_arguments()
     if not os.path.isdir(args.workdir):
         os.mkdir(args.workdir)
@@ -80,7 +84,8 @@ def main():
     logger.init(logfile=os.path.join(args.workdir, "swamp_%s.debug" % args.id), use_console=True,
                 console_level='info', logfile_level='debug')
 
-    # Fragment ranking based on the centroid CMO with the predicted contacts of the target
+    # ------------------ SCAN LIBRARY OF SEARCH MODELS USING CONTACTS ------------------
+
     my_rank = ScanTarget(os.path.join(args.workdir, 'swamp_scan'), conpred=args.conpred, template_subset=centroids,
                          alignment_algorithm_name='aleigen', n_contacts_threshold=args.ncontacts_threshold,
                          nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
@@ -89,12 +94,12 @@ def main():
     my_rank.scan()
     my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)
 
-    # Create a new empty mr array
+    # ------------------ CREATE MR TASK ARRAY AND LOAD INDIVIDUAL MR JOBS ------------------
+
     my_array = MrArray(id=args.id, target_mtz=args.mtzfile, max_concurrent_nprocs=args.nprocs, target_fa=args.fastafile,
                        job_kill_time=args.job_kill_time, workdir=os.path.join(args.workdir, 'swamp_mr'), logger=logger,
                        platform=args.platform, phased_mtz=args.mtz_phases)
 
-    # Create MR runs for each of the ranked searchmodels
     loaded_arrangements = {}
     n_searchmodels = len(list(my_rank.ranked_searchmodels.searchmodels))
     for rank, searchmodels in enumerate(list(my_rank.ranked_searchmodels.searchmodels), 1):
@@ -105,21 +110,32 @@ def main():
         logger.debug('Loading search model no. %s/%s (CMO %s)' % (rank, n_searchmodels, cmo))
         workdir = os.path.join(my_array.workdir, 'search_%s' % rank)
 
-        # Only one searchmodel
+        # ------------------ ONLY ONE SEARCH MODEL ------------------
+
         if len(searchmodels) == 1:
             combination = tuple(searchmodels)
             if not combination in loaded_arrangements.keys():
+
                 logger.debug('Only one search model has been found in this search: %s' % combination)
                 mr_run_dir = os.path.join(workdir, 'run_1')
                 mr_job = MrJob('search_%s_run_1' % rank, mr_run_dir, python_interpreter=args.python_interpreter)
-                mr_job.add_searchmodel(id='1', ensemble_code=combination[0])
+                mr_job.add_searchmodel(id='1', ensemble_code=combination[0], mod='polyala')
                 loaded_arrangements[combination] = 'search_%s_run_1' % rank
                 my_array.add(mr_job)
+
+                if args.use_centroids:
+                    logger.debug('Creating MR job for centroid at search_%s_run_2' % rank)
+                    mr_run_dir = os.path.join(workdir, 'run_2')
+                    mr_job = MrJob('search_%s_run_2' % rank, mr_run_dir, python_interpreter=args.python_interpreter)
+                    mr_job.add_searchmodel(id='1', ensemble_code=combination[0], model='centroid', mod='polyala')
+                    my_array.add(mr_job)
+
             else:
                 logger.debug('%s is already used a searchmodel in the MR instance with the id '
                              '%s' % (combination, loaded_arrangements[combination]))
 
-        # Several searchmodels must be combined
+        # ------------------ COMBINE MULTIPLE SEARCH MODELS ------------------
+
         else:
             # For each searchmodel, we get all the combinations
             logger.debug('%s search models found in this search: %s' % (len(searchmodels), searchmodels))
@@ -145,7 +161,8 @@ def main():
                     logger.debug('The set of search models %s is already used in the MR instance with the id '
                                  '%s' % (combination, loaded_arrangements[combination]))
 
-    # Run task array
+    # ------------------ SUBMIT MR TASK ARRAY FOR EXECUTION ------------------
+
     my_array.run()
     my_array.append_results()
     my_array.create_result_table_outfile()

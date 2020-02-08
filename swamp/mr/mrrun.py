@@ -407,7 +407,8 @@ class MrRun(Mr):
 
     # ------------------ Some general methods ------------------
 
-    def add_searchmodel(self, id, ensemble_code, ermsd=0.1, nsearch=1, disable_check=True, modification='unmod'):
+    def add_searchmodel(self, id, ensemble_code, ermsd=0.1, nsearch=1, disable_check=True, mod='unmod',
+                        model='ensemble'):
         """Add a search model to the phaser run
 
         :param id: unique identifier for the search model to be added
@@ -420,8 +421,10 @@ class MrRun(Mr):
         :type nsearch: int
         :param disable_check: passed to :obj:`phaser.InputMR_AUTO.setENSE_DISA_CHEC` (default True)
         :type disable_check: bool
-        :param modification: indicate how to prepare the search model (default 'unmod')
-        :type modification: str
+        :param mod: indicate how to prepare the search model (default 'unmod')
+        :type mod: str
+        :param model: indicate if the search model is an ensemble or a centroid (default 'ensemble')
+        :type model: str
         :returns nothing
         :rtype None
         """
@@ -430,24 +433,24 @@ class MrRun(Mr):
             gzfile = os.path.join(self.idealhelix_fname)
             pdbfile = os.path.join(self.workdir, 'idealhelix.pdb')
         else:
-            gzfile = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.pdb.gz' % ensemble_code)
-            pdbfile = os.path.join(self.workdir, 'ensemble_%s.pdb' % ensemble_code)
+            gzfile = os.path.join(swamp.ENSEMBLE_DIR, '%s_%s.pdb.gz' % (model, ensemble_code))
+            pdbfile = os.path.join(self.workdir, '%s_%s.pdb' % (model, ensemble_code))
 
         if not os.path.isfile(gzfile):
             self.logger.error('Search model file not found! %s\nMake sure the ensemble code is correct!' % gzfile)
             self.error = True
             return
 
-        decompress(gzfile, pdbfile)
-
         if self.searchmodel_list and id in [x['id'] for x in self.searchmodel_list]:
             self.logger.error('A searchmodel with the same id has been already added!')
             self.error = True
             return
 
-        if modification != 'unmod':
-            fname = self.prepared_searchmodel_fname.format(id, modification)
-            self.prepare_search_model(modification=modification, pdbin=pdbfile, workdir=self.searchmodel_dir,
+        decompress(gzfile, pdbfile)
+
+        if mod != 'unmod':
+            fname = self.prepared_searchmodel_fname.format(id, mod)
+            self.prepare_search_model(modification=mod, pdbin=pdbfile, workdir=self.searchmodel_dir,
                                       pdbout=fname)
         else:
             fname = pdbfile
@@ -579,23 +582,24 @@ class MrRun(Mr):
         self.idealhelix_run.run()
         self.results += self.idealhelix_run.results
 
-    def prepare_search_model(self, modification='polyALA', **kwargs):
+    def prepare_search_model(self, modification='polyala', **kwargs):
         """ Method to prepare the search model with a given modification protocol
 
-        :param modification: indicates the modification to be used (default 'polyALA')
+        :param modification: indicates the modification to be used (default 'polyala')
         :type modification: str
         :param kwargs: arguments to be passed to :obj:`swamp.searchmodel_prepare.prepare`
         :type kwargs: dict
         :returns nothing
         :rtype None
+        :raises ValueError if the modification is not recognised (unmod, polyala, molrep, scwrl, centroid, bfactor)
         """
 
-        self.logger.info('Preparing searchmodel pdbfile for MR run')
+        self.logger.info('Preparing searchmodel for MR run (modification: %s)' % modification)
 
         if modification == "unmod":
             shutil.copyfile(kwargs['pdbin'], kwargs['pdbout'])
             return
-        elif modification == "polyALA":
+        elif modification == "polyala":
             prep = PolyALA(**kwargs)
         elif modification == "core":
             prep = Core(**kwargs)
@@ -605,6 +609,8 @@ class MrRun(Mr):
             prep = Centroid(**kwargs)
         elif modification == "molrep":
             prep = Molrep(**kwargs)
+        else:
+            raise ValueError('Unrecognised search model preparation mode: %s' % modification)
 
         prep.prepare()
 
