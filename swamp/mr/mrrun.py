@@ -6,7 +6,6 @@ import subprocess
 from Bio import SeqIO
 from Bio.Alphabet import generic_protein
 from Bio.SeqUtils import molecular_weight
-from simbad.db import convert_dat_to_pdb
 from simbad.util.mtz_util import GetLabels
 from simbad.parsers.anode_parser import AnodeParser
 from simbad.mr.anomalous_util import AnodeSearch
@@ -15,10 +14,11 @@ from cctbx.crystal import symmetry
 from iotbx import reflection_file_reader
 import swamp
 from swamp.mr.mr import Mr
-from swamp.wrappers.wphaser import Phaser
-from swamp.wrappers.wrefmac import wRefmac
 from swamp.wrappers.shelxe import Shelxe
 from swamp.wrappers.crank2 import Crank2
+from swamp.wrappers.wphaser import Phaser
+from swamp.wrappers.wrefmac import wRefmac
+from swamp.library.tools import decompress
 from swamp.searchmodel_prepare.core import Core
 from swamp.searchmodel_prepare.polyala import PolyALA
 from swamp.searchmodel_prepare.bfactor import Bfactor
@@ -398,7 +398,7 @@ class MrRun(Mr):
     @property
     def idealhelix_fname(self):
         """File name of the ideal helix to be used to extend the solution"""
-        return os.path.join(swamp.IDEALHELICES_DIR, 'ensemble_20_nativebfact_homogenous.dat')
+        return os.path.join(swamp.IDEALHELICES_DIR, 'ensemble_20_nativebfact_homogenous.pdb.gz')
 
     @property
     def idealhelices_workdir(self):
@@ -427,18 +427,18 @@ class MrRun(Mr):
         """
 
         if ensemble_code == 'idealhelix':
-            datfile = os.path.join(self.idealhelix_fname)
+            gzfile = os.path.join(self.idealhelix_fname)
             pdbfile = os.path.join(self.workdir, 'idealhelix.pdb')
         else:
-            datfile = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.dat' % ensemble_code)
+            gzfile = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.pdb.gz' % ensemble_code)
             pdbfile = os.path.join(self.workdir, 'ensemble_%s.pdb' % ensemble_code)
 
-        if not os.path.isfile(datfile):
-            self.logger.error('Search model file not found! %s\nMake sure the ensemble code is correct!' % datfile)
+        if not os.path.isfile(gzfile):
+            self.logger.error('Search model file not found! %s\nMake sure the ensemble code is correct!' % gzfile)
             self.error = True
             return
 
-        convert_dat_to_pdb(datfile, pdbfile)
+        decompress(gzfile, pdbfile)
 
         if self.searchmodel_list and id in [x['id'] for x in self.searchmodel_list]:
             self.logger.error('A searchmodel with the same id has been already added!')

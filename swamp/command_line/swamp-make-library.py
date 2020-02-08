@@ -6,7 +6,7 @@ import swamp
 import argparse
 import traceback
 import pandas as pd
-from simbad.db import convert_pdb_to_dat
+from swamp.library.tools import compress
 from swamp.searchmodel_prepare.core import Core
 from swamp.logger.swamplogger import SwampLogger
 from swamp.command_line import check_file_exists
@@ -99,17 +99,16 @@ def main():
             if my_cluster.ensemble_dict[ensebmle_id] is not None:
                 full_ensemble_fname = os.path.join(swamp.TMP_DIR, 'ensemble_%s.pdb' % ensebmle_id)
                 core_ensemble_fname = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.pdb' % ensebmle_id)
-                dat_fname = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.dat' % ensebmle_id)
                 my_cluster.ensemble_dict[ensebmle_id].write_pdb(full_ensemble_fname)
                 if args.core_ensemble:
                     core = Core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), pdbin=full_ensemble_fname,
                                 pdbout=core_ensemble_fname, logger=logger)
                     core.prepare()
-                    convert_pdb_to_dat(core_ensemble_fname, dat_fname)
+                    compress(core_ensemble_fname)
                     os.remove(core_ensemble_fname)
                     shutil.rmtree(core.workdir)
                 else:
-                    convert_pdb_to_dat(full_ensemble_fname, dat_fname)
+                    compress(full_ensemble_fname)
                 os.remove(full_ensemble_fname)
 
         # Save the cluster information
