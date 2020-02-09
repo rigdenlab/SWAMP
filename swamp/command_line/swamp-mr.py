@@ -26,7 +26,12 @@ def parse_arguments():
     parser.add_argument("-nprocs", type=int, nargs="?", default=1, help="Number of parallel processors to use")
     parser.add_argument("-pdb_benchmark", type=check_file_exists, nargs="?", default=None,
                         help="PDB file with the solve structure (for benchmarking)")
-    parser.add_argument("-platform", type=str, nargs="?", default='sge', help="Platform to execute MR runs")
+    parser.add_argument("-platform", type=str, nargs="?", default='sge',
+                        help="Platform to execute MR runs (default sge)")
+    parser.add_argument("-environment", type=str, nargs="?", default=None,
+                        help="Select a environment for execution of HPC tasks (default None)")
+    parser.add_argument("-queue", type=str, nargs="?", default=None,
+                        help="Queue name to send jobs in the HPC (default None)")
     parser.add_argument("-mtz_phases", type=check_file_exists, nargs="?", default=None,
                         help="MTZ file with phase information (for benchmarking)")
     parser.add_argument("-job_kill_time", type=int, nargs="?", default=4320, help='Maximum runtime of each MR run')
@@ -89,7 +94,8 @@ def main():
     my_rank = ScanTarget(os.path.join(args.workdir, 'swamp_scan'), conpred=args.conpred, template_subset=centroids,
                          alignment_algorithm_name='aleigen', n_contacts_threshold=args.ncontacts_threshold,
                          nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
-                         logger=logger, platform=args.platform, python_interpreter=args.python_interpreter)
+                         logger=logger, platform=args.platform, python_interpreter=args.python_interpreter,
+                         queue_environment=args.environment, queue_name=args.queue)
     logger.info('Using contacts to assess search model quality: matching predicted contacts with observed contacts\n')
     my_rank.scan()
     my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)
@@ -98,7 +104,8 @@ def main():
 
     my_array = MrArray(id=args.id, target_mtz=args.mtzfile, max_concurrent_nprocs=args.nprocs, target_fa=args.fastafile,
                        job_kill_time=args.job_kill_time, workdir=os.path.join(args.workdir, 'swamp_mr'), logger=logger,
-                       platform=args.platform, phased_mtz=args.mtz_phases)
+                       platform=args.platform, phased_mtz=args.mtz_phases, queue_name=args.queue,
+                       queue_environment=args.environment)
 
     loaded_arrangements = {}
     n_searchmodels = len(list(my_rank.ranked_searchmodels.searchmodels))
@@ -154,7 +161,7 @@ def main():
                     logger.debug('Processing arrangement %s/%s (%s)' % (nrun, len(search_list), mr_run_dir))
                     mr_job = MrJob(job_id, mr_run_dir, python_interpreter=args.python_interpreter)
                     for idx, centroid in enumerate(combination, 1):
-                        mr_job.add_searchmodel(id=idx, ensemble_code=centroid,  mod='polyala')
+                        mr_job.add_searchmodel(id=idx, ensemble_code=centroid, mod='polyala')
                     my_array.add(mr_job)
 
                 else:
