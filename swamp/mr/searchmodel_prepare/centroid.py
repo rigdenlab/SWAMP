@@ -1,6 +1,6 @@
 import os
-from swamp.searchmodel_prepare.prepare import PrepareSearchModel
-from swamp.searchmodel_prepare.polyala import PolyALA
+from swamp.mr.searchmodel_prepare.prepare import PrepareSearchModel
+from swamp.mr.searchmodel_prepare.polyala import PolyALA
 
 
 class Centroid(PrepareSearchModel):

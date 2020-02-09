@@ -13,17 +13,17 @@ from mmtbx.scaling.matthews import matthews_rupp
 from cctbx.crystal import symmetry
 from iotbx import reflection_file_reader
 import swamp
-from swamp.mr.mr import Mr
+from swamp.mr.core.mr import Mr
 from swamp.wrappers.shelxe import Shelxe
 from swamp.wrappers.crank2 import Crank2
 from swamp.wrappers.wphaser import Phaser
 from swamp.wrappers.wrefmac import wRefmac
 from swamp.library.tools import decompress
-from swamp.searchmodel_prepare.core import Core
-from swamp.searchmodel_prepare.polyala import PolyALA
-from swamp.searchmodel_prepare.bfactor import Bfactor
-from swamp.searchmodel_prepare.molrep import Molrep
-from swamp.searchmodel_prepare.centroid import Centroid
+from swamp.mr.searchmodel_prepare.core import Core
+from swamp.mr.searchmodel_prepare.polyala import PolyALA
+from swamp.mr.searchmodel_prepare.bfactor import Bfactor
+from swamp.mr.searchmodel_prepare.molrep import Molrep
+from swamp.mr.searchmodel_prepare.centroid import Centroid
 
 
 class MrRun(Mr):

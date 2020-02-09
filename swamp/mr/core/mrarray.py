@@ -1,5 +1,5 @@
-import swamp.mr.mrjob
-from swamp.mr.mr import Mr
+import swamp.mr.core.mrjob
+from swamp.mr.core.mr import Mr
 from pyjob import TaskFactory
 
 
@@ -30,8 +30,8 @@ class MrArray(Mr):
 
     :example:
 
-    >>> from swamp.mr.mrarray import MrArray
-    >>> from swamp.mr.mrjob import MrJob
+    >>> from swamp.mr.core.mrarray import MrArray
+    >>> from swamp.mr.core.mrjob import MrJob
     >>> mr_array = MrArray('<id>', '<workdir>', '<target_mtz>', 'target_fasta>')
     >>> mr_array.add(MrJob('<id>', '<workdir>'))
     >>> print(mr_array)
@@ -207,7 +207,7 @@ class MrArray(Mr):
         :raises ValueError: MR job with the same id is already contained in the array
         """
 
-        if not isinstance(value, swamp.mr.mrjob.MrJob):
+        if not isinstance(value, swamp.mr.core.mrjob.MrJob):
             raise TypeError('Can only add MrJob instances to an MrArray!')
 
         if value.id in self:

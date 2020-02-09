@@ -4,7 +4,7 @@ import shutil
 from Bio import SeqIO
 from pyjob import cexec
 from Bio.Alphabet import generic_protein
-from swamp.searchmodel_prepare.prepare import PrepareSearchModel
+from swamp.mr.searchmodel_prepare.prepare import PrepareSearchModel
 
 
 class Molrep(PrepareSearchModel):

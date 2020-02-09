@@ -1,8 +1,8 @@
 import os
 import math
 from Bio.PDB import *
-from swamp.searchmodel_prepare.prepare import PrepareSearchModel
-from swamp.searchmodel_prepare.core import Core
+from swamp.mr.searchmodel_prepare.prepare import PrepareSearchModel
+from swamp.mr.searchmodel_prepare.core import Core
 
 
 class Bfactor(PrepareSearchModel):

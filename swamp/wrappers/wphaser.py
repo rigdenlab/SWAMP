@@ -4,7 +4,7 @@ import collections
 from simbad.util import mtz_util
 from swamp.wrappers.wrapper import Wrapper
 from swamp.wrappers.wrefmac import wRefmac
-from swamp.searchmodel_prepare.polyala import PolyALA
+from swamp.mr.searchmodel_prepare.polyala import PolyALA
 from phaser import InputMR_DAT, runMR_DAT, InputMR_AUTO, runMR_AUTO
 
 

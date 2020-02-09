@@ -1,6 +1,6 @@
 import os
 import sys
-from swamp.searchmodel_prepare.prepare import PrepareSearchModel
+from swamp.mr.searchmodel_prepare.prepare import PrepareSearchModel
 sys.path.extend([os.path.join(os.environ['CCP4'], 'lib', 'py2')])
 from mrbump.seq_align.MRBUMP_gesamt import Gesamt as MRBUMP_Gesamt
 

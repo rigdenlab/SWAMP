@@ -3,7 +3,7 @@ import gemmi
 from Bio import SeqIO
 from Bio.Alphabet import generic_protein
 from swamp.library.tools.pdb_tools import renumber_hierarchy
-from swamp.searchmodel_prepare.prepare import PrepareSearchModel
+from swamp.mr.searchmodel_prepare.prepare import PrepareSearchModel
 
 
 class PolyALA(PrepareSearchModel):
