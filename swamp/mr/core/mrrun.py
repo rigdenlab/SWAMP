@@ -21,9 +21,6 @@ from swamp.wrappers.wrefmac import wRefmac
 from swamp.library.tools import decompress
 from swamp.mr.searchmodel_prepare.core import Core
 from swamp.mr.searchmodel_prepare.polyala import PolyALA
-from swamp.mr.searchmodel_prepare.bfactor import Bfactor
-from swamp.mr.searchmodel_prepare.molrep import Molrep
-from swamp.mr.searchmodel_prepare.centroid import Centroid
 
 
 class MrRun(Mr):
@@ -591,7 +588,7 @@ class MrRun(Mr):
         :type kwargs: dict
         :returns nothing
         :rtype None
-        :raises ValueError if the modification is not recognised (unmod, polyala, molrep, scwrl, centroid, bfactor)
+        :raises ValueError if the modification is not recognised (valid mods: unmod, polyala, core)
         """
 
         self.logger.info('Preparing searchmodel for MR run (modification: %s)' % modification)
@@ -603,12 +600,6 @@ class MrRun(Mr):
             prep = PolyALA(**kwargs)
         elif modification == "core":
             prep = Core(**kwargs)
-        elif modification == "bfactor":
-            prep = Bfactor(**kwargs)
-        elif modification == "centroid":
-            prep = Centroid(**kwargs)
-        elif modification == "molrep":
-            prep = Molrep(**kwargs)
         else:
             raise ValueError('Unrecognised search model preparation mode: %s' % modification)
 
@@ -617,10 +608,6 @@ class MrRun(Mr):
         if prep.error:
             self.error = True
             self.logger.warning("Search model modification wasn't completed due to previous errors...")
-
-            print(modification)
-            print(self.id)
-            print(self.searchmodel_list)
 
     def characterise_searchmodel(self, searchmodel_filename):
         """Method to characterise a given search model (no. of models, no. of residues and avg. qscore of the ensemble)
