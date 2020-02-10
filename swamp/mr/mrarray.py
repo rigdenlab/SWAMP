@@ -249,5 +249,11 @@ class MrArray(Mr):
         """Load and append the results for each of the child MrJob instances"""
 
         for job in self:
-            for result in job.results:
-                self.results.append(result)
+
+            if job.results is not None:
+                self.logger.debug('Recovering results of job %s' % job.id)
+                for result in job.results:
+                    self.results.append(result)
+
+            else:
+                self.logger.debug('Cannot find any results for job %s' % job.id)
