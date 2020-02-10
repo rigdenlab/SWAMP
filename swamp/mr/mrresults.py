@@ -12,14 +12,18 @@ class MrResults(object):
     :type workdir: str
     """
 
-    def __init__(self, workdir):
+    def __init__(self, workdir, logger=None):
 
         assert os.path.isdir(workdir), "Cannot find work_dir: %s" % workdir
         self.mr_dir = os.path.join(workdir, 'swamp_mr')
         assert os.path.isdir(self.mr_dir), "Cannot find Mr results directory: %s" % self.mr_dir
         self.pickle_list = self.lookup_pickles(self.mr_dir)
-        self.logger = SwampLogger(__name__)
-        self.logger.init(use_console=True, console_level='info')
+        if logger is None:
+            self.logger = SwampLogger(__name__)
+            self.logger.init(use_console=True, console_level='info')
+        else:
+            self.logger = logger
+
         self.logger.info(self.logger_header)
         self.results = []
         self._recover_results()

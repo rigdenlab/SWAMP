@@ -243,12 +243,11 @@ class MrArray(Mr):
 
         self.logger.info('All tasks in the array have been completed!')
         self.logger.info('Retrieving results')
-        self.append_results()
 
     def append_results(self):
         """Load and append the results for each of the child MrJob instances"""
 
-        for job in self:
+        for job in self.job_list:
 
             if job.results is not None:
                 self.logger.debug('Recovering results of job %s' % job.id)

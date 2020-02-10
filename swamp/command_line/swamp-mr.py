@@ -7,6 +7,7 @@ import traceback
 import itertools
 from swamp.mr.mrjob import MrJob
 from swamp.mr.mrarray import MrArray
+from swamp.mr.mrresults import MrResults
 from swamp.logger.swamplogger import SwampLogger
 from swamp.command_line import check_file_exists
 from swamp.library.scan.scantarget import ScanTarget
@@ -164,9 +165,8 @@ def main():
     # ------------------ SUBMIT MR TASK ARRAY FOR EXECUTION ------------------
 
     my_array.run()
-    my_array.append_results()
-    my_array.create_result_table_outfile()
-    my_array.store_pickle()
+    results = MrResults(os.path.join(args.workdir), logger=logger)
+    results.report_results()
 
 
 if __name__ == "__main__":
