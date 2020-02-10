@@ -7,7 +7,7 @@ import traceback
 import itertools
 from swamp.mr.core.mrjob import MrJob
 from swamp.mr.core.mrarray import MrArray
-from swamp.mr.mrresults import MrResults
+from swamp.mr.core.mrresults import MrResults
 from swamp.logger.swamplogger import SwampLogger
 from swamp.command_line import check_file_exists
 from swamp.library.scan.scantarget import ScanTarget
