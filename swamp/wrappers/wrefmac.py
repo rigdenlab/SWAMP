@@ -1,6 +1,7 @@
 import os
 from pyjob import cexec
 from swamp.wrappers.wrapper import Wrapper
+from swamp.parsers.refmacparser import RefmacParser
 
 
 class wRefmac(Wrapper):
@@ -221,30 +222,18 @@ class wRefmac(Wrapper):
         :rtype None
         """
 
-        reached_end = False
-        for line in self.logcontents.split("\n"):
-            if "Final results" in line:
-                reached_end = True
-            elif reached_end and "R factor" in line:
-                self.rfactor = line.split()[3].rstrip().encode('utf-8')
-                self.rfactor_delta = (line.split()[2].rstrip().encode('utf-8'), self.rfactor)
-            elif reached_end and "R free" in line:
-                self.rfree = line.split()[3].rstrip().encode('utf-8')
-                self.rfree_delta = (line.split()[2].rstrip().encode('utf-8'), self.rfree)
-            elif reached_end and "Rms BondLength" in line:
-                self.bondlenght_delta = (
-                    line.split()[2].rstrip().encode('utf-8'), line.split()[3].rstrip().encode('utf-8'))
-            elif reached_end and "Rms BondAngle" in line:
-                self.bondangle_delta = (
-                    line.split()[2].rstrip().encode('utf-8'), line.split()[3].rstrip().encode('utf-8'))
-            elif reached_end and "Rms ChirVolume" in line:
-                self.chirvol_delta = (
-                    line.split()[2].rstrip().encode('utf-8'), line.split()[3].rstrip().encode('utf-8'))
-        # If there is no rfree or rfactor, there was an error
-        if self.rfactor == "NA" and self.rfree == "NA":
-            self.logger.error("refmac did not report Rfree and Rfactor !!")
+        parser = RefmacParser(self.logcontents, logger=self.logger)
+        parser.parse()
+
+        # If there was an error
+        if parser.error:
             self.error = True
+            self.logger.warning('Previous detected while parsing refmac output!')
             return
+
+        self.self.rfactor, self.rfree, self.rfactor_delta, self.rfree_delta, self.bondlenght_delta, \
+        self.bondangle_delta, self.chirvol_delta = parser.summary
+
         # If everything is ok so far, get the CC
         if self.phased_mtz is not None:
             self.local_CC, self.overall_CC = self.get_cc(os.path.join(self.workdir, "phenix"), self.phased_mtz,

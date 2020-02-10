@@ -468,6 +468,9 @@ class ScanTarget(object):
         self.logger.info(self.scan_header)
         self.logger.info("Splitting the target into sets of contacting helical pairs")
         self.target.split()
+        if self.target.error:
+            self.logger.warning('Previous errors prevent scanning the library with the target contacts!')
+            return
         self.logger.info('Creating a list of jobs to scan the library using contacts.')
         self._create_scripts()
         self.logger.info('Sending jobs now.')

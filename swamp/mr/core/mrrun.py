@@ -1,7 +1,8 @@
 import os
-import shutil
 import gemmi
 import shlex
+import swamp
+import shutil
 import subprocess
 from Bio import SeqIO
 from Bio.Alphabet import generic_protein
@@ -12,7 +13,6 @@ from simbad.mr.anomalous_util import AnodeSearch
 from mmtbx.scaling.matthews import matthews_rupp
 from cctbx.crystal import symmetry
 from iotbx import reflection_file_reader
-import swamp
 from swamp.mr.core.mr import Mr
 from swamp.wrappers.shelxe import Shelxe
 from swamp.wrappers.crank2 import Crank2

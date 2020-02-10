@@ -3,6 +3,7 @@ import math
 from pyjob import cexec
 from shutil import copyfile
 from swamp.wrappers.wrapper import Wrapper
+from swamp.parsers.shelxeparser import ShelxeParser
 from swamp.wrappers.mtz2various import Mtz2Various
 
 
@@ -264,31 +265,9 @@ class Shelxe(Wrapper):
         :rtype None
         """
 
-        # Get cc average delta from the logfile
-        cc_scores = []
-        for line in self.logcontents.split("\n"):
-            if 'Overall CC between native Eobs and Ecalc (from fragment)' in line:
-                self.cc_eobs_ecalc = line.split("=")[1].lstrip().rstrip()[:-1]
-            elif 'CC for partial structure against native data =' in line:
-                cc_scores.append(
-                    float(line.rstrip().lstrip().split("=")[1].lstrip().replace(" %", "").lstrip().rstrip()))
-        self.average_cc_delta = sum([cc_scores[n] - cc_scores[n - 1] for n in range(1, len(cc_scores))]) / (
-                len(cc_scores) - 1)
-
-        # Get the cc and acl from the output pdb file
-        with open(self.output_pdb, "r") as fhandle:
-            for line in fhandle:
-                if "TITLE" in line:
-                    self.cc = line.split("=")[1].split("%")[0].rstrip().lstrip()
-                    shelxe_residues = float(line.split("%")[1].split()[0].rstrip().lstrip())
-                    shelxe_chains = int(line.split("%")[1].split()[3].rstrip().lstrip())
-                    self.acl = str(round(shelxe_residues / shelxe_chains))
-                    break
-        fhandle.close()
-
-        # Determine if there was a solution
-        if self.cc != "NA" and float(self.cc) >= 25:
-            self.solution = "YES"
+        parser = ShelxeParser(fname=self.output_pdb, stdout=self.logcontents, logger=self.logger)
+        parser.parse()
+        self.cc, self.acl, self.cc_eobs_ecalc, self.average_cc_delta, self.solution = parser.summary
 
     def run(self):
         """Run shelxe on the shell"""

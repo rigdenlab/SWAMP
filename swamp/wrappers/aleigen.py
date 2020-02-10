@@ -4,6 +4,7 @@ import conkit.io
 import numpy as np
 from pyjob import cexec
 from swamp.wrappers.mapalign import MapAlign
+from swamp.parsers.aleigenparser import AleigenParser
 
 
 class AlEigen(MapAlign):
@@ -171,17 +172,14 @@ class AlEigen(MapAlign):
         :rtype None
         """
 
-        self.alignment = {}
-        for line in self.logcontents.split("\n"):
-            line = line.split()
-            if len(line) == 4 and line[0] != "Score":
-                self.con_sco = float(line[0])
-                self.c1 = int(line[1])
-                self.c2 = int(line[2])
-                self.cmo = float(line[3])
-            elif len(line) == 2:
-                # residue_b => residue_a
-                self.alignment[int(line[1])] = int(line[0])
+        parser = AleigenParser(logger=self.logger, stdout=self.logcontents)
+        parser.parse()
+
+        if parser.error:
+            self.error = True
+            self.logger.warning('Previous errors while parsing aleigen output detected!')
+        else:
+            self.alignment, self.con_sco, self.cmo, self.c1, self.c2 = parser.summary
 
     @staticmethod
     def create_eigen_vectors(cmap, vector_output, map_format='aleigen'):
