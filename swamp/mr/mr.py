@@ -178,14 +178,19 @@ class Mr(ABC):
     def table_contents(self):
         """String to be written to the result table file"""
 
-        x = PrettyTable(self._result_table_fields)
+        self.results = sorted(self.results, key=lambda x: x[9] if x[9] != 'NA' else float('0.0'), reverse=True)
+
+        table = PrettyTable(self._result_table_fields)
         for result in self.results:
             if len(result) == len(self._result_table_fields):
-                x.add_row(result)
-        x.sortby = "SHXE_CC"
-        x.reversesort = True
+                table.add_row(result)
+            else:
+                self.logger.warning('Results out of bounds! %s' % ', '.join(result))
 
-        return x.get_string()
+        table.sortby = 'SHXE_CC'
+        table.reversesort = True
+
+        return table.get_string()
 
     # ------------------ Some general methods ------------------
 

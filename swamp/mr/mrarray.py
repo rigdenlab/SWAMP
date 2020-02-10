@@ -252,8 +252,7 @@ class MrArray(Mr):
 
             if job.results is not None:
                 self.logger.debug('Recovering results of job %s' % job.id)
-                for result in job.results:
-                    self.results.append(result)
+                self.results += job.results
 
             else:
                 self.logger.debug('Cannot find any results for job %s' % job.id)

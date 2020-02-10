@@ -129,12 +129,10 @@ class MrJob(object):
         pickle_fname = os.path.join(self.workdir, "results.pckl")
 
         if os.path.isfile(pickle_fname):
-            results = []
             with open(pickle_fname, 'rb') as pickle_fhandle:
                 mr_run = dill.load(pickle_fhandle)
             pickle_fhandle.close()
-            results += mr_run.results
-            return results
+            return mr_run.results
 
         else:
             return None
