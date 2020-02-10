@@ -5,6 +5,7 @@ import numpy as np
 from pyjob import cexec
 from swamp.wrappers.wrapper import Wrapper
 from swamp.wrappers.gesamt import Gesamt
+from swamp.parsers.mapalignparser import MapAlignParser
 
 
 class MapAlign(Wrapper):
@@ -304,18 +305,14 @@ class MapAlign(Wrapper):
         :rtype None
         """
 
-        self.alignment = {}
-        for line in self.logcontents.split("\n"):
-            if line != "" and line.split()[0] == "MAX":
-                line = line.split()
-                self.con_sco = float(line[4])
-                self.gap_sco = float(line[5])
-                self.total_sco = float(line[6])
-                self.alignment_length = float(line[7])
-                for residue in line[8:]:
-                    residue = residue.split(":")
-                    # residue_b => residue_a
-                    self.alignment[int(residue[1])] = int(residue[0])
+        parser = MapAlignParser(logger=self.logger, stdout=self.logcontents)
+        parser.parse()
+
+        if parser.error:
+            self.error = True
+            self.logger.warning('Previous errors while parsing map_align output detected!')
+        else:
+            self.alignment, self.con_sco, self.gap_sco, self.total_sco, self.alignment_length = parser.summary
 
     def benchmark(self):
         """Perform a structural alignment between the actual structures for benchmarking purposes"""

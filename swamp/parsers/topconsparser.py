@@ -19,10 +19,15 @@ class TopconsParser(Parser):
     >>> my_parser.parse()
     """
 
-    def __init__(self, fname):
+    def __init__(self, fname, logger=None):
         self._tmhelices = None
         self._residue_topology = None
-        super(TopconsParser, self).__init__(fname)
+        super(TopconsParser, self).__init__(fname, logger=logger)
+
+    @property
+    def summary(self):
+        """Abstract property to store a summary of the parsed figures of merit"""
+        pass
 
     @property
     def tmhelices(self):
@@ -43,9 +48,8 @@ class TopconsParser(Parser):
     def parse(self):
         """Parse the topcons prediction file and retrieve the TM topology"""
 
-        self._check_input()
         if self.error:
-            self.logger.error("Error detected, please check input is correct...")
+            self.logger.warning("Previous errors prevent parsing TOPCONS file!")
             return
 
         with open(self.fname, "r") as fhandle:

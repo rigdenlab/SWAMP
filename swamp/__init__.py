@@ -51,6 +51,8 @@ if StrictVersion(conkit.__version__) < StrictVersion("0.11.3"):
 if StrictVersion(Bio.__version__) < StrictVersion("1.74"):
     raise RuntimeError("Biopython must be version >= 1.74")
 
+if StrictVersion(pandas.__version__) < StrictVersion("0.24"):
+    raise RuntimeError("Pandas must be version >= 0.24")
 
 TMP_DIR = os.environ["CCP4_SCR"]
 PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")

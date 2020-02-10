@@ -1,7 +1,7 @@
 import os
 import dill
 from pyjob import Script
-import swamp.mr.mrarray
+import swamp.mr.core.mrarray
 
 
 class MrJob(object):
@@ -110,7 +110,7 @@ class MrJob(object):
 
         if value is None:
             pass
-        elif not isinstance(value, swamp.mr.mrarray.MrArray):
+        elif not isinstance(value, swamp.mr.core.mrarray.MrArray):
             raise TypeError('Parent array must be a swamp.mr.mrarray.MrArray instance!')
         else:
             self._parent_array = value
@@ -143,7 +143,7 @@ class MrJob(object):
 
         script = """cd {_workdir}
 {_python_interpreter} << EOF
-from swamp.mr.mrrun import MrRun
+from swamp.mr.core.mrrun import MrRun
 mr_run = MrRun(id='{_id}', workdir='{_workdir}', target_fa='{_target_fa}', target_mtz='{_target_mtz}')\n""".format(
             **self.__dict__)
 

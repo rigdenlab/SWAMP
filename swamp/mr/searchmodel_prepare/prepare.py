@@ -9,17 +9,25 @@ ABC = abc.ABCMeta('ABC', (object,), {})
 
 
 class PrepareSearchModel(ABC):
-    """Abstract class for serch model preparation"""
+    """Abstract class for serch model preparation
 
-    def __init__(self, workdir, pdbin, pdbout, target_fa=None, logger=None):
+    :param workdir: working directory where the search model will be prepared
+    :type workdir: str
+    :param pdbin: input pdb file name
+    :type pdbin: str
+    :param pdbout: output pdb file name
+    :type pdbout: str
+    :param logger: logging interface for the instance (default None)
+    :type logger: None, :obj:`swamp.logger.swamplogger.SwampLogger`
+    """
+
+    def __init__(self, workdir, pdbin, pdbout, logger=None):
         self._workdir = workdir
         self._pdbin = pdbin
         self._pdbout = pdbout
         self._error = False
         self._logcontents = None
         self._modified_model_list = []
-        self._keywords = None
-        self._target_fa = target_fa
         if logger is None:
             self._logger = logging.getLogger(__name__)
         else:
@@ -34,26 +42,11 @@ class PrepareSearchModel(ABC):
 
     @property
     @abc.abstractmethod
-    def cmd(self):
-        """Abstract property to store comand to run in the terminal (if any)"""
-        pass
-
-    @property
-    @abc.abstractmethod
     def modification(self):
         """Abstract property to store modification to be applied"""
         pass
 
-    # ------------------ Some general properties ------------------
-
-    @property
-    def target_fa(self):
-        """Property to store target_fa"""
-        return self._target_fa
-
-    @target_fa.setter
-    def target_fa(self, value):
-        self._target_fa = value
+    # ------------------ Prroperties ------------------
 
     @property
     def logger(self):
@@ -63,24 +56,6 @@ class PrepareSearchModel(ABC):
     @logger.setter
     def logger(self, value):
         self._logger = value
-
-    @property
-    def logcontents(self):
-        """Property to store logcontents"""
-        return self._logcontents
-
-    @logcontents.setter
-    def logcontents(self, value):
-        self._logcontents = value
-
-    @property
-    def keywords(self):
-        """Property to store keywords"""
-        return self._keywords
-
-    @keywords.setter
-    def keywords(self, value):
-        self._keywords = value
 
     @property
     def modified_model_list(self):
@@ -150,26 +125,17 @@ class PrepareSearchModel(ABC):
         """Temporary pdb file to be created if necessary"""
         return os.path.join(self.workdir, "tmp_out_%s.pdb" % self.modification)
 
-    # ------------------ Some general methods ------------------
+    # ------------------ Hidden methods ------------------
 
-    def check_input(self):
-
-        """Method to check if the required input is given"""
-
-        if self.modification == "molrep" and self.target_fa is None:
-            self.logger.error("Need to provide a target fasta sequence to use molrep!")
-            self.error = True
-
-    def check_output(self):
-
-        """Method to check if the prepared model extists"""
+    def _check_output(self):
+        """Check if the output file has been created, set :att:`error` if not"""
 
         if not os.path.isfile(self.pdbout):
             self.logger.error("Modified search model not found! %s" % self.pdbout)
             self.error = True
 
     def _merge_models(self):
-        """Create a function to merge all the modified models together"""
+        """Create a function to merge all the modified models together into an ensemble"""
 
         if len(self.model_list) > 1:
             gesamt = Gesamt(mode='alignment', pdbin=self.modified_model_list, pdbout=self.pdbout, workdir=self.workdir,
@@ -179,17 +145,27 @@ class PrepareSearchModel(ABC):
         else:
             shutil.copyfile(self.modified_model_list[0], self.pdbout)
 
-    def make_workdir(self):
-
-        """Method to crete the workdir for the wrapper"""
+    def _make_workdir(self):
+        """Method to crete the workdir for the search model preparation"""
 
         if not os.path.isdir(self.workdir):
             os.mkdir(self.workdir)
 
+    # ------------------ Static methods ------------------
+
     @staticmethod
     def split_models(pdbin, directory, strip_hetatm=True):
+        """Method to split an ensemble into its model components
 
-        """Method to split a pdb into its models"""
+        :param pdbin: input pdb file name
+        :type pdbin: str
+        :param directory: directory where the models of the ensemble will be dumped
+        :type directory: str
+        :param strip_hetatm: if set, the hetatm will be ommited from the output models (default True)
+        :type strip_hetatm: bool
+        :return a tuple with the output file names listed
+        :rtype tuple
+        """
 
         pdbout_template = os.path.join(directory, 'model_{}.pdb')
         hierarchy = gemmi.read_structure(pdbin)
@@ -205,4 +181,4 @@ class PrepareSearchModel(ABC):
             new_structure.write_pdb(pdbout_template.format(model.name))
             rslt.append(pdbout_template.format(model.name))
 
-        return rslt
+        return tuple(rslt)

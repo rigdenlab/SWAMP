@@ -2,6 +2,7 @@ import os
 import shutil
 from pyjob import cexec
 from swamp.wrappers.wrapper import Wrapper
+from swamp.parsers.phenixparser import PhenixParser
 
 
 class PhenixCC(Wrapper):
@@ -134,13 +135,11 @@ class PhenixCC(Wrapper):
         :rtype None
         """
 
-        with open(self.logfile, "r") as fhandle:
-            for line in fhandle:
-                if "overall CC" in line:
-                    self.overall_CC = line.split(":")[1].rstrip().lstrip()
-                if "local CC" in line:
-                    self.local_CC = line.split(":")[1].rstrip().lstrip()
+        parser = PhenixParser(logger=self.logger, stdout=self.logcontents)
+        parser.parse()
 
-        if self.overall_CC == "NA" or self.local_CC == "NA":
-            self.logger.error("Overall / Local CC not found in phenixCC logfile")
+        if parser.error:
             self.error = True
+            self.logger.warning('Previous errors while parsing phenix.get_cc output detected!')
+        else:
+            self.local_CC, self.overall_CC = parser.summary

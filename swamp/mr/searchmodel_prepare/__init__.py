@@ -1,7 +1,6 @@
 """This is SWAMP: Solving Structures With Alpha Membrane Pairs
 
-This module implements classes and methods to rank search models according to the contact maximum overlap respect the
-predicted contacts of a given target structure of interest.
+This module implements classes and methods to prepare search models for MR
 """
 
 __author__ = "Filomeno Sanchez Rodriguez"

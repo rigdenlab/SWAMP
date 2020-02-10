@@ -11,14 +11,19 @@ class PdbtmXmlParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.pdbtm_xml import PdbtmXmlParser
+    >>> from swamp.parsers.pdbtmxmlparser import PdbtmXmlParser
     >>> my_parser = PdbtmXmlParser('<fname>')
     >>> my_parser.parse()
     """
 
-    def __init__(self, fname):
+    def __init__(self, fname, logger=None):
         self._ss2_annotation = None
-        super(PdbtmXmlParser, self).__init__(fname)
+        super(PdbtmXmlParser, self).__init__(fname, logger=logger)
+
+    @property
+    def summary(self):
+        """Abstract property to store a summary of the parsed figures of merit"""
+        pass
 
     @property
     def ss2_annotation(self):
@@ -39,19 +44,23 @@ class PdbtmXmlParser(Parser):
     def parse(self):
         """Method to parse the input xml file and retrieve the ss2 annotation"""
 
+        if self.error:
+            self.logger.warning("Previous errors prevent parsing PDBTM file!")
+            return
+
         tree = ET.parse(self.fname)
         root = tree.getroot()
 
         self.ss2_annotation = []
         for chain in root.iter("{http://pdbtm.enzim.hu}CHAIN"):
             for idx, region in enumerate(chain.iter("{http://pdbtm.enzim.hu}REGION")):
-                current_region = self._annotation_template(pdb_start=int(region.attrib['pdb_beg']),
+                current_region = self._annotation_template(index=idx,
+                                                           pdb_start=int(region.attrib['pdb_beg']),
                                                            pdb_stop=int(region.attrib['pdb_end']),
                                                            seq_start=int(region.attrib['seq_beg']),
                                                            seq_end=int(region.attrib['seq_end']),
                                                            type=region.attrib['type'],
                                                            chain=chain.attrib["CHAINID"],
-                                                           index=idx,
                                                            pdb_region=[x for x in range(int(region.attrib['pdb_beg']),
                                                                                         int(region.attrib[
                                                                                                 'pdb_end']) + 1)],

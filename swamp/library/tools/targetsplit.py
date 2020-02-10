@@ -2,7 +2,7 @@ import os
 import gemmi
 import itertools
 import conkit.io
-from swamp.parsers.topcons import TopconsParser
+from swamp.parsers.topconsparser import TopconsParser
 from swamp.logger.swamplogger import SwampLogger
 from swamp.library.tools.pdb_tools import extract_hierarchy_seqnumber
 from swamp.library.tools.contact_tools import extract_interhelical_cmap
@@ -30,17 +30,21 @@ class TargetSplit(object):
     def __init__(self, workdir, conpred, sspred, conformat="psicov", pdb_benchmark=None, logger=None):
         self._workdir = workdir
         self._conpred = conkit.io.read(conpred, conformat).top_map
-        self._sspred = TopconsParser(sspred)
-        self.sspred.parse()
         self._make_workdir()
         self._subtargets = None
         self._subtargets_pdb = None
         self._pdb_benchmark = pdb_benchmark
+        self._error = False
         if logger is None:
             self._logger = SwampLogger(__name__)
             self.logger.init(logfile=None, use_console=True, console_level='info')
         else:
             self._logger = logger
+        self._sspred = TopconsParser(sspred, logger=self.logger)
+        self.sspred.parse()
+        if self.sspred.error:
+            self.logger.warning('Previous errors detected while parsing TM topology prediction!')
+            self.error = True
 
     # ------------------ Some general properties ------------------
 
@@ -51,6 +55,14 @@ class TargetSplit(object):
     @logger.setter
     def logger(self, value):
         self._logger = value
+
+    @property
+    def error(self):
+        return self._error
+
+    @error.setter
+    def error(self, value):
+        self._error = value
 
     @property
     def pdb_benchmark(self):
@@ -212,6 +224,11 @@ class TargetSplit(object):
     def split(self):
         """Split the target into its contacting helical pairs. It will probe all possible combinations
         of helical pairs."""
+
+        if self.sspred.error:
+            self.logger.warning('Previous errors prevented splitting the target into helical pairs!')
+            self.error = True
+            return
 
         self.subtargets = []
         for helical_pair in self._possible_helical_pairs:
