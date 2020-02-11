@@ -1,2 +1,0 @@
-#!/bin/sh
-ccp4-python -m swamp.mr.core.mrresults "$@"
