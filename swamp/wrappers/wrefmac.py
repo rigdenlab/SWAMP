@@ -231,7 +231,7 @@ class wRefmac(Wrapper):
             self.logger.warning('Previous detected while parsing refmac output!')
             return
 
-        self.self.rfactor, self.rfree, self.rfactor_delta, self.rfree_delta, self.bondlenght_delta, \
+        self.rfactor, self.rfree, self.rfactor_delta, self.rfree_delta, self.bondlenght_delta, \
         self.bondangle_delta, self.chirvol_delta = parser.summary
 
         # If everything is ok so far, get the CC
