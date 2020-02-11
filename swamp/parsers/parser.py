@@ -38,8 +38,8 @@ class Parser(ABC):
         """ Abstract method to run the parser"""
         pass
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def summary(self):
         """Abstract property to store a summary of the parsed figures of merit"""
         pass

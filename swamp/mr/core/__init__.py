@@ -27,7 +27,7 @@ if "CCP4" not in os.environ:
     raise RuntimeError("Cannot find CCP4 root directory")
 
 if StrictVersion(prettytable.__version__) < StrictVersion("0.7.2"):
-    raise RuntimeError("Prettytable must be version >= 0.7.2")
+    raise RuntimeError("Prettytable must be version >= 0.7.2 to use SWAMP-MR")
 
 if StrictVersion(dill.__version__[:-2]) < StrictVersion("0.3.1"):
-    raise RuntimeError("Dill must be version >= 0.3.1")
+    raise RuntimeError("Dill must be version >= 0.3.1 to use SWAMP-MR")
