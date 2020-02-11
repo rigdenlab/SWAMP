@@ -497,7 +497,7 @@ class MrRun(Mr):
         # If there is a problem, abort
         if self.phaser.error or self.phaser.abort_suggested:
             if self.phaser.error:
-                self.logger.warning("Previous error prevents pipeline moving forward...")
+                self.logger.warning("Previous error prevents pipeline moving forward... Exiting now!")
             else:
                 self.logger.warning("Phaser scores below threshold, early termination triggered...")
             self.append_results()
@@ -509,7 +509,7 @@ class MrRun(Mr):
 
         # If didn't give output, abort
         if self.refmac.error:
-            self.logger.warning("Previous error prevents pipeline moving forward...")
+            self.logger.warning("Previous error prevents pipeline moving forward... Exiting now!")
             self.append_results()
             return
 

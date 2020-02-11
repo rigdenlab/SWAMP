@@ -23,7 +23,7 @@ class PdbtmXmlParser(Parser):
     @property
     def summary(self):
         """Abstract property to store a summary of the parsed figures of merit"""
-        pass
+        return None
 
     @property
     def ss2_annotation(self):

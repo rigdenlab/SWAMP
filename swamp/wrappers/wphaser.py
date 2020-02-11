@@ -637,15 +637,15 @@ class Phaser(Wrapper):
         """
 
         if not self.run_mr_auto.Success():
-            self.logger.error("Phaser did not register success!")
-            self.error = True
-
-        elif not os.path.isfile(self.run_mr_auto.getTopPdbFile()):
-            self.logger.error("Phaser did not produce a pdb output file!")
+            self.logger.warning("Phaser did not register success!")
             self.error = True
 
         elif not self.run_mr_auto.foundSolutions():
-            self.logger.error("Phaser did not find a solution!")
+            self.logger.warning("Phaser did not find a solution!")
+            self.error = True
+
+        elif not os.path.isfile(self.run_mr_auto.getTopPdbFile()):
+            self.logger.warning("Phaser did not produce a pdb output file!")
             self.error = True
 
         elif not os.path.isfile(self.run_mr_auto.getTopMtzFile()):

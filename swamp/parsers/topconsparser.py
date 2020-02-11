@@ -14,7 +14,7 @@ class TopconsParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.topcons import TopconsParser
+    >>> from swamp.parsers.topconsparser import TopconsParser
     >>> my_parser = TopconsParser('<fname>')
     >>> my_parser.parse()
     """
@@ -27,7 +27,7 @@ class TopconsParser(Parser):
     @property
     def summary(self):
         """Abstract property to store a summary of the parsed figures of merit"""
-        pass
+        return None
 
     @property
     def tmhelices(self):
