@@ -71,7 +71,7 @@ class RefmacParser(Parser):
 
     @property
     def bondangle_delta(self):
-        return self._bbondangle_delta
+        return self._bondangle_delta
 
     @bondangle_delta.setter
     def bondangle_delta(self, value):
