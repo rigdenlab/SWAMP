@@ -8,14 +8,11 @@ from Bio import SeqIO
 from Bio.Alphabet import generic_protein
 from Bio.SeqUtils import molecular_weight
 from simbad.util.mtz_util import GetLabels
-from simbad.parsers.anode_parser import AnodeParser
-from simbad.mr.anomalous_util import AnodeSearch
 from mmtbx.scaling.matthews import matthews_rupp
 from cctbx.crystal import symmetry
 from iotbx import reflection_file_reader
 from swamp.mr.core.mr import Mr
 from swamp.wrappers.shelxe import Shelxe
-from swamp.wrappers.crank2 import Crank2
 from swamp.wrappers.wphaser import Phaser
 from swamp.wrappers.wrefmac import wRefmac
 from swamp.library.tools import decompress
@@ -28,8 +25,7 @@ class MrRun(Mr):
 
     This class contains methods to attempt run molecular replacement on a given target structure. The pipeline uses
     phaser for search model placement, refmac5 for refinement, shelxe for density modification and model building. If
-    scattering data has been recorded into the target's mtz file, anode is used to detect anomalous peaks followed by
-    crank2 for experimental phasing.
+    scattering data has been recorded into the target's mtz file.
 
     :param str, int id: unique identifier for the instance
     :param str workdir: working directory where the MR task will be executed
@@ -44,7 +40,6 @@ class MrRun(Mr):
     :param int phaser_timeout: parameter to be passed to phaser as KILL_TIME (default 360)
     :param bool extend_solution: if True then solutions will be completed with ideal helices (default False)
     :param bool save_disk_space: if True metadata will be removed to save disk space (default False)
-    :param bool ignore_anomalous: if True then presence of scattering data will not trigger anode/crank2 execution
     :param logger: logging interface for the MR pipeline
     :param bool silent: if set to True the logger will not print messages
     :param bool quiet_start: if True the logger will not display the header section and the inital parameters
@@ -53,15 +48,11 @@ class MrRun(Mr):
     :ivar phaser: phaser wrapper used in the pipeline
     :ivar refmac: refmac wrapper used in the pipeline
     :ivar shelxe: shelxe wrapper used in the pipeline
-    :ivar anode: anode wrapper used in the pipeline
-    :ivar crank2: crank2 wrapper used in the pipeline
-    :ivar anode_parser: anode lsa output file parser wrapper
     """
 
     def __init__(self, id, workdir, target_fa, target_mtz, phased_mtz=None, threads=1, phaser_sgalternative="NONE",
-                 phaser_early_kill=True, ignore_anomalous=True, silent=False, save_disk_space=False, logger=None,
-                 phaser_timeout=1440, extend_solution=True, quiet_start=False, phaser_packcutoff=None,
-                 phaser_peaks_rotcutoff=None):
+                 phaser_early_kill=True, silent=False, save_disk_space=False, logger=None, phaser_packcutoff=None,
+                 phaser_timeout=1440, extend_solution=True, quiet_start=False, phaser_peaks_rotcutoff=None):
 
         super(MrRun, self).__init__(id, target_fa, target_mtz, workdir, phased_mtz=phased_mtz, logger=logger,
                                     silent=silent)
@@ -77,14 +68,10 @@ class MrRun(Mr):
         self._phaser_sgalternative = phaser_sgalternative
         self._phaser_early_kill = phaser_early_kill
         self._phaser_timeout = phaser_timeout
-        self._ignore_anomalous = ignore_anomalous
         self._is_extended = "NO"
         self._phaser = None
         self._refmac = None
         self._shelxe = None
-        self._crank2 = None
-        self._anode = None
-        self._anode_parser = None
         self._parent_array = None
         self._solution = None
         self._idealhelix_run = None
@@ -98,8 +85,7 @@ class MrRun(Mr):
         """Property storing information about directories used in the pipeline that can be removed to save disk space"""
 
         return [self.phaser_info['workdir'], self.refmac_info['workdir'], self.shelxe_info['workdir'],
-                os.path.join(self.workdir, "anode"), self.crank2_info['workdir'], self.searchmodel_dir,
-                os.path.join(self.workdir, "ideal_helices")]
+                self.searchmodel_dir, os.path.join(self.workdir, "ideal_helices")]
 
     @property
     def save_disk_space(self):
@@ -177,24 +163,6 @@ class MrRun(Mr):
         self._phaser = value
 
     @property
-    def crank2(self):
-        """Property to hold the crank2 wrapper :obj:`swamp.wrappers.crank2.Crank2` instance"""
-        return self._crank2
-
-    @crank2.setter
-    def crank2(self, value):
-        self._crank2 = value
-
-    @property
-    def anode(self):
-        """Property to hold the anode wrapper"""
-        return self._anode
-
-    @anode.setter
-    def anode(self, value):
-        self._anode = value
-
-    @property
     def shelxe(self):
         """Property to hold the shelxe wrapper :obj:`swamp.wrappers.shelxe.Shelxe` instance"""
         return self._shelxe
@@ -220,15 +188,6 @@ class MrRun(Mr):
     @extend_solution.setter
     def extend_solution(self, value):
         self._extend_solution = value
-
-    @property
-    def ignore_anomalous(self):
-        """If True presence of anomalous signal must be ignored"""
-        return self._ignore_anomalous
-
-    @ignore_anomalous.setter
-    def ignore_anomalous(self, value):
-        self._ignore_anomalous = value
 
     @property
     def searchmodel_list(self):
@@ -258,15 +217,6 @@ class MrRun(Mr):
         self._solution = value
 
     @property
-    def anode_parser(self):
-        """Property to hold the anode parser"""
-        return self._anode_parser
-
-    @anode_parser.setter
-    def anode_parser(self, value):
-        self._anode_parser = value
-
-    @property
     def searchmodel_dir(self):
         """Directory where the search model preparation will take place"""
         return os.path.join(self.workdir, "searchmodels")
@@ -289,8 +239,7 @@ class MrRun(Mr):
             self.error = True
             raise ValueError('Need to setup target mtz and fasta files before running MR pipeline!')
 
-        MW, solvent, nchains_asu, anomalous_signal, nresidues_chain, \
-        resolution, spacegroup, spacegroup_symbol, n_reflections, \
+        MW, solvent, nchains_asu, nresidues_chain, resolution, spacegroup, spacegroup_symbol, n_reflections, \
         use_f = self.characterise_target(self.target_fa, self.target_mtz)
 
         return {'fastafile': self.target_fa,
@@ -301,7 +250,6 @@ class MrRun(Mr):
                 'phasedmtz': self.phased_mtz,
                 'solvent': solvent,
                 'nchains_asu': nchains_asu,
-                'anomalous_signal': anomalous_signal,
                 'nresidues_chain': nresidues_chain,
                 'n_reflections': n_reflections,
                 }
@@ -341,26 +289,6 @@ class MrRun(Mr):
                 'mtzin': self.target_mtz,
                 'phased_mtz': self.phased_mtz,
                 'logger': self.logger
-                }
-
-    @property
-    def crank2_info(self):
-        """Dictionary to contain information about the crank2 run
-
-        :returns a dictionary with the arguments for crank2
-        :rtype dict
-        """
-
-        return {'workdir': os.path.join(self.workdir, "crank2"),
-                'logger': self.logger,
-                'pdbin': os.path.join(self.refmac.pdbout),
-                'mtzin': self.target_mtz,
-                'anomalous_scatterer': "S",
-                'mode': "SAD",
-                'wavelength_type': "peak",
-                'fastafile': self.target_fa,
-                'nchains_asu': self.target_info['nchains_asu'],
-                'solvent': self.target_info['solvent']
                 }
 
     @property
@@ -447,8 +375,7 @@ class MrRun(Mr):
 
         if mod != 'unmod':
             fname = self.prepared_searchmodel_fname.format(id, mod)
-            self.prepare_search_model(modification=mod, pdbin=pdbfile, workdir=self.searchmodel_dir,
-                                      pdbout=fname)
+            self.prepare_search_model(modification=mod, pdbin=pdbfile, workdir=self.searchmodel_dir, pdbout=fname)
         else:
             fname = pdbfile
 
@@ -474,8 +401,7 @@ class MrRun(Mr):
         self.results.append(
             [self.id, self.phaser.LLG, self.phaser.TFZ, self.phaser.local_CC, self.phaser.overall_CC,
              self.refmac.rfree, self.refmac.rfactor, self.refmac.local_CC, self.refmac.overall_CC, self.shelxe.cc,
-             self.shelxe.acl, self.anode.peak_height, self.crank2.rfree, self.crank2.rfactor, self.is_extended,
-             self.shelxe.solution])
+             self.shelxe.acl, self.is_extended, self.shelxe.solution])
 
     def run(self):
         """Run the MR pipeline using of phaser, refmac5 and shelxe. Extend the possible solution with ideal helices.
@@ -513,14 +439,6 @@ class MrRun(Mr):
             self.append_results()
             return
 
-        # If there is anomalous signal, look for it
-        if self.target_info['anomalous_signal'] and not self.ignore_anomalous and self._found_anomalous_signal():
-            self.crank2.run()
-            if self.crank2.solution == "YES":
-                self.logger.info("Crank2 found a solution!")
-                self.append_results()
-                return
-
         # Run shelxe
         self.shelxe.run()
         self.shelxe.make_logfile()
@@ -529,7 +447,7 @@ class MrRun(Mr):
         self.append_results()
 
         # If there is no solution and the cc is promising, let's try to fit some individual helices
-        if self.extend_solution and self.shelxe.solution == "NO" and self.crank2.solution == "NO":
+        if self.extend_solution and self.shelxe.solution == "NO":
             self.logger.info("Search model placement did not yield a solution, trying to fit ideal helices!\n")
             self.fit_helices()
 
@@ -563,7 +481,6 @@ class MrRun(Mr):
                         'phaser_packcutoff': 40.0,
                         'phaser_timeout': 1440,
                         'silent': False,
-                        'ignore_anomalous': True,
                         'phaser_early_kill': True,
                         'logger': self.logger,
                         'extend_solution': False,
@@ -646,7 +563,7 @@ class MrRun(Mr):
         """Method to instantiate the wrappers to be used in the pipeline
 
         This method will instantiate the :onj:`swamp.wrapper.wrapper` classes required for the pipeline execution:
-        phaser, refmac, shelxe, crank2, anode, phenix_get_cc
+        phaser, refmac, shelxe, phenix_get_cc
         """
 
         if not self.searchmodel_list:
@@ -661,42 +578,8 @@ class MrRun(Mr):
             self.phaser.register_solution(**self.solution)
         self.refmac = wRefmac(**self.refmac_info)
         self.shelxe = Shelxe(**self.shelxe_info)
-        self.crank2 = Crank2(**self.crank2_info)
-        if not os.path.isdir(os.path.join(self.workdir, "anode")) and not self.ignore_anomalous:
-            os.mkdir(os.path.join(self.workdir, "anode"))
-        self._anode = AnodeSearch(os.path.abspath(self.target_info['mtzfile']), os.path.join(self.workdir, "anode"))
-        self.anode.peak_height = "NA"
-
-    def _found_anomalous_signal(self):
-        """Look for the presence of an anomlaous peak using anode"""
-
-        self.logger.info("Looking for anomalous signal using ANODE")
-        self.anode.run(self.refmac.pdbout)
-        self.anode.peak_height = self.get_anomalous_peak(
-            os.path.join(self.workdir, "anode", "%s.lsa" % os.path.basename(self.refmac.pdbout)[:-4]))
-        self.logger.info("Anomalous peak height: %s" % self.anode_parser.peak_height)
-        if self.anode.peak_height != "NA" and float(self.anode.peak_height) > 7.29:
-            return True
-        else:
-            return False
 
     # ------------------ Some static methods ------------------
-
-    @staticmethod
-    def get_anomalous_peak(lsa_file):
-        """Method to detect anomalous signal peak in a lsa file
-    
-        :param lsa_file: filename of the lsa anode output to be parsed
-        :type lsa_file: str
-        :returns peak_height: intensity of the highest peak detected ('NA' if there are no peaks)
-        :rtype str
-        """
-
-        anode_parser = AnodeParser(lsa_file)
-        if anode_parser.peak_height is None:
-            return 'NA'
-        else:
-            return str(anode_parser.peak_height)
 
     @staticmethod
     def characterise_target(target_fa, target_mtz):
@@ -740,11 +623,6 @@ class MrRun(Mr):
         solvent = round(matthews_coeff.solvent_content, 2)
         ncopies = matthews_coeff.n_copies
         mtz_head = GetLabels(target_mtz)
-        if mtz_head.sigiplus is not None and mtz_head.iplus is not None and mtz_head.sigiminus is not None \
-                and mtz_head.iminus is not None:
-            anomalous_signal = True
-        else:
-            anomalous_signal = False
 
-        return target_molecular_weight, solvent, ncopies, anomalous_signal, seq_length, resolution, \
+        return target_molecular_weight, solvent, ncopies, seq_length, resolution, \
                target_space_group, spacegroup_symbol, n_reflections, use_f

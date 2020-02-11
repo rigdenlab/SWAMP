@@ -69,8 +69,7 @@ class Mr(ABC):
         """List of the field names in the results table"""
 
         return ["SEARCH ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT", "RFMC_CC_LOC",
-                "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "ANOMALOUS", "CRNK2_RFREE", "CRNK2_RFACT", "IS_EXTENDED",
-                "SOLUTION"]
+                "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
 
     @property
     def logger(self):
