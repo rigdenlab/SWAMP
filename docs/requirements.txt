@@ -1,6 +1,6 @@
 gemmi
 numpy
-pandas
+pandas ==0.24
 joblib
 dill
 prettytable
