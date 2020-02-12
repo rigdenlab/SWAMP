@@ -28,11 +28,12 @@ SWAMP pipeline is divided into three steps.
 
 3. Finally, SWAMP will take those ensembles with the highest CMO into a molecular replacement subroutine. If possible, SWAMP will also try to combine and place multiple search models if these are found to have a high CMO across subtargets.
 
+You can find more information about how to use SWAMP `here <https://github.com/rigdenlab/SWAMP/tree/master/docs/examples>`_
 
 Depiction of SWAMP flowchart:
 
 
-.. image:: https://github.com/rigdenlab/SWAMP/blob/master/docs/pipeline_scheme.png
+.. image:: https://github.com/rigdenlab/SWAMP/tree/master/docs/pipeline_scheme.png
    :width: 50%
    :align: center
 

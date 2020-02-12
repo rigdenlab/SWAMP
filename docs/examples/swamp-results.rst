@@ -1,5 +1,5 @@
-Performing molecular replacement with SWAMP
--------------------------------------------
+Retrieving molecular replacement results
+----------------------------------------
 
 1. Running swamp-results
 ^^^^^^^^^^^^^^^^^^^^^^^^
