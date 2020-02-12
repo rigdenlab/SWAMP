@@ -1,0 +1,60 @@
+Retrieving molecular replacement results
+----------------------------------------
+
+1. Running swamp-results
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+A full swamp-mr run can result quite time consuming, but we provide a command line tool to check the results obtained by SWAMP at any moment ``swamp-results``. To pull the results, simply run:
+
+.. code-block:: shell
+
+    swamp-results "<workdir>" [-top_results [TOP_RESULTS]]
+
+    positional argument:
+
+      workdir               SWAMP-MR working directory
+
+    optional arguments:
+
+      -top_results         Produce a table with the top N results (default 50)
+
+
+After running the above command, SWAMP will retrieve the results from the directory ``<workdir>/swamp_mr`` and display a table with the top N results (sorted by shelxe CC).
+
+
+2. Output table
+^^^^^^^^^^^^^^^
+
+The following example table contains depicts typical output of ``swamp-results``
+
++-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|     SEARCH ID     |   LLG   | TFZ | PHSR_CC_LOC | PHSR_CC_ALL | RFMC_RFREE | RFMC_RFACT | RFMC_CC_LOC | RFMC_CC_ALL | SHXE_CC | SHXE_ACL | IS_EXTENDED | SOLUTION |
++===================+=========+=====+=============+=============+============+============+=============+=============+=========+==========+=============+==========+
+|  search_277_run_1 |  41.049 | 8.7 |    0.612    |    0.414    |   0.5745   |   0.5355   |     0.65    |    0.434    |  32.65  |   21.0   |     YES     |    YES   |
++-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|  search_951_run_1 |  82.286 | 6.0 |    0.529    |     0.21    |   0.6018   |   0.5927   |    0.608    |    0.248    |  35.33  |   25.0   |     YES     |    YES   |
++-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|  search_169_run_1 |  71.073 | 5.0 |    0.125    |    0.023    |   0.6215   |   0.5897   |    0.112    |    0.026    |  23.08  |   9.0    |     YES     |    NO    |
++-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+| search_1008_run_1 |  90.720 | 6.4 |    0.218    |    0.123    |   0.5793   |   0.5922   |    0.228    |    0.125    |  23.03  |   10.0   |     YES     |    NO    |
++-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+
+
+Table fields:
++++++++++++++
+
+* **SEARCH_ID**: Unique identifier associated with a particular MR job
+* **LLG**: LLG as reported by *Phaser* after placing the search model
+* **TFZ**: TFZ as reported by *Phaser* after placing the search model
+* **PHSR_CC_LOC**: Local correlation coefficient between the map and the placed model after adjusting model for origin shifts (only calculated if a MTZ file with phase information is provided for benchmarking, otherwise will be 'NA')
+* **PHSR_CC_ALL**: Overall correlation coefficient between the map and the placed model after adjusting model for origin shifts (only calculated if a MTZ file with phase information is provided for benchmarking, otherwise will be 'NA')
+* **RFMC_RFREE**: Rfree as reported by *Refmac* after refining the placed search model
+* **RFMC_RFACTOR**: Rfactor as reported by *Refmac* after refining the placed search model
+* **RFMC_CC_LOC**: Local correlation coefficient between the map and the refined model after adjusting model for origin shifts (only calculated if a MTZ file with phase information is provided for benchmarking, otherwise will be 'NA')
+* **RFMC_CC_ALL**: Overall correlation coefficient between the map and the refined model after adjusting model for origin shifts (only calculated if a MTZ file with phase information is provided for benchmarking, otherwise will be 'NA')
+* **SHXE_CC**: Correlation coefficient of the best *Shelxe* tracing cycle
+* **SHXE_ACL**: Average chain length of the best *Shelxe* tracing cycle
+* **IS_EXTENDED**: 'YES' if the results displayed in the row corresponds were obtained after extending a previously obtained solution with ideal helices.
+* **SOLUTION**: 'YES' if *SHXE_CC* > 25.0
+
+All the metadata and temporary files for each MR job can be found in ``<workdir>/swamp_mr/<search_id>/<run_id>``
