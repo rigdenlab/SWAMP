@@ -5,17 +5,14 @@ import swamp
 import shutil
 import subprocess
 from Bio import SeqIO
-from Bio.Alphabet import generic_protein
-from Bio.SeqUtils import molecular_weight
-from simbad.util.mtz_util import GetLabels
-from mmtbx.scaling.matthews import matthews_rupp
-from cctbx.crystal import symmetry
-from iotbx import reflection_file_reader
 from swamp.mr.core.mr import Mr
 from swamp.wrappers.shelxe import Shelxe
+from Bio.Alphabet import generic_protein
+from Bio.SeqUtils import molecular_weight
 from swamp.wrappers.wphaser import Phaser
 from swamp.wrappers.wrefmac import wRefmac
 from swamp.library.tools import decompress
+from swamp.parsers.mtzparser import MTZLabels
 from swamp.mr.searchmodel_prepare.core import Core
 from swamp.mr.searchmodel_prepare.polyala import PolyALA
 
@@ -602,27 +599,29 @@ class MrRun(Mr):
             target_molecular_weight += round(molecular_weight(seq, "protein"), 2)
         seq_length = sum([len(seq) for seq in target_chains])
 
-        # Crystal information
-        mtz_head = GetLabels(target_mtz)
-        if mtz_head.i is None and mtz_head.f is not None:
+        # Basic crystal information
+        reflection_file = gemmi.read_mtz_file(target_mtz)
+        n_reflections = reflection_file.nreflections
+        spacegroup_symbol = reflection_file.spacegroup.hm
+        target_space_group = spacegroup_symbol.replace(' ', '')
+        resolution = reflection_file.resolution_high()
+
+        # MTZ column labels
+        mtz_labels = MTZLabels(target_mtz)
+        mtz_labels.parse()
+        if mtz_labels.i is None and mtz_labels.f is not None:
             use_f = True
         else:
             use_f = False
-        reflection_file = reflection_file_reader.any_reflection_file(file_name=target_mtz)
-        content = reflection_file.file_content()
-        n_reflections = int(content.n_reflections())
-        target_space_group = content.space_group_name().replace(' ', '')
-        spacegroup_symbol = content.space_group_info().symbol_and_number()
-        spacegroup_symbol = spacegroup_symbol.split("(No.")[0].rstrip().lstrip()
-        if ":" in spacegroup_symbol:
-            spacegroup_symbol = spacegroup_symbol.split(":")[0].rstrip().lstrip()
-        resolution = float(content.max_min_resolution()[1])
-        target_unit_cell = content.crystals()[0].unit_cell_parameters()
-        crystal_symmetry = symmetry(space_group_symbol=target_space_group, unit_cell=target_unit_cell)
-        matthews_coeff = matthews_rupp(crystal_symmetry, n_residues=seq_length)
-        solvent = round(matthews_coeff.solvent_content, 2)
-        ncopies = matthews_coeff.n_copies
-        mtz_head = GetLabels(target_mtz)
 
-        return target_molecular_weight, solvent, ncopies, seq_length, resolution, \
-               target_space_group, spacegroup_symbol, n_reflections, use_f
+        # Estimate ncopies and solvent content
+        for ncopies in [1, 2, 3, 4, 5]:
+            matthews = reflection_file.cell.volume_per_image() / (target_molecular_weight * ncopies)
+            protein_fraction = 1. / (6.02214e23 * 1e-24 * 1.35 * matthews)
+            solvent = round((1 - protein_fraction), 1)
+
+            if round(matthews, 3) <= 3.5:
+                break
+
+        return target_molecular_weight, solvent, ncopies, seq_length, resolution, target_space_group, \
+               spacegroup_symbol, n_reflections, use_f

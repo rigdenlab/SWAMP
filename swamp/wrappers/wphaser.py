@@ -1,9 +1,9 @@
 import os
 import shutil
 import collections
-from simbad.util import mtz_util
 from swamp.wrappers.wrapper import Wrapper
 from swamp.wrappers.wrefmac import wRefmac
+from swamp.parsers.mtzparser import MTZLabels
 from swamp.parsers.phaserparser import PhaserParser
 from swamp.mr.searchmodel_prepare.polyala import PolyALA
 from phaser import InputMR_DAT, runMR_DAT, InputMR_AUTO, runMR_AUTO
@@ -434,7 +434,8 @@ class Phaser(Wrapper):
         self.input_mr_dat.setHKLI(self.mtzfile)
 
         # Set reflection data fields (I and SIGI preferred over FP and SIGFP)
-        mtz_head = mtz_util.GetLabels(self.mtzfile)
+        mtz_head = MTZLabels(self.mtzfile)
+        mtz_head.parse()
         if mtz_head.i is not None and mtz_head.sigi is not None:
             self.input_mr_dat.setLABI_I_SIGI(mtz_head.i, mtz_head.sigi)
         elif mtz_head.f is not None and mtz_head.sigf is not None:

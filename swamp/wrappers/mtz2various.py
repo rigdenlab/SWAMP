@@ -1,6 +1,6 @@
 import os
 from pyjob import cexec
-from simbad.util import mtz_util
+from swamp.parsers.mtzparser import MTZLabels
 from swamp.wrappers.wrapper import Wrapper
 
 
@@ -55,7 +55,8 @@ class Mtz2Various(Wrapper):
     def keywords(self):
         """Keywords to pass to mtz2various through stdin"""
 
-        mtz_head = mtz_util.GetLabels(self.mtzin)
+        mtz_head = MTZLabels(self.mtzin)
+        mtz_head.parse()
 
         # We prefer I over F
         if mtz_head.i is not None and mtz_head.sigi is not None:

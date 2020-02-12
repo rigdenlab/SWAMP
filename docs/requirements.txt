@@ -2,9 +2,8 @@ gemmi
 numpy
 pandas
 joblib
-uqfoundation/dill 
-jazzband/prettytable 
-rigdenlab/SIMBAD
+dill
+prettytable
 sklearn
 scipy
 pyjob ==0.4
