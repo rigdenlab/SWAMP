@@ -6,18 +6,18 @@ from swamp.parsers.parser import Parser
 
 class MTZLabels(Enum):
     free = re.compile(r"[Ff][Rr][Ee][Ee]")
-    i = re.compile(r"I")
-    sigi = re.compile(r"SIGI")
-    f = re.compile(r"F[P]?$")
-    sigf = re.compile(r"SIGF[P]?$")
-    i_plus = re.compile(r"I\(\+\)")
-    sigi_plus = re.compile(r"SIGI\(\+\)")
-    f_plus = re.compile(r"F[P]?\(\+\)")
-    sigf_plus = re.compile(r"SIGF[P]?\(\+\)")
-    i_minus = re.compile(r"SIGI\(-\)")
-    sigi_minus = re.compile(r"SIGI\(-\)")
-    f_minus = re.compile(r"F[P]?\(-\)")
-    sigf_minus = re.compile(r"SIGF[P]?\(-\)")
+    i = re.compile(r"[Ii]$")
+    sigi = re.compile(r"[Ss][Ii][Gg][Ii]$")
+    f = re.compile(r"[Ff][Pp]?$")
+    sigf = re.compile(r"[Ss][Ii][Gg][Ff][Pp]?$")
+    i_plus = re.compile(r"[Ii]\(\+\)")
+    sigi_plus = re.compile(r"[Ss][Ii][Gg][Ii]\(\+\)")
+    f_plus = re.compile(r"[Ff][Pp]?\(\+\)")
+    sigf_plus = re.compile(r"[Ss][Ii][Gg][Ff][Pp]?\(\+\)")
+    i_minus = re.compile(r"[Ss][Ii][Gg][Ii]\(-\)")
+    sigi_minus = re.compile(r"[Ss][Ii][Gg][Ii]\(-\)")
+    f_minus = re.compile(r"[Ff][Pp]?\(-\)")
+    sigf_minus = re.compile(r"[Ss][Ii][Gg][Ff][Pp]?\(-\)")
 
 
 class MtzParser(Parser):
