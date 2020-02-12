@@ -1,11 +1,9 @@
 SWAMP-MR options
 ----------------
 
-SWAMP-MR: Solving structures With Alpha Membrane Pairs - Molecular Replacement
-
 .. code-block::
 
-    usage: swamp-mr.py [-h] [-nprocs [NPROCS]] [-pdb_benchmark [FILENAME]]
+    usage: swamp-mr    [-h] [-nprocs [NPROCS]] [-pdb_benchmark [FILENAME]]
                        [-platform [PLATFORM]] [-mtz_phases [FILENAME]]
                        [-job_kill_time [JOB_KILL_TIME]]
                        [-ncontacts_threshold [NCONTACTS_THRESHOLD]]
@@ -20,17 +18,19 @@ positional arguments:
 
 .. code-block::
 
-      id                    Unique identifier for this MR subroutine
+      id                    Unique identifier for this MR run
 
-      workdir               Working directory to perform the MR
+      workdir               Working directory for SWAMP-MR
 
       mtzfile               MTZ file with the reflection data
 
       fastafile             FASTA file with the sequence of the structure
 
       conpred               Residue contact prediction for the target structure
+                            (psicov format)
 
       sspred                Secondary structure prediction for the target protein
+                            (topcons format)
 
 optional arguments:
 +++++++++++++++++++
@@ -39,28 +39,28 @@ optional arguments:
 
       -h, --help            show this help message and exit
 
-      -nprocs               Number of parallel processors to use
+      -nprocs               Number of parallel processors to use (default 1)
 
-      -pdb_benchmark        PDB file with the solve structure (for benchmarking)
+      -pdb_benchmark        PDB file with the solved structure (for benchmarking)
 
-      -platform             Platform to execute MR runs
+      -platform             Platform to execute MR jobs ('local', 'sge', 'slurm')
 
       -mtz_phases           MTZ file with phase information (for benchmarking)
 
-      -job_kill_time        Maximum runtime of each MR run
+      -job_kill_time        Maximum runtime of each MR job
 
       -ncontacts_threshold  Minimum no. of interhelical contacts to compute CMO of
-                            subtarget
+                            a subtarget against swamp library.
 
       -consco_threshold     Minimum CMO between predicted and observed contacts to
-                            use search model
+                            use search model.
 
-      -python_interpreter   Indicate a python interpreter for MR runs
+      -python_interpreter   Indicate a python interpreter for MR jobs.
 
-      -combine_searchmodels If set, combine search models matching different parts
-                            of the structure
+      -combine_searchmodels If set, combine search models matching different
+                            subtargets
 
-      -use_centroids        Centroids used as search models as well (only
-                            supported if not combining search models)
+      -use_centroids        Ensemble centroids used as search models as well
+                            (only supported if not combining search models)
 
 
