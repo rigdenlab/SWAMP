@@ -100,6 +100,8 @@ def main():
     logger.info('Using contacts to assess search model quality: matching predicted contacts with observed contacts\n')
     my_rank.scan()
     my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)
+    if args.pdb_benchmark is not None:
+        joblib.dump(my_rank.results, os.path.join(args.workdir, 'swamp_scan', 'swamp-scan.pckl'))
 
     # ------------------ CREATE MR TASK ARRAY AND LOAD INDIVIDUAL MR JOBS ------------------
 
