@@ -79,20 +79,25 @@ def main():
     # ------------------ PARSE ARGUMENTS AND CREATE LOGGER ------------------
 
     args = parse_arguments()
-    if not os.path.isdir(args.workdir):
-        os.mkdir(args.workdir)
+
+    idx = 1
+    workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
+    while os.path.isdir(workdir):
+        idx += 1
+        workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
+    os.mkdir(workdir)
 
     global logger
     global centroid_dict
     global centroids
 
     logger = SwampLogger('SWAMP-MR')
-    logger.init(logfile=os.path.join(args.workdir, "swamp_%s.debug" % args.id), use_console=True,
+    logger.init(logfile=os.path.join(workdir, "swamp_%s.debug" % args.id), use_console=True,
                 console_level='info', logfile_level='debug')
 
     # ------------------ SCAN LIBRARY OF SEARCH MODELS USING CONTACTS ------------------
 
-    my_rank = ScanTarget(os.path.join(args.workdir, 'swamp_scan'), conpred=args.conpred, template_subset=centroids,
+    my_rank = ScanTarget(os.path.join(workdir, 'swamp_scan'), conpred=args.conpred, template_subset=centroids,
                          alignment_algorithm_name='aleigen', n_contacts_threshold=args.ncontacts_threshold,
                          nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
                          logger=logger, platform=args.platform, python_interpreter=args.python_interpreter,
@@ -101,12 +106,12 @@ def main():
     my_rank.scan()
     my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)
     if args.pdb_benchmark is not None:
-        joblib.dump(my_rank.results, os.path.join(args.workdir, 'swamp_scan', 'swamp-scan.pckl'))
+        joblib.dump(my_rank.results, os.path.join(workdir, 'swamp_scan', 'swamp-scan.pckl'))
 
     # ------------------ CREATE MR TASK ARRAY AND LOAD INDIVIDUAL MR JOBS ------------------
 
     my_array = MrArray(id=args.id, target_mtz=args.mtzfile, max_concurrent_nprocs=args.nprocs, target_fa=args.fastafile,
-                       job_kill_time=args.job_kill_time, workdir=os.path.join(args.workdir, 'swamp_mr'), logger=logger,
+                       job_kill_time=args.job_kill_time, workdir=os.path.join(workdir, 'swamp_mr'), logger=logger,
                        platform=args.platform, phased_mtz=args.mtz_phases, queue_name=args.queue,
                        queue_environment=args.environment)
 
@@ -174,7 +179,7 @@ def main():
     # ------------------ SUBMIT MR TASK ARRAY FOR EXECUTION ------------------
 
     my_array.run()
-    results = MrResults(os.path.join(args.workdir), logger=logger)
+    results = MrResults(os.path.join(workdir), logger=logger)
     results.report_results()
 
 
