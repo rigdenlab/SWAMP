@@ -63,4 +63,5 @@ optional arguments:
       -use_centroids        Ensemble centroids used as search models as well
                             (only supported if not combining search models)
 
-
+      -use_centroids        Core ensembles used as search models as well
+                            (only supported if not combining search models)
