@@ -11,12 +11,7 @@ from swamp import version
 
 __version__ = version.__version__
 
-import os
 import gzip
-
-if "CCP4" not in os.environ:
-    raise RuntimeError("Cannot find CCP4 root directory")
-
 
 def compress(fname, out=None):
     """Compress a text file into .gz
