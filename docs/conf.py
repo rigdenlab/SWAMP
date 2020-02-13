@@ -16,6 +16,9 @@ import os
 import sys
 import datetime
 
+# Make SWAMP believe we are running it as part of CCP4
+os.environ['CCP4'] = "/empty/path"
+os.environ["CCP4_SCR"] = "/empty/path"
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 

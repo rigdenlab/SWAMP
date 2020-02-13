@@ -10,6 +10,7 @@ __version__ = version.__version__
 
 import os
 import sys
+import warnings
 
 TMP_DIR = os.environ["CCP4_SCR"]
 PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")
