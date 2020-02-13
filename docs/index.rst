@@ -1,7 +1,6 @@
 ..
 
 .. include:: ../README.rst
-   :end-before: CHECKPOINT FOR READTHEDOCS
 
 Indices and tables
 ------------------

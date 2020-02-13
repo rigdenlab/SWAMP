@@ -14,6 +14,7 @@
 
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -25,6 +26,7 @@ author = 'Filomeno Sanchez'
 
 import sphinx_bootstrap_theme
 import swamp
+
 version = swamp.__version__
 release = version
 
@@ -34,6 +36,10 @@ release = version
 #
 # needs_sphinx = '1.0'
 
+# If set, mock the import system to have external dependencies
+autodoc_mock_imports = [
+    'clipper', 'pyrvapi', 'cctbx', 'morda', 'iotbx', 'mmtbx', 'phaser', 'mrbump', 'gemmi'
+]
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -92,7 +98,7 @@ html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 # documentation.
 #
 html_theme_options = {
-    'bootswatch_theme': 'united',
+    'bootswatch_theme': 'sandstone',
     'bootstrap_version': '3',
 }
 

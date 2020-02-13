@@ -24,19 +24,18 @@ class ScanTarget(object):
     :param str sspred: secondary structure prediction file of the target (must be topcons file)
     :param str conformat: format of the contact prediction file for the target
     :param str nthreads: number of parallel threads to use for CMO calculations (default: 1)
-    :param list, None template_subset: set of templates to be used rather than the full fragment library (deafult: None)
-    :param str, None target_pdb_benchmark: target's pdb file for benchmark purposes (default: None)
+    :param list template_subset: set of templates to be used rather than the full fragment library (deafult: None)
+    :param str target_pdb_benchmark: target's pdb file for benchmark purposes (default: None)
     :param str alignment_algorithm_name: algorithm used for CMO calculation (default: 'mapalign')
-    :param None, :obj:`swamp.logger.swamplogger.SwampLogger` logger: logging interface for the scan (default: None)
+    :param `swamp.logger.swamplogger.SwampLogger` logger: logging interface for the scan (default: None)
     :param int n_contacts_threshold: min. no. of interhelical contacts to include a subtarget in the scan (default: 28)
-    :param str, None platform: queueing system used in the HPC where the array will be executed (default 'sge')
-    :param str, None queue_name: name of the HPC qeue where the tasks should be sent (default None)
-    :param str, None queue_environment: name of the HPC queue environment where the tasks should be sent (default None)
+    :param str platform: queueing system used in the HPC where the array will be executed (default 'sge')
+    :param str queue_name: name of the HPC qeue where the tasks should be sent (default None)
+    :param str queue_environment: name of the HPC queue environment where the tasks should be sent (default None)
     :ivar str shell_interpreter: location of the shell interpreter to be used for task execution (default '/bin/bash')
     :ivar bool error: True if errors have occurred at some point on the pipeline
 
-    :example
-
+    :example:
     >>> from swamp.library.scan.scantarget import ScanTarget
     >>> my_rank = ScanTarget('<workdir>', '<conpred>', '<sspred>')
     >>> my_rank.scan()
