@@ -13,7 +13,7 @@ In order to run swamp-mr you will first need to obtain `transmembrane topology <
 Additional options are available, check them out `here <https://github.com/rigdenlab/SWAMP/tree/master/docs/options/swamp-mr_options.rst>`_. After running the above command, SWAMP will create the directory ``<workdir>/swamp-mr``. Within this directory, both a ``swamp_scan`` and a ``swamp_mr`` directories will be created, containing the results obtained for the library CMO scan and the molecular replacement, respectively.
 
 
-A full swamp-mr run can result quite time consuming, if you wish to check out the results swamp has obtained so far you can use ``swamp-results`` as described `here <https://github.com/rigdenlab/SWAMP/tree/master/docs/examples/swamp-results>`_.
+A full swamp-mr run can result quite time consuming, if you wish to check out the results swamp has obtained so far you can use ``swamp-results`` as described `here <https://github.com/rigdenlab/SWAMP/blob/master/docs/examples/swamp-results.rst>`_.
 
 2. Output
 ^^^^^^^^^
@@ -32,4 +32,4 @@ Once SWAMP has finished execution of all MR jobs, a table summarising the obtain
 | search_1008_run_1 |  90.720 | 6.4 |    0.218    |    0.123    |   0.5793   |   0.5922   |    0.228    |    0.125    |  23.03  |   10.0   |     YES     |    NO    |
 +-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
 
-You can see how to interpret the results displayed in this table `here <https://github.com/rigdenlab/SWAMP/tree/master/docs/examples/swamp-results>`_.
+You can see how to interpret the results displayed in this table `here <https://github.com/rigdenlab/SWAMP/blob/master/docs/examples/swamp-results.rst>`_.

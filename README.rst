@@ -33,7 +33,7 @@ You can find more information about how to use SWAMP `here <https://github.com/r
 Depiction of SWAMP flowchart:
 
 
-.. image:: https://github.com/rigdenlab/SWAMP/tree/master/docs/pipeline_scheme.png
+.. image:: https://github.com/rigdenlab/SWAMP/raw/master/docs/images/pipeline_scheme.png
    :width: 50%
    :align: center
 

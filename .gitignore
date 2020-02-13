@@ -26,3 +26,6 @@ venv.bak/
 # Pycharm config
 .idea/
 
+# Sphinx docs
+/docs/source/
+/docs/_build/

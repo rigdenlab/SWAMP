@@ -18,5 +18,5 @@ import os
 if "CCP4" not in os.environ:
     raise RuntimeError("Cannot find CCP4 root directory")
 
-if StrictVersion(mrbump.__version__) < StrictVersion("2.0.5"):
-    raise RuntimeError("MrBump must be version >= 2.0.5")
+if StrictVersion(mrbump.__version__) < StrictVersion("2.0.1"):
+    raise RuntimeError("MrBump must be version >= 2.0.1")
