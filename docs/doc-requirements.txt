@@ -1,4 +1,6 @@
-sphinx_bootstrap_theme
-chardet >=3.0.4
-enum34;python_version<"3.4"
-pyyaml >=3.13
+enum34
+numpy
+pandas
+pyjob ==0.2.1
+sphinx-argparse
+sphinx_bootstrap_theme ==0.5.3
