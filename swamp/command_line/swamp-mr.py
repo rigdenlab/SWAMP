@@ -45,7 +45,9 @@ def parse_arguments():
     parser.add_argument("-combine_searchmodels", action='store_true',
                         help='If set, combine search models matching different parts of the structure')
     parser.add_argument("-use_centroids", action='store_true',
-                        help='Centroids used as search models as well (only supported if not combining search models)')
+                        help='Centroids used as search models as well (only if not combining search models)')
+    parser.add_argument("-use_cores", action='store_true',
+                        help='Core ensembles used as search models as well (only if not combining search models)')
     args = parser.parse_args()
 
     return args
@@ -129,7 +131,7 @@ def main():
 
         if len(searchmodels) == 1:
             combination = tuple(searchmodels)
-            if not combination in loaded_arrangements.keys():
+            if combination not in loaded_arrangements.keys():
 
                 logger.debug('Only one search model has been found in this search: %s' % combination)
                 mr_run_dir = os.path.join(workdir, 'run_1')
@@ -143,6 +145,13 @@ def main():
                     mr_run_dir = os.path.join(workdir, 'run_2')
                     mr_job = MrJob('search_%s_run_2' % rank, mr_run_dir, python_interpreter=args.python_interpreter)
                     mr_job.add_searchmodel(id='1', ensemble_code=combination[0], model='centroid', mod='polyala')
+                    my_array.add(mr_job)
+
+                if args.use_cores:
+                    logger.debug('Creating MR job for core ensemble at search_%s_run_3' % rank)
+                    mr_run_dir = os.path.join(workdir, 'run_3')
+                    mr_job = MrJob('search_%s_run_3' % rank, mr_run_dir, python_interpreter=args.python_interpreter)
+                    mr_job.add_searchmodel(id='1', ensemble_code=combination[0], model='core', mod='polyala')
                     my_array.add(mr_job)
 
             else:
