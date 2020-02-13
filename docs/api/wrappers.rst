@@ -1,5 +1,5 @@
-Util subpackage
-===============
+Wrappers subpackage
+===================
 
 .. automodule:: swamp.wrappers
    :members:

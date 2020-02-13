@@ -1,5 +1,5 @@
-Core subpackage
-===============
+Library subpackage
+==================
 
 .. automodule:: swamp.library
    :members:

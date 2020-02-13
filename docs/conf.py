@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # SWAMP documentation build configuration file, created by
-# sphinx-quickstart on Thu May 26 11:57:09 2016.
+# sphinx-quickstart on Thu Feb 13 17:09:00 2020.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -23,7 +23,7 @@ os.environ['CCP4_SCR'] = "/empty/path"
 
 # Required by autosummary
 sys.path.insert(0, ".")  # for sphinxext directory
-sys.path.insert(0, "..")  # for simbad directory
+sys.path.insert(0, "..")  # for swamp directory
 
 # -- General configuration ------------------------------------------------
 
@@ -54,7 +54,8 @@ except ImportError:
 
 # If set, mock the import system to have external dependencies
 autodoc_mock_imports = [
-    'clipper', 'pyrvapi', 'cctbx', 'morda', 'iotbx', 'mmtbx', 'parse_molrep', 'parse_refmac', 'phaser', 'mrbump', 'gemmi'
+    'clipper', 'pyrvapi', 'cctbx', 'morda', 'iotbx', 'mmtbx', 'parse_molrep', 'parse_refmac', 'phaser', 'mrbump',
+    'gemmi'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

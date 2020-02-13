@@ -1,7 +1,7 @@
-SWAMP-MR options
+swamp-mr options
 ----------------
 
-.. code-block::
+.. code-block:: text
 
     usage: swamp-mr    [-h] [-nprocs [NPROCS]] [-pdb_benchmark [FILENAME]]
                        [-platform [PLATFORM]] [-mtz_phases [FILENAME]]
@@ -16,7 +16,7 @@ SWAMP-MR options
 positional arguments:
 +++++++++++++++++++++
 
-.. code-block::
+.. code-block:: text
 
       id                    Unique identifier for this MR run
 
@@ -35,7 +35,7 @@ positional arguments:
 optional arguments:
 +++++++++++++++++++
 
-.. code-block::
+.. code-block:: text
 
       -h, --help            show this help message and exit
 

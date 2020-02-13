@@ -1,9 +1,9 @@
-SWAMP-MAKE-LIBRARY options
+swamp-make-library options
 ---------------------------
 
-.. code-block::
+.. code-block:: text
 
-    usage: swamp-make-library.py [-h] [-nprocs [NPROCS]] [-homologs [FILENAME]]
+    usage: swamp-make-library    [-h] [-nprocs [NPROCS]] [-homologs [FILENAME]]
                                  [-overwrite_library] [-min_samples [MIN_SAMPLES]]
                                  [-xi [XI]] [-cluster_method [CLUSTER_METHOD]]
                                  [-max_eps [MAX_EPS]] [-eps [EPS]]
@@ -13,7 +13,7 @@ SWAMP-MAKE-LIBRARY options
 positional arguments:
 +++++++++++++++++++++
 
-.. code-block::
+.. code-block:: text
 
 
       workdir               Working directory for SWAMP-MAKE-LIBRARY.
@@ -22,7 +22,7 @@ positional arguments:
 optional arguments:
 +++++++++++++++++++
 
-.. code-block::
+.. code-block:: text
 
   -h, --help            show this help message and exit
 
@@ -38,21 +38,21 @@ optional arguments:
                         sklearn.OPTICS: no. of samples in a neighborhood for a
                         point to be considered as a core
 
-    -xi [XI]            sklearn.OPTICS: min.steepness on the reachability plot
+  -xi [XI]              sklearn.OPTICS: min.steepness on the reachability plot
                         to constitute a cluster boundary
 
-    -cluster_method [CLUSTER_METHOD]
+  -cluster_method [CLUSTER_METHOD]
                         sklearn.OPTICS: extraction method using the calculated
                         cluster reachability
 
-    -max_eps [MAX_EPS]
+  -max_eps [MAX_EPS]
                         sklearn.OPTICS: max. dist. between points to consider
                         within neighborhood of each other
 
-    -eps [EPS]          sklearn.OPTICS: max. dist. between points to consider
+  -eps [EPS]            sklearn.OPTICS: max. dist. between points to consider
                         within neighborhood of each other
 
-    -min_cluster_size [MIN_CLUSTER_SIZE]
+  -min_cluster_size [MIN_CLUSTER_SIZE]
                         sklearn.OPTICS: min. no. of samples in a cluster
 
 

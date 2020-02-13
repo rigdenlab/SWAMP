@@ -1,33 +1,19 @@
+.. _examples:
 
-.. list-table:: SWAMP scripts for automated MR
+.. list-table:: Command line examples
    :class: table-hover
-   :widths: 1000, 10, 10, 10
+   :widths: 1200, 10
 
-   * - - SIMBAD Lattice Search
+   * - - SWAMP Molecular replacement
      - .. cssclass:: btn btn-primary btn-sm btn-example
 
-          :ref:`Command-line <script_lattice_search>`
+       :ref:`Show <swamp_mr_commandline>`
+   * - - SWAMP Make library
      - .. cssclass:: btn btn-primary btn-sm btn-example
 
-          :ref:`ccp4i <ccp4i_script_lattice_search>`
+       :ref:`Show <swamp_make_library>`
+   * - - SWAMP Check MR results
      - .. cssclass:: btn btn-primary btn-sm btn-example
 
-          :ref:`ccp4i2 <ccp4i2_script_lattice_search>`
+       :ref:`Show <swamp_results>`
 
-   * - - SIMBAD Contaminant Search
-     - .. cssclass:: btn btn-primary btn-sm btn-example
-
-          :ref:`Command-line <script_contaminant_search>`
-     - .. cssclass:: btn btn-primary btn-sm btn-example
-
-          :ref:`ccp4i <ccp4i_script_contaminant_search>`
-     - .. cssclass:: btn btn-primary btn-sm btn-example
-
-          :ref:`ccp4i2 <ccp4i2_script_contaminant_search>`
-
-   * - - SIMBAD MoRDa Search
-     - .. cssclass:: btn btn-primary btn-sm btn-example
-
-          :ref:`Command-line <script_morda_search>`
-     -
-     -

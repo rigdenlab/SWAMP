@@ -1,11 +1,3 @@
-/*
- * Custom CSS file extending the Bootswatch theme
- * All CSS elements are based on bootstrap 3.3.6
- *
- * Author:    Felix Simkovic
- * Date:      01/01/2017
- * Copyright: University of Liverpool
- */
 
 dd {
     margin-left: 30px;
@@ -132,27 +124,27 @@ img {
 }
 
 .btn-primary {
-    background-image: -webkit-linear-gradient(#d60f7e, #674593 50%, #674593);
-    background-image: -o-linear-gradient(#d60f7e, #674593 50%, #674593);
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#d60f7e), color-stop(50%, #674593), to(#674593));
-    background-image: linear-gradient(#d60f7e, #674593 50%, #674593);
+    background-image: -webkit-linear-gradient(#295602, #485d0f 50%, #6f651e);
+    background-image: -o-linear-gradient(#295602, #485d0f 50%, #6f651e);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#295602), color-stop(50%, #485d0f), to(#6f651e));
+    background-image: linear-gradient(#295602, #485d0f 50%, #6f651e);
     background-repeat: no-repeat;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffd60f7e', endColorstr='#ff674593', GradientType=0);
     -webkit-filter: none;
             filter: none;
-    border: 1px solid #674593;
+    border: 1px solid #6f651e;
 }
 
 .btn-primary:hover {
-    background-image: -webkit-linear-gradient(#d60f7e, #5a4b96 50%, #5a4b96);
-    background-image: -o-linear-gradient(#d60f7e, #5a4b96 50%, #5a4b96);
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#d60f7e), color-stop(50%, #5a4b96), to(#5a4b96));
-    background-image: linear-gradient(#d60f7e, #5a4b96 50%, #5a4b96);
+    background-image: -webkit-linear-gradient(#295602, #485d0f 50%, #6f651e);
+    background-image: -o-linear-gradient(#295602, #485d0f 50%, #6f651e);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#295602), color-stop(50%, #485d0f), to(#6f651e));
+    background-image: linear-gradient(#295602, #485d0f 50%, #6f651e);
     background-repeat: no-repeat;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffd60f7e', endColorstr='#ff5a4b96', GradientType=0);
     -webkit-filter: none;
             filter: none;
-    border: 1px solid #674593;
+    border: 1px solid #6f651e;
 }
 
 footer {

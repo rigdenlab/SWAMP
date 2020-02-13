@@ -17,7 +17,7 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   api/command_line.rst
+   api/mr.rst
 
 .. toctree::
    :maxdepth: 2
@@ -33,11 +33,6 @@ Documentation
    :maxdepth: 2
 
    api/parsers.rst
-
-.. toctree::
-   :maxdepth: 2
-
-   api/mr.rst
 
 .. only:: html
 

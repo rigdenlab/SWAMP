@@ -1,5 +1,5 @@
-Rotsearch subpackage
-====================
+Parsers subpackage
+==================
 
 .. automodule:: swamp.parsers
    :members:
