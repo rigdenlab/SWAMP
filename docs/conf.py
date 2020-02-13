@@ -14,6 +14,7 @@
 
 import os
 import sys
+import datetime
 
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
@@ -21,8 +22,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'SWAMP'
-copyright = '2020, Filomeno Sanchez'
-author = 'Filomeno Sanchez'
+copyright = '2019-{}, University of Liverpool'.format(datetime.datetime.now().year)
+author = 'Filomeno Sanchez, Ronan Keegan & Daniel Rigden'
 
 import sphinx_bootstrap_theme
 import swamp
