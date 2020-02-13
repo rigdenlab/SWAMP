@@ -25,8 +25,19 @@ def parse_arguments():
                         help='A file with the list of homolog structures to exclude')
     parser.add_argument("-overwrite_library", action='store_true',
                         help='If set, overwrite the SWAMP library with the new ensembles')
-    parser.add_argument("-core_ensemble", action='store_true',
-                        help='If set, ensembles will be trimmed to the core alignment between the models')
+    parser.add_argument("-min_samples", type=int, nargs="?", default=2,
+                        help='sklearn.OPTICS: no. of samples in a neighborhood for a point to be considered as a core')
+    parser.add_argument("-xi", type=float, nargs="?", default=0.01,
+                        help='sklearn.OPTICS: min.steepness on the reachability plot to constitute a cluster boundary')
+    parser.add_argument("-cluster_method", type=str, nargs="?", default='xi',
+                        help='sklearn.OPTICS: extraction method using the calculated cluster reachability')
+    parser.add_argument("-max_eps", type=float, nargs="?", default=0.2,
+                        help='sklearn.OPTICS: max. dist. between points to consider within neighborhood of each other')
+    parser.add_argument("-eps", type=float, nargs="?", default=0.2,
+                        help='sklearn.OPTICS: max. dist. between points to consider within neighborhood of each other')
+    parser.add_argument("-min_cluster_size", type=int, nargs="?", default=2,
+                        help='sklearn.OPTICS: min. no. of samples in a cluster')
+
     args = parser.parse_args()
 
     return args
@@ -56,6 +67,8 @@ def main():
     ensembles using a different clustering algorithm
     """
 
+    # ------------------ PARSE ARGUMENTS AND CREATE LOGGER ------------------
+
     args = parse_arguments()
     if not os.path.isdir(args.workdir):
         os.mkdir(args.workdir)
@@ -65,67 +78,73 @@ def main():
     logger.init(logfile=os.path.join(args.workdir, "swamp_clustering.log"), use_console=True, console_level='info',
                 logfile_level='debug')
 
-    # Load library
+    # --------------- LOAD SWAMP LIBRARY AND REMOVE HOMOLOGS ----------------
+
     logger.info('Loading fragment library\n')
     my_library = SwampLibrary(swamp.FRAG_PDB_DB, logger=logger)
     my_library.qscore_matrix = pd.read_csv(swamp.QSCORE_MTX_CSV, header=0, index_col=0)
     my_library.rmsd_matrix = pd.read_csv(swamp.RMSD_MTX_CSV, header=0, index_col=0)
     my_library.nalign_matrix = pd.read_csv(swamp.NALIGN_MTX_CSV, header=0, index_col=0)
 
-    # Load homologs and remove them from the library
     if args.homologs is not None:
         homologs_list = get_homologs(args.homologs)
         logger.info('Removing homologs from file %s => %s\n' % (args.homologs, ', '.join(homologs_list)))
         my_library.remove_homologs(homologs_list)
 
-    # Make clusters
+    # --------------------------- COMPUTE CLUSTERS --------------------------
+
     my_cluster = Optics(logger=logger)
-    my_cluster.best_params = {'min_samples': 2, 'xi': 0.01, 'cluster_method': 'xi', 'max_eps': 0.2, 'eps': 0.2,
-                              'min_cluster_size': 2}
+    my_cluster.best_params = {'min_samples': args.min_samples, 'xi': args.xi, 'cluster_method': args.cluster_method,
+                              'max_eps': args.max_eps, 'eps': args.eps, 'min_cluster_size': args.min_cluster_size}
     my_cluster.register_library(my_library)
     logger.info('Clustering fragment library to create ensembles\n')
     my_cluster.cluster()
 
-    # Process data from clusters
     logger.info('Generating index of ensembles')
     my_cluster.get_cluster_dict(my_cluster.labels, inplace=True)
     my_cluster.get_centroid_dict()
     my_cluster.get_ensemble_dict(qscore_threshold=0.83, nthreads=args.nprocs)
 
+    # ---------------------------- DUMP ENSEMBLES ---------------------------
+
     if args.overwrite_library:
+        output_dir = swamp.ENSEMBLE_DIR
+        cluster_composition_pckl = swamp.CLUSTER_COMPOSITION_PCKL
+        centroid_dict_pckl = swamp.CENTROID_DICT_PCKL
+    else:
+        output_dir = args.workdir
+        cluster_composition_pckl = os.path.join(args.workdir, 'cluster_composition.pckl')
+        centroid_dict_pckl = os.path.join(args.workdir, 'centroid_dict.pckl')
 
-        # Save the ensembles into db
-        for ensebmle_id in my_cluster.ensemble_dict.keys():
-            if my_cluster.ensemble_dict[ensebmle_id] is not None:
+    for ensebmle_id in my_cluster.ensemble_dict.keys():
+        if my_cluster.ensemble_dict[ensebmle_id] is not None:
+            # CENTROID
+            centroid_fname = os.path.join(output_dir, 'centroid_%s.pdb' % ensebmle_id)
 
-                # Copy the centroid
-                centroid_fname = os.path.join(swamp.ENSEMBLE_DIR, 'centroid_%s.pdb' % ensebmle_id)
+            shutil.copyfile(os.path.join(swamp.FRAG_PDB_DB, '%s.pdb' % my_cluster.centroid_dict[ensebmle_id]),
+                            centroid_fname)
 
-                shutil.copyfile(os.path.join(swamp.FRAG_PDB_DB, '%s.pdb' % my_cluster.centroid_dict[ensebmle_id]),
-                                centroid_fname)
+            # ENSEMBLE
+            full_ensemble_fname = os.path.join(output_dir, 'ensemble_%s.pdb' % ensebmle_id)
+            my_cluster.ensemble_dict[ensebmle_id].write_pdb(full_ensemble_fname)
 
-                # Write the ensemble
-                full_ensemble_fname = os.path.join(swamp.ENSEMBLE_DIR, 'ensemble_%s.pdb' % ensebmle_id)
-                my_cluster.ensemble_dict[ensebmle_id].write_pdb(full_ensemble_fname)
+            # CORE
+            core_ensemble_fname = os.path.join(output_dir, 'core_%s.pdb' % ensebmle_id)
+            core = Core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), pdbin=full_ensemble_fname, logger=logger,
+                        pdbout=core_ensemble_fname)
+            core.prepare()
+            shutil.rmtree(core.workdir)
 
-                # Write core only if requested
-                if args.core_ensemble:
-                    core_ensemble_fname = os.path.join(swamp.TMP_DIR, 'ensemble_%s.pdb' % ensebmle_id)
-                    core = Core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), pdbin=full_ensemble_fname,
-                                pdbout=core_ensemble_fname, logger=logger)
-                    core.prepare()
-                    shutil.move(core_ensemble_fname, full_ensemble_fname)
-                    shutil.rmtree(core.workdir)
+            # COMPRESS
+            compress(full_ensemble_fname)
+            os.remove(full_ensemble_fname)
+            compress(centroid_fname)
+            os.remove(centroid_fname)
+            compress(core_ensemble_fname)
+            os.remove(core_ensemble_fname)
 
-                # Compress files
-                compress(full_ensemble_fname)
-                os.remove(full_ensemble_fname)
-                compress(centroid_fname)
-                os.remove(centroid_fname)
-
-        # Save the cluster information
-        joblib.dump(my_cluster.composition_dict, swamp.CLUSTER_COMPOSITION_PCKL, protocol=2)
-        joblib.dump(my_cluster.centroid_dict, swamp.CENTROID_DICT_PCKL, protocol=2)
+    joblib.dump(my_cluster.composition_dict, cluster_composition_pckl, protocol=2)
+    joblib.dump(my_cluster.centroid_dict, centroid_dict_pckl, protocol=2)
 
 
 if __name__ == "__main__":
