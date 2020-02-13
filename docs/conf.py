@@ -18,6 +18,8 @@ import sys
 
 # Make SIMBAD believe we are running it as part of CCP4
 os.environ['CCP4'] = "/empty/path"
+os.environ['CCP4_SCR'] = "/empty/path"
+
 
 # Required by autosummary
 sys.path.insert(0, ".")  # for sphinxext directory
