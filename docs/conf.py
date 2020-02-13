@@ -102,7 +102,7 @@ html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 # documentation.
 #
 html_theme_options = {
-    'bootswatch_theme': 'bootstrap',
+    'bootswatch_theme': 'united',
     'bootstrap_version': '3',
 }
 
