@@ -12,3 +12,6 @@ from swamp import version
 __version__ = version.__version__
 
 import os
+
+if "CCP4" not in os.environ:
+    raise RuntimeError("Cannot find CCP4 root directory")
