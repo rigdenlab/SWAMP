@@ -114,7 +114,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'PyJobdoc'
+htmlhelp_basename = 'SWAMPdoc'
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -140,14 +140,14 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'PyJob.tex', 'PyJob Documentation', 'Felix Simkovic', 'manual'),
+    (master_doc, 'swamp.tex', 'SWAMP Documentation', 'Filomeno Sanchez', 'manual'),
 ]
 
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, 'pyjob', 'PyJob Documentation', [author], 1)]
+man_pages = [(master_doc, 'swamp', 'SWAMP Documentation', [author], 1)]
 
 # -- Options for Texinfo output ----------------------------------------------
 
@@ -155,13 +155,13 @@ man_pages = [(master_doc, 'pyjob', 'PyJob Documentation', [author], 1)]
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'PyJob', 'PyJob Documentation', author, 'PyJob', 'One line description of project.', 'Miscellaneous'),
+    (master_doc, 'SWAMP', 'SWAMP Documentation', author, 'SWAMP', 'One line description of project.', 'Miscellaneous'),
 ]
 
 
 # -- Extension configuration -------------------------------------------------
 def run_apidoc(_):
-    root = os.path.join('..', 'pyjob')
+    root = os.path.join('..', 'swamp')
     ignore_paths = [os.path.join(root, 'tests')]
     argv = ['-f', '-T', '-e', '-M', '-o', os.path.join('_build', 'apidoc'), root] + ignore_paths
     try:
