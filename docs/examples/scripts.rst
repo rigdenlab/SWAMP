@@ -4,15 +4,15 @@
    :class: table-hover
    :widths: 1200, 10
 
-   * - - SWAMP Molecular replacement
+   * - - Use SWAMP to do molecular replacement
      - .. cssclass:: btn btn-primary btn-sm btn-example
 
        :ref:`Show <swamp_mr_commandline>`
-   * - - SWAMP Make library
+   * - - Make a new ensemble library for SWAMP
      - .. cssclass:: btn btn-primary btn-sm btn-example
 
        :ref:`Show <swamp_make_library>`
-   * - - SWAMP Check MR results
+   * - - Check molecular replacement results obtained by SWAMP
      - .. cssclass:: btn btn-primary btn-sm btn-example
 
        :ref:`Show <swamp_results>`

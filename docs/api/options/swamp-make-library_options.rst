@@ -1,3 +1,5 @@
+.. _swamp_make_library_options:
+
 swamp-make-library options
 ---------------------------
 

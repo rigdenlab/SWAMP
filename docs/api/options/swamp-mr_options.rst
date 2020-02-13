@@ -1,3 +1,5 @@
+.. _swamp_mr_options:
+
 swamp-mr options
 ----------------
 
@@ -43,7 +45,8 @@ optional arguments:
 
       -pdb_benchmark        PDB file with the solved structure (for benchmarking)
 
-      -platform             Platform to execute MR jobs ('local', 'sge', 'slurm')
+      -platform             Platform to execute MR jobs ('local', 'sge', 'slurm',
+                            'local')
 
       -mtz_phases           MTZ file with phase information (for benchmarking)
 
