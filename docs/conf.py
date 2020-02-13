@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# SIMBAD documentation build configuration file, created by
+# SWAMP documentation build configuration file, created by
 # sphinx-quickstart on Thu May 26 11:57:09 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -16,7 +16,7 @@ import datetime
 import os
 import sys
 
-# Make SIMBAD believe we are running it as part of CCP4
+# Make SWAMP believe we are running it as part of CCP4
 os.environ['CCP4'] = "/empty/path"
 os.environ['CCP4_SCR'] = "/empty/path"
 
