@@ -396,9 +396,9 @@ class MrRun(Mr):
         """Method to append the results obtained into the result list"""
 
         self.results.append(
-            [self.id, self.phaser.LLG, self.phaser.TFZ, self.phaser.local_CC, self.phaser.overall_CC,
-             self.refmac.rfree, self.refmac.rfactor, self.refmac.local_CC, self.refmac.overall_CC, self.shelxe.cc,
-             self.shelxe.acl, self.is_extended, self.shelxe.solution])
+            [self.search_id, self.run_id, self.phaser.LLG, self.phaser.TFZ, self.phaser.local_CC,
+             self.phaser.overall_CC, self.refmac.rfree, self.refmac.rfactor, self.refmac.local_CC,
+             self.refmac.overall_CC, self.shelxe.cc, self.shelxe.acl, self.is_extended, self.shelxe.solution])
 
     def run(self):
         """Run the MR pipeline using of phaser, refmac5 and shelxe. Extend the possible solution with ideal helices.

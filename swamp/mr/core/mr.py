@@ -28,6 +28,8 @@ class Mr(ABC):
 
         self._init_params = locals()
         self._id = id
+        self._search_id = id.split('_')[1]
+        self._run_id = id.split('_')[3]
         self._workdir = workdir
         self.make_workdir()
         os.chdir(self.workdir)
@@ -68,8 +70,8 @@ class Mr(ABC):
     def _result_table_fields(self):
         """List of the field names in the results table"""
 
-        return ["SEARCH ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT", "RFMC_CC_LOC",
-                "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
+        return ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT",
+                "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
 
     @property
     def logger(self):
@@ -86,6 +88,22 @@ class Mr(ABC):
     @id.setter
     def id(self, value):
         self._id = value
+
+    @property
+    def search_id(self):
+        return self._search_id
+
+    @search_id.setter
+    def search_id(self, value):
+        self._search_id = value
+
+    @property
+    def run_id(self):
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, value):
+        self._run_id = value
 
     @property
     def target_fa(self):
@@ -177,7 +195,7 @@ class Mr(ABC):
     def table_contents(self):
         """String to be written to the result table file"""
 
-        self.results = sorted(self.results, key=lambda x: x[9] if x[9] != 'NA' else float('0.0'), reverse=True)
+        self.results = sorted(self.results, key=lambda x: x[10] if x[10] != 'NA' else float('0.0'), reverse=True)
 
         table = PrettyTable(self._result_table_fields)
         for result in self.results:
