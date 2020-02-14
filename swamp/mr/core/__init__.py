@@ -1,4 +1,4 @@
-"""This is SWAMP: Solving structures With Alpha Membrane Pairs
+"""SWAMP: Solving structures With Alpha Membrane Pairs
 
 This module implements classes and methods necessary to do molecular replacement on a given target using helical pairs.
 """

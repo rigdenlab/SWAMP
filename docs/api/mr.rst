@@ -9,5 +9,5 @@ Molecular Replacement subpackage
 .. toctree::
    :glob:
 
-   generated/swamp.mr.*
+   generated/swamp.mr.core*
 

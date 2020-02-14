@@ -9,16 +9,14 @@ ABC = abc.ABCMeta('ABC', (object,), {})
 
 
 class Mr(ABC):
-    """Abstract class for MR realted pipelines
+    """This is an abstract class for MR pipelines. It implements data structures and methods commonly used in MR tasks.
 
-    Implements data structures and methods commonly used in MR tasks
-
-    :param str, int id: unique identifier for the instance
+    :param str id: unique identifier for the MR instance
     :param str target_fa: target's fasta filename
     :param str target_mtz: target's mtz filename
-    :param str workdir: working directory where the MR task will be executed
-    :param str phased_mtz: filename of the target's mtz containing phases (default None)
-    :param logger: logging interface for the MR pipeline (default None)
+    :param str workdir: working directory where the MR pipeline will be executed
+    :param str phased_mtz: filename of the target's mtz containing phase information (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the MR pipeline (default None)
     :param bool silent: if set to True the logger will not print messages (default False)
     :ivar bool error: True if errors have occurred at some point on the pipeline
     :ivar list results: contains the results obtained in the MR pipeline
@@ -55,26 +53,27 @@ class Mr(ABC):
 
     @abc.abstractmethod
     def append_results(self):
-        """Abstract method to append the results obtained so far into the result list"""
+        """Abstract method to append the results obtained so far into :py:attr:`~swamp.mr.mr.Mr.results`"""
         pass
 
     @property
     @abc.abstractmethod
     def cleanup_dir_list(self):
-        """ Abstract property to hold the location of the cleanup_dir_list"""
+        """ Abstract property to hold the location of the directories to cleanup after completion of the pipeline"""
         pass
 
     # ------------------ Some general properties ------------------
 
     @property
     def _result_table_fields(self):
-        """List of the field names in the results table"""
+        """A list of the column names in the :py:attr:`~swamp.mr.mr.Mr.table_contents`"""
 
         return ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT",
                 "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
 
     @property
     def logger(self):
+        """ :py:obj:`~swamp.logger.swamplogger.SwampLogger` logging interface for the MR pipeline (default None)"""
         return self._logger
 
     @logger.setter
@@ -83,6 +82,8 @@ class Mr(ABC):
 
     @property
     def id(self):
+        """Unique identifier for the MR instance. It is the result of combining :py:attr:`~swamp.mr.mr.Mr.search_id` and
+         :py:attr:`~swamp.mr.mr.Mr.run_id`"""
         return self._id
 
     @id.setter
@@ -91,6 +92,7 @@ class Mr(ABC):
 
     @property
     def search_id(self):
+        """Corresponds with the unique search model identifier of the instance"""
         return self._search_id
 
     @search_id.setter
@@ -99,6 +101,7 @@ class Mr(ABC):
 
     @property
     def run_id(self):
+        """Corresponds with the unique MR run identifier of the search model"""
         return self._run_id
 
     @run_id.setter
@@ -107,6 +110,7 @@ class Mr(ABC):
 
     @property
     def target_fa(self):
+        """Target's fasta filename"""
         return self._target_fa
 
     @target_fa.setter
@@ -115,6 +119,7 @@ class Mr(ABC):
 
     @property
     def workdir(self):
+        """working directory where the MR pipeline will be executed"""
         return self._workdir
 
     @workdir.setter
@@ -123,10 +128,12 @@ class Mr(ABC):
 
     @property
     def phased_mtz(self):
+        """Filename of the target's mtz containing phase information"""
         return self._phased_mtz
 
     @phased_mtz.setter
     def phased_mtz(self, value):
+        """Filename of the target's mtz"""
         self._phased_mtz = value
 
     @property
@@ -139,6 +146,7 @@ class Mr(ABC):
 
     @property
     def error(self):
+        """This property returns True if errors have been detected during the completion of the pipeline"""
         return self._error
 
     @error.setter
@@ -147,6 +155,7 @@ class Mr(ABC):
 
     @property
     def results(self):
+        """A list with the figures of merit obtained after the completion of the pipeline"""
         return self._results
 
     @results.setter
@@ -155,7 +164,7 @@ class Mr(ABC):
 
     @property
     def init_params(self):
-        """Property to store the initial parameters used to instantiate the object"""
+        """A dictionary to store the initial parameters used to instantiate the :py:obj:`~swamp.mr.core.Mr`"""
 
         if "self" in self._init_params:
             del self._init_params["self"]
@@ -173,17 +182,17 @@ class Mr(ABC):
 
     @property
     def result_table_fname(self):
-        """Filename of the output result table"""
+        """Filename where the string representation of :py:attr:`~swamp.mr.mr.Mr.table_contents` will be written"""
         return os.path.join(self.workdir, "results.table")
 
     @property
     def result_pickle_fname(self):
-        """Filename of the output result pickle"""
+        """Filename where the :py:obj:`~swamp.mr.core.Mr` instance will be pickled"""
         return os.path.join(self.workdir, "results.pckl")
 
     @property
     def pipeline_header(self):
-        """Header used at the top of the logger"""
+        """Header displayed when initiating :py:obj:`~swamp.logger.swamplogger.SwampLogger`"""
 
         return """\n**********************************************************************
 **********************           {}           ******************
@@ -193,7 +202,7 @@ class Mr(ABC):
 
     @property
     def table_contents(self):
-        """String to be written to the result table file"""
+        """String representation of :py:attr:`~swamp.mr.mr.Mr.results` displayed as a table"""
 
         self.results = sorted(self.results, key=lambda x: x[10] if x[10] != 'NA' else float('0.0'), reverse=True)
 
@@ -212,18 +221,18 @@ class Mr(ABC):
     # ------------------ Some general methods ------------------
 
     def make_workdir(self):
-        """Method to create the working directory for the MR pipeline"""
+        """Method to create the working directory of the :py:obj:`~swamp.mr.core.Mr` instance"""
 
         if not (os.path.isdir(self.workdir)):
             os.makedirs(self.workdir)
 
     def store_pickle(self, fname=None, mode="ab"):
-        """Method to store a pickle with the :obj:`~swamp.mr.mr.Mr` instance
+        """Method to pickle the :py:obj:`~swamp.mr.core.Mr` instance into a file
 
         :param fname: filename where the pickle will be created (default None)
         :type fname: str
-        :param: mode: mode that will be used to open the file handle (default 'ab')
-        :type: mode: str
+        :param mode: mode that will be used to open the file handle (default 'ab')
+        :type mode: str
         """
 
         if fname is None:
@@ -234,7 +243,8 @@ class Mr(ABC):
         pickle_file.close()
 
     def create_result_table_outfile(self, fname=None):
-        """Method to create a result table
+        """Method to write string representation of :py:attr:`~swamp.mr.mr.Mr.table_contents` into
+        :py:attr:`~swamp.mr.mr.Mr.result_table_fname` or into a specific file if `fname` is set.
 
         :param fname: filename where the result table will be created (default None)
         :type fname: str
@@ -257,7 +267,7 @@ class Mr(ABC):
     # ------------------ Some protected and static methods ------------------
 
     def _cleanup_files(self):
-        """Method to cleanup files in order to save disk space"""
+        """Method to cleanup the files indicated at :py:attr:`~swamp.mr.mr.Mr.cleanup_dir_list`"""
 
         self.logger.info("Saving disk space now...")
 
@@ -268,7 +278,8 @@ class Mr(ABC):
 
     @staticmethod
     def _inform_args(**kwargs):
-        """Method to inform the user of the initial parameters used for the creation of this instance"""
+        """Create a string representation of the initial parameters used for the creation of this instance, as stored in
+        :py:attr:`~swamp.mr.mr.Mr.init_params`"""
 
         msg = "Arguments provided:\n\n"
         for key in kwargs.keys():
