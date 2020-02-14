@@ -1,6 +1,6 @@
 .. _swamp_results_options:
 
-swamp-make-library options
+swamp-results options
 ---------------------------
 
 .. code-block:: shell
