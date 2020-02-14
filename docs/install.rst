@@ -4,11 +4,13 @@ Installing SWAMP
 ----------------
 
 Before installing SWAMP, make sure that you systems meets the following dependencies:
+
     * CCP4 7.1
     * Biopython 1.74
     * pyjob 0.4
     * conkit 0.11
     * biopython 1.74
+
 
 
 1. Clone the repository
@@ -17,6 +19,8 @@ Before installing SWAMP, make sure that you systems meets the following dependen
 .. code-block:: shell
 
     git clone https://github.com/rigdenlab/SWAMP
+
+
 
 2. Build SWAMP
 ^^^^^^^^^^^^^^
