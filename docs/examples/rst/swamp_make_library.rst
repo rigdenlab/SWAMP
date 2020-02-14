@@ -1,3 +1,5 @@
+.. _swamp_make_library:
+
 Make a helical pair ensemble library with SWAMP
 -----------------------------------------------
 
@@ -10,4 +12,5 @@ This command line tool allows the user to create their own library of helical pa
 
     swamp-make-library "<workdir>"
 
-Additional options are available, check them out `here <https://github.com/rigdenlab/SWAMP/tree/master/docs/options/swamp-make-library_options.rst>`_.
+Additional options are available, check them out :ref:`here <swamp_make_library_options>`.
+Please note that in order to re-create a new library you will need to download the data from here.

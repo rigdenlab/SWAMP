@@ -1,3 +1,5 @@
+.. _swamp_mr_commandline:
+
 Performing molecular replacement with SWAMP
 -------------------------------------------
 
@@ -10,10 +12,10 @@ In order to run swamp-mr you will first need to obtain `transmembrane topology <
 
     swamp-mr "<id>" "<workdir>" "<mtzfile>" "<fastafile>" "<conpred>" "<sspred>"
 
-Additional options are available, check them out `here <https://github.com/rigdenlab/SWAMP/tree/master/docs/options/swamp-mr_options.rst>`_. After running the above command, SWAMP will create the directory ``<workdir>/swamp-mr``. Within this directory, both a ``swamp_scan`` and a ``swamp_mr`` directories will be created, containing the results obtained for the library CMO scan and the molecular replacement, respectively.
+Additional options are available, check them out :ref:`here <swamp_mr_options>`. After running the above command, SWAMP will create the directory ``<workdir>/swamp-mr``. Within this directory, both a ``swamp_scan`` and a ``swamp_mr`` directories will be created, containing the results obtained for the library CMO scan and the molecular replacement, respectively.
 
 
-A full swamp-mr run can result quite time consuming, if you wish to check out the results swamp has obtained so far you can use ``swamp-results`` as described `here <https://github.com/rigdenlab/SWAMP/blob/master/docs/examples/swamp-results.rst>`_.
+A full swamp-mr run can result quite time consuming, if you wish to check out the results swamp has obtained so far you can use :ref:`swamp-results <swamp_results>`.
 
 2. Output
 ^^^^^^^^^

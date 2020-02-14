@@ -1,3 +1,5 @@
+.. _docs_install:
+
 Installing SWAMP
 ----------------
 
@@ -12,12 +14,13 @@ Before installing SWAMP you may wish to make sure that the following `dependenci
 
     git clone https://github.com/rigdenlab/SWAMP
 
-3. Create symbolic links to CCP4 libraries
+3. Build SWAMP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: shell
 
-    ln -s SWAMP/swamp $CCP4/lib/py2/swamp
-    ln -s SWAMP/bin/swamp-mr $CCP4/bin/swamp-mr
-    ln -s SWAMP/bin/swamp-results $CCP4/bin/swamp-results
-    ln -s SWAMP/bin/swamp-make-library $CCP4/bin/swamp-make-library
+    mkdir SWAMP/build
+    cd SWAMP/build
+    cmake ..
+    make install
+

@@ -1,7 +1,9 @@
-SWAMP-MR options
+.. _swamp_mr_options:
+
+swamp-mr options
 ----------------
 
-.. code-block::
+.. code-block:: text
 
     usage: swamp-mr    [-h] [-nprocs [NPROCS]] [-pdb_benchmark [FILENAME]]
                        [-platform [PLATFORM]] [-mtz_phases [FILENAME]]
@@ -16,7 +18,7 @@ SWAMP-MR options
 positional arguments:
 +++++++++++++++++++++
 
-.. code-block::
+.. code-block:: text
 
       id                    Unique identifier for this MR run
 
@@ -35,7 +37,7 @@ positional arguments:
 optional arguments:
 +++++++++++++++++++
 
-.. code-block::
+.. code-block:: text
 
       -h, --help            show this help message and exit
 
@@ -43,7 +45,8 @@ optional arguments:
 
       -pdb_benchmark        PDB file with the solved structure (for benchmarking)
 
-      -platform             Platform to execute MR jobs ('local', 'sge', 'slurm')
+      -platform             Platform to execute MR jobs ('local', 'sge', 'slurm',
+                            'local')
 
       -mtz_phases           MTZ file with phase information (for benchmarking)
 
