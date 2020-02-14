@@ -12,7 +12,7 @@ A full swamp-mr run can result quite time consuming, but uou don't need to wait 
 
     swamp-results SWAMP_0
 
-You would normally need to specify the full path to the ``SWAMP_X`` of interest directory . Check put all the options of ``swamp-results`` :ref:`here <swamp_results_options>`. After running the above command, SWAMP will retrieve the results from the directory ``SWAMP_0/swamp_mr`` and display a table with the top N results (sorted by shelxe CC).
+You would normally need to specify the full path to the ``SWAMP_X`` of interest directory . Check out all the options of this command :ref:`here <swamp_results_options>`. After running the above command, SWAMP will retrieve the results from the directory ``SWAMP_0/swamp_mr`` and display a table with the top N results (sorted by shelxe CC).
 
 
 2. Output table
@@ -21,7 +21,7 @@ You would normally need to specify the full path to the ``SWAMP_X`` of interest 
 The following example table contains depicts typical output of ``swamp-results``. Note that the results in the table are sorted by decreasing ``SHXE_CC``.
 
 +-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-|  SEARCH ID  |    RUN ID   |   LLG   | TFZ | PHSR_CC_LOC | PHSR_CC_ALL | RFMC_RFREE | RFMC_RFACT | RFMC_CC_LOC | RFMC_CC_ALL | SHXE_CC | SHXE_ACL | IS_EXTENDED | SOLUTION |
+|  SEARCH_ID  |    RUN_ID   |   LLG   | TFZ | PHSR_CC_LOC | PHSR_CC_ALL | RFMC_RFREE | RFMC_RFACT | RFMC_CC_LOC | RFMC_CC_ALL | SHXE_CC | SHXE_ACL | IS_EXTENDED | SOLUTION |
 +=============+=============+=========+=====+=============+=============+============+============+=============+=============+=========+==========+=============+==========+
 |     951     |      1      |  82.286 | 6.0 |    0.529    |     0.21    |   0.6018   |   0.5927   |    0.608    |    0.248    |  35.33  |   25.0   |     YES     |    YES   |
 +-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
