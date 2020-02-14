@@ -1,3 +1,5 @@
+.. _docs_install:
+
 Installing SWAMP
 ----------------
 
