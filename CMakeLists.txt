@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 project(swamp NONE)
 
-SET(ccp4_py2   $ENV{CCP4}/lib/py2)
-SET(ccp4_bin   $ENV{CCP4}/bin)
-SET(ccp4_share   $ENV{CCP4}/share)
+
+IF(DEFINED ENV{CCP4})
+    SET(ccp4_py2   $ENV{CCP4}/lib/py2)
+    SET(ccp4_bin   $ENV{CCP4}/bin)
+    SET(ccp4_share   $ENV{CCP4}/share)
+ELSE()
+    MESSAGE(FATAL_ERROR "CCP4 must be installed before using SWAMP, cannot install")
+ENDIF()
 
 install (
     DIRECTORY

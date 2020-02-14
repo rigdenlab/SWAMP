@@ -152,7 +152,6 @@ html_theme_options = {
         ('Installation', 'install'),
         ('Examples', 'examples'),
         ('Documentation', 'contents'),
-        ('Server', 'server'),
     ],
     # Render the next and previous page links in navbar.
     'navbar_sidebarrel':
