@@ -5,10 +5,10 @@
 __pychache__/
 
 # SWAMP library
-/swamp/library/distance_mtx/
-/swamp/library/gesamt_scan/
-/swamp/library/pdb/
-/swamp/library/ensembles/
+/static/distance_mtx/
+/static/gesamt_scan/
+/static/pdb/
+/static/ensembles/
 *distance_mtx/
 *gesamt_scan/
 *pdb/
@@ -30,3 +30,6 @@ venv.bak/
 /docs/source/
 /docs/_build/
 /docs/api/generated/
+
+# CMake build dir
+/build/
