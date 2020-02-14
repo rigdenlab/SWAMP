@@ -11,7 +11,7 @@ ABC = abc.ABCMeta('ABC', (object,), {})
 class Mr(ABC):
     """This is an abstract class for MR pipelines. It implements data structures and methods commonly used in MR tasks.
 
-    :param str id: unique identifier for the MR instance
+    :param str id: unique identifier for the :py:obj:`~swamp.mr.core.mr.Mr` instance
     :param str target_fa: target's fasta filename
     :param str target_mtz: target's mtz filename
     :param str workdir: working directory where the MR pipeline will be executed
@@ -164,7 +164,7 @@ class Mr(ABC):
 
     @property
     def init_params(self):
-        """A dictionary to store the initial parameters used to instantiate the :py:obj:`~swamp.mr.core.Mr`"""
+        """A dictionary to store the initial parameters used to instantiate the :py:obj:`~swamp.mr.core.mr.Mr`"""
 
         if "self" in self._init_params:
             del self._init_params["self"]
@@ -187,7 +187,7 @@ class Mr(ABC):
 
     @property
     def result_pickle_fname(self):
-        """Filename where the :py:obj:`~swamp.mr.core.Mr` instance will be pickled"""
+        """Filename where the :py:obj:`~swamp.mr.core.mr.Mr` instance will be pickled"""
         return os.path.join(self.workdir, "results.pckl")
 
     @property
@@ -221,13 +221,13 @@ class Mr(ABC):
     # ------------------ Some general methods ------------------
 
     def make_workdir(self):
-        """Method to create the working directory of the :py:obj:`~swamp.mr.core.Mr` instance"""
+        """Method to create the working directory of the :py:obj:`~swamp.mr.core.mr.Mr` instance"""
 
         if not (os.path.isdir(self.workdir)):
             os.makedirs(self.workdir)
 
     def store_pickle(self, fname=None, mode="ab"):
-        """Method to pickle the :py:obj:`~swamp.mr.core.Mr` instance into a file
+        """Method to pickle the :py:obj:`~swamp.mr.core.mr.Mr` instance into a file
 
         :param fname: filename where the pickle will be created (default None)
         :type fname: str
