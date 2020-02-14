@@ -152,7 +152,6 @@ html_theme_options = {
         ('Installation', 'install'),
         ('Examples', 'examples'),
         ('Documentation', 'contents'),
-        ('Server', 'server'),
     ],
     # Render the next and previous page links in navbar.
     'navbar_sidebarrel':
@@ -200,7 +199,7 @@ html_logo = '_static/logo_swamp.svg'
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-html_favicon = '_static/favicon.ico'
+html_favicon = '_static/swampicon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -288,14 +287,6 @@ htmlhelp_basename = 'SWAMPdoc'
 # Latex figure (float) alignment
 #'figure_align': 'htbp',
 #}
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
-#latex_documents = [
-#    (master_doc, 'SIMBAD.tex', u'SIMBAD Documentation',
-#     u'Jens Thomas, Felix Simkovic, Adam Simpkin, Ronan Keegan', 'manual'),
-#]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.

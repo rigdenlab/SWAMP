@@ -3,35 +3,43 @@
 Performing molecular replacement with SWAMP
 -------------------------------------------
 
-1. Running swamp-mr
+In this tutorial you will use SWAMP to perform molecular replacement on a bacteriorhodopsin structure `1UCQ <https://www.rcsb.org/structure/1UCQ>`_. The required files for this have been provided `here <https://github.com/rigdenlab/SWAMP/tree/update_docs/docs/_static/data>`_.
+
+
+1. Obtain predictions about your target structure
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Before running SWAMP, it is necessary to first obtain `transmembrane topology <http://topcons.cbr.su.se/>`_ and `residue contact <http://raptorx.uchicago.edu/ContactMap/>`_ predictions for your structure of interest. For the purpose of this example, the data has been already provided as ``1ucq.topcons`` and ``1ucq.psicov`` respectively.
+
+
+2. Running swamp-mr
 ^^^^^^^^^^^^^^^^^^^
 
-In order to run swamp-mr you will first need to obtain `transmembrane topology <http://topcons.cbr.su.se/>`_ and `residue contact <http://raptorx.uchicago.edu/ContactMap/>`_ predictions for your structure of interest. Once this is done, swamp-mr can be executed as follows:
+Once all the required input files are gathered, SWAMP-MR can be executed on the terminal as follows:
 
 .. code-block:: shell
 
-    swamp-mr "<id>" "<workdir>" "<mtzfile>" "<fastafile>" "<conpred>" "<sspred>"
-
-Additional options are available, check them out :ref:`here <swamp_mr_options>`. After running the above command, SWAMP will create the directory ``<workdir>/swamp-mr``. Within this directory, both a ``swamp_scan`` and a ``swamp_mr`` directories will be created, containing the results obtained for the library CMO scan and the molecular replacement, respectively.
+    swamp-mr 1ucq /home/user/tutorial 1ucq.mtz 1ucq.fasta 1ucq.psicov 1ucq.topcons
 
 
-A full swamp-mr run can result quite time consuming, if you wish to check out the results swamp has obtained so far you can use :ref:`swamp-results <swamp_results>`.
+Additional options are available, check them out . After running the above command, SWAMP will create the directory ``<workdir>/SWAMP_0``. Within this directory, all the metadata that SWAMP uses to solve the structure of interest is stored. First, SWAMP will run a CMO scan of the target predicted contacts against the library of helical pairs Data for this scan can be found at ``<workdir>/SWAMP_0/swamp_scan``. After identifying the valid search models, SWAMP will run a try to solve the structure with a subroutine consisting of ``phaser`` for molecular replacement, ``refmac5`` for refinement and ``shelxe`` for model building and density modification. Results for this subroutine are found at ``<workdir>/SWAMP_0/swamp_mr``. Additionally, a full swamp-mr run can result quite time consuming, so if you wish to check out the results swamp has obtained at any given point you can use :ref:`swamp-results <swamp_results>`.
 
-2. Output
-^^^^^^^^^
+
+2. Understand the results
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once SWAMP has finished execution of all MR jobs, a table summarising the obtained results will be printed:
 
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-|     SEARCH ID     |   LLG   | TFZ | PHSR_CC_LOC | PHSR_CC_ALL | RFMC_RFREE | RFMC_RFACT | RFMC_CC_LOC | RFMC_CC_ALL | SHXE_CC | SHXE_ACL | IS_EXTENDED | SOLUTION |
-+===================+=========+=====+=============+=============+============+============+=============+=============+=========+==========+=============+==========+
-|  search_277_run_1 |  41.049 | 8.7 |    0.612    |    0.414    |   0.5745   |   0.5355   |     0.65    |    0.434    |  32.65  |   21.0   |     YES     |    YES   |
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-|  search_951_run_1 |  82.286 | 6.0 |    0.529    |     0.21    |   0.6018   |   0.5927   |    0.608    |    0.248    |  35.33  |   25.0   |     YES     |    YES   |
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-|  search_169_run_1 |  71.073 | 5.0 |    0.125    |    0.023    |   0.6215   |   0.5897   |    0.112    |    0.026    |  23.08  |   9.0    |     YES     |    NO    |
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-| search_1008_run_1 |  90.720 | 6.4 |    0.218    |    0.123    |   0.5793   |   0.5922   |    0.228    |    0.125    |  23.03  |   10.0   |     YES     |    NO    |
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|  SEARCH_ID  |    RUN_ID   |   LLG   | TFZ | PHSR_CC_LOC | PHSR_CC_ALL | RFMC_RFREE | RFMC_RFACT | RFMC_CC_LOC | RFMC_CC_ALL | SHXE_CC | SHXE_ACL | IS_EXTENDED | SOLUTION |
++=============+=============+=========+=====+=============+=============+============+============+=============+=============+=========+==========+=============+==========+
+|     951     |      1      |  82.286 | 6.0 |    0.529    |     0.21    |   0.6018   |   0.5927   |    0.608    |    0.248    |  35.33  |   25.0   |     YES     |    YES   |
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|     277     |      1      |  41.006 | 8.5 |    0.619    |     0.41    |   0.5745   |   0.5355   |    0.65     |    0.434    |  32.63  |   21.0   |     YES     |    YES   |
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|     169     |      1      |  71.073 | 5.0 |    0.125    |     0.02    |   0.6215   |   0.5897   |    0.112    |    0.026    |  23.08  |   9.0    |     YES     |    NO    |
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|     1008    |      1      |  90.720 | 6.4 |    0.218    |     0.12    |   0.5793   |   0.5922   |    0.22     |    0.125    |  23.03  |   21.0   |      NO     |    NO    |
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
 
-You can see how to interpret the results displayed in this table `here <https://github.com/rigdenlab/SWAMP/blob/master/docs/examples/swamp-results.rst>`_.
+This table and the information it contains can be interpreted in the same way as the output generated by :ref:`here <swamp_results>`.

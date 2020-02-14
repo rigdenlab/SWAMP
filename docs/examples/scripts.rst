@@ -12,7 +12,7 @@
      - .. cssclass:: btn btn-primary btn-sm btn-example
 
        :ref:`Show <swamp_make_library>`
-   * - - Check molecular replacement results obtained by SWAMP
+   * - - Check out results obtained by SWAMP-MR
      - .. cssclass:: btn btn-primary btn-sm btn-example
 
        :ref:`Show <swamp_results>`

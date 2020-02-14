@@ -8,14 +8,14 @@ from swamp.logger.swamplogger import SwampLogger
 class MrResults(object):
     """Class to handle the results from a SWAMP MR array task
 
-    :param workdir: working directory where swamp-mr was executed
-    :type workdir: str
+    :param swamp_workdir: SWAMP_X working directory
+    :type swamp_workdir: str
     """
 
-    def __init__(self, workdir, logger=None):
+    def __init__(self, swamp_workdir, logger=None):
 
-        assert os.path.isdir(workdir), "Cannot find work_dir: %s" % workdir
-        self.mr_dir = os.path.join(workdir, 'swamp_mr')
+        assert os.path.isdir(swamp_workdir), "Cannot find work_dir: %s" % swamp_workdir
+        self.mr_dir = os.path.join(swamp_workdir, 'swamp_mr')
         assert os.path.isdir(self.mr_dir), "Cannot find Mr results directory: %s" % self.mr_dir
         self.pickle_list = self.lookup_pickles(self.mr_dir)
         if logger is None:
@@ -43,8 +43,8 @@ Recovering results now...
     def _result_table_fields(self):
         """List of the field names in the results table"""
 
-        return ["SEARCH ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT", "RFMC_CC_LOC",
-                "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
+        return ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT",
+                "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
 
     def report_results(self, top=50):
         """Print in the stdout the table with the top results
@@ -74,7 +74,7 @@ Recovering results now...
             pickle_fhandle.close()
             self.results += mr_run.results
 
-        self.results = sorted(self.results, key=lambda x: x[9] if x[9] != 'NA' else float('0.0'), reverse=True)
+        self.results = sorted(self.results, key=lambda x: x[10] if x[10] != 'NA' else float('0.0'), reverse=True)
 
     @staticmethod
     def lookup_pickles(mr_dir):

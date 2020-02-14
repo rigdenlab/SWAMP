@@ -1,52 +1,42 @@
 .. _swamp_results:
 
-Retrieving molecular replacement results
+Retrieving SWAMP-MR results
 ----------------------------------------
 
 1. Running swamp-results
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-A full swamp-mr run can result quite time consuming, but we provide a command line tool to check the results obtained by SWAMP at any moment ``swamp-results``. To pull the results, simply run:
+A full swamp-mr run can result quite time consuming, but uou don't need to wait until the full run is finished to check out if SWAMP already found a solution. We provide a command line tool to check the results obtained by SWAMP at any moment ``swamp-results``. To pull the results, simply run:
 
 .. code-block:: shell
 
-    swamp-results "<workdir>" [-top_results [TOP_RESULTS]]
+    swamp-results SWAMP_0
 
-    positional argument:
-
-      workdir               SWAMP-MR working directory
-
-    optional arguments:
-
-      -top_results         Produce a table with the top N results (default 50)
-
-
-After running the above command, SWAMP will retrieve the results from the directory ``<workdir>/swamp_mr`` and display a table with the top N results (sorted by shelxe CC).
+You would normally need to specify the full path to the ``SWAMP_X`` of interest directory . Check out all the options of this command :ref:`here <swamp_results_options>`. After running the above command, SWAMP will retrieve the results from the directory ``SWAMP_0/swamp_mr`` and display a table with the top N results (sorted by shelxe CC).
 
 
 2. Output table
 ^^^^^^^^^^^^^^^
 
-The following example table contains depicts typical output of ``swamp-results``
+The following example table contains depicts typical output of ``swamp-results``. Note that the results in the table are sorted by decreasing ``SHXE_CC``.
 
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-|     SEARCH ID     |   LLG   | TFZ | PHSR_CC_LOC | PHSR_CC_ALL | RFMC_RFREE | RFMC_RFACT | RFMC_CC_LOC | RFMC_CC_ALL | SHXE_CC | SHXE_ACL | IS_EXTENDED | SOLUTION |
-+===================+=========+=====+=============+=============+============+============+=============+=============+=========+==========+=============+==========+
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-|  search_951_run_1 |  82.286 | 6.0 |    0.529    |     0.21    |   0.6018   |   0.5927   |    0.608    |    0.248    |  35.33  |   25.0   |     YES     |    YES   |
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-|  search_277_run_1 |  41.049 | 8.7 |    0.612    |    0.414    |   0.5745   |   0.5355   |     0.65    |    0.434    |  32.65  |   21.0   |     YES     |    YES   |
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-|  search_169_run_1 |  71.073 | 5.0 |    0.125    |    0.023    |   0.6215   |   0.5897   |    0.112    |    0.026    |  23.08  |   9.0    |     YES     |    NO    |
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
-| search_1008_run_1 |  90.720 | 6.4 |    0.218    |    0.123    |   0.5793   |   0.5922   |    0.228    |    0.125    |  23.03  |   10.0   |     YES     |    NO    |
-+-------------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|  SEARCH_ID  |    RUN_ID   |   LLG   | TFZ | PHSR_CC_LOC | PHSR_CC_ALL | RFMC_RFREE | RFMC_RFACT | RFMC_CC_LOC | RFMC_CC_ALL | SHXE_CC | SHXE_ACL | IS_EXTENDED | SOLUTION |
++=============+=============+=========+=====+=============+=============+============+============+=============+=============+=========+==========+=============+==========+
+|     951     |      1      |  82.286 | 6.0 |    0.529    |     0.21    |   0.6018   |   0.5927   |    0.608    |    0.248    |  35.33  |   25.0   |     YES     |    YES   |
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|     277     |      1      |  41.006 | 8.5 |    0.619    |     0.41    |   0.5745   |   0.5355   |    0.65     |    0.434    |  32.63  |   21.0   |     YES     |    YES   |
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|     169     |      1      |  71.073 | 5.0 |    0.125    |     0.02    |   0.6215   |   0.5897   |    0.112    |    0.026    |  23.08  |   9.0    |     YES     |    NO    |
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
+|     1008    |      1      |  90.720 | 6.4 |    0.218    |     0.12    |   0.5793   |   0.5922   |    0.22     |    0.125    |  23.03  |   21.0   |      NO     |    NO    |
++-------------+-------------+---------+-----+-------------+-------------+------------+------------+-------------+-------------+---------+----------+-------------+----------+
 
 
 Table fields:
 +++++++++++++
 
-* **SEARCH_ID**: Unique identifier associated with a particular job. This id can be used to retrieve the metadata and temporary files generated byt each MR job: ``<workdir>/swamp_mr/<search_id>/<run_id>``
+* **SEARCH_ID & RUN_ID**: Unique identifiers associated with a particular job. This id can be used to retrieve the metadata and temporary files generated byt each MR job: ``<workdir>/swamp_mr/<search_id>/<run_id>``
 * **LLG**: LLG as reported by *Phaser* after placing the search model
 * **TFZ**: TFZ as reported by *Phaser* after placing the search model
 * **PHSR_CC_LOC**: Local correlation coefficient between the map and the placed model after adjusting model for origin shifts (only calculated if a MTZ file with phase information is provided for benchmarking, otherwise will be 'NA')
