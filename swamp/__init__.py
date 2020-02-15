@@ -57,7 +57,7 @@ if 'THIS_IS_READTHEDOCS' not in os.environ:
 
 TMP_DIR = os.environ["CCP4_SCR"]
 PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")
-LIBRARY = os.path.join(PACKAGE_PATH, "library", "db")
+LIBRARY = os.path.join(os.environ["CCP4"], "share", "swamp", "db")
 IDEALHELICES_DIR = os.path.join(LIBRARY, "idealhelices")
 FRAG_MAPALIGN_DB = os.path.join(LIBRARY, "mapalign")
 FRAG_EIGEN_DB = os.path.join(LIBRARY, "eigen")
@@ -65,7 +65,6 @@ FRAG_ALEIGEN_DB = os.path.join(LIBRARY, "aleigen")
 FRAG_PDB_DB = os.path.join(LIBRARY, "pdb")
 ENSEMBLE_DIR = os.path.join(LIBRARY, 'ensembles')
 DIST_MTX_DIR = os.path.join(LIBRARY, 'distance_mtx')
-
 CLUSTER_COMPOSITION_PCKL = os.path.join(ENSEMBLE_DIR, 'cluster_composition.pckl')
 CENTROID_DICT_PCKL = os.path.join(ENSEMBLE_DIR, 'centroid_dict.pckl')
 QSCORE_MTX_CSV = os.path.join(DIST_MTX_DIR, 'qscore_mtx.csv')
