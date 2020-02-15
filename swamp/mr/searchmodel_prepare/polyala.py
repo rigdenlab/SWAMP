@@ -1,20 +1,13 @@
 import os
 import gemmi
 from swamp.library.tools.pdb_tools import renumber_hierarchy
-from swamp.mr.searchmodel_prepare.prepare import PrepareSearchModel
+from swamp.mr.searchmodel_prepare.preparesearchmodel import PrepareSearchModel
 
 
 class PolyALA(PrepareSearchModel):
     """Class to strip side chains from the search model.
 
-    :param workdir: working directory where the search model will be prepared
-    :type workdir: str
-    :param pdbin: input pdb file name
-    :type pdbin: str
-    :param pdbout: output pdb file name
-    :type pdbout: str
-    :param logger: logging interface for the instance (default None)
-    :type logger: None, :obj:`swamp.logger.swamplogger.SwampLogger`
+    Extends :py:obj:`~swamp.mr.searchmodel_prepare.prepare.PrepareSearchModel`
 
     :examples
 
@@ -28,13 +21,13 @@ class PolyALA(PrepareSearchModel):
 
     @property
     def modification(self):
-        """Property to store the modification to be applied"""
+        """Property to store the modification to be applied ("polyala")"""
         return "polyala"
 
     # ------------------ Class specific methods ------------------
 
     def prepare(self):
-        """Trim the side chains out of the models in the ensemble"""
+        """Trim the side chains out of the models in the :py:attr:`~swamp.mr.searchmodel_prepare.prepare.model_list`"""
 
         self._make_workdir()
         os.chdir(self.workdir)
@@ -54,14 +47,10 @@ class PolyALA(PrepareSearchModel):
 
     @staticmethod
     def truncate_polyALA(pdbin, pdbout):
-        """Method to truncate a given pdb into poly alanine
+        """Method to truncate a given pdb into poly-ala
 
-        :param pdbin: input pdb file name
-        :type pdbin: str
-        :param pdbout: output pdb file name
-        :type pdbout: str
-        :returns nothing
-        :rtype None
+        :param str pdbin: input pdb file name
+        :param str pdbout: output pdb file name
         """
 
         original_hierarchy = gemmi.read_structure(pdbin)
@@ -79,14 +68,10 @@ class PolyALA(PrepareSearchModel):
     def transfer_flags_pdb(pdb_ref, pdb_file, flags_to_transfer=("CRYST1", "SCALE", "REMARK"), overwrite=True):
         """Transfer PDB flags between two given pdb files
 
-        :param pdb_ref: pdb file with the reference flags to be transferred
-        :type pdb_ref: str
-        :param pdb_file: pdb file where the flags will be transferred
-        :type pdb_file: str
-        :param flags_to_transfer: set of flags that need to be transferred
-        :type flags_to_transfer: tuple, list
-        :param overwrite: if False, pdb_file original flags will be  kept (default True)
-        :type overwrite: bool
+        :param str pdb_ref: pdb file with the reference flags to be transferred
+        :param str pdb_file: pdb file where the flags will be transferred
+        :param tuple flags_to_transfer: set of flags that need to be transferred
+        :param bool overwrite: if False, pdb_file original flags will be  kept (default True)
         """
 
         with open(pdb_ref, "r") as pdbreference, open(pdb_file, "r") as pdbfile:

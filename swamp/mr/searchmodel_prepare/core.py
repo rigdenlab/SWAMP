@@ -1,6 +1,6 @@
 import os
 import sys
-from swamp.mr.searchmodel_prepare.prepare import PrepareSearchModel
+from swamp.mr.searchmodel_prepare.preparesearchmodel import PrepareSearchModel
 sys.path.extend([os.path.join(os.environ['CCP4'], 'lib', 'py2')])
 from mrbump.seq_align.MRBUMP_gesamt import Gesamt as MRBUMP_Gesamt
 
@@ -8,14 +8,7 @@ from mrbump.seq_align.MRBUMP_gesamt import Gesamt as MRBUMP_Gesamt
 class Core(PrepareSearchModel):
     """Class to trim an ensemble to the core structural alignment
 
-    :param workdir: working directory where the search model will be prepared
-    :type workdir: str
-    :param pdbin: input pdb file name
-    :type pdbin: str
-    :param pdbout: output pdb file name
-    :type pdbout: str
-    :param logger: logging interface for the instance (default None)
-    :type logger: None, :obj:`swamp.logger.swamplogger.SwampLogger`
+    Extends :py:obj:`~swamp.mr.searchmodel_prepare.prepare.PrepareSearchModel`
 
     :examples
 
@@ -29,7 +22,7 @@ class Core(PrepareSearchModel):
 
     @property
     def modification(self):
-        """Property to store the modification to be applied"""
+        """Property to store the modification to be applied ("core")"""
         return "core"
 
     @property
@@ -59,7 +52,7 @@ class Core(PrepareSearchModel):
 
     @property
     def pdbDict(self):
-        """A dictionary with the PDB files"""
+        """A dictionary with the PDB files to be aligned"""
 
         pdbDict = dict([])
         for model in self.model_list:
@@ -72,7 +65,7 @@ class Core(PrepareSearchModel):
     # ------------------ Class specific methods ------------------
 
     def _extract_core(self):
-        """Method to extract the core structural alignment of a given ensemble"""
+        """Extract the core structural alignment of a given ensemble"""
 
         self.logger.debug('Compute structural alignment using gesamt')
         ensemble_truncator = MRBUMP_Gesamt()
@@ -86,7 +79,7 @@ class Core(PrepareSearchModel):
                                                 csvCOREfile=self._tmp_csvCOREfile)
 
     def prepare(self):
-        """Method to prepare the search model ensemble and retrieve the core alignment"""
+        """Prepare the search model ensemble and retrieve the core alignment"""
 
         self._make_workdir()
         os.chdir(self.workdir)
