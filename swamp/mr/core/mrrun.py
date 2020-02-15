@@ -12,7 +12,7 @@ from Bio.SeqUtils import molecular_weight
 from swamp.wrappers.wphaser import Phaser
 from swamp.wrappers.wrefmac import wRefmac
 from swamp.library.tools import decompress
-from swamp.parsers.mtzparser import MTZLabels
+from swamp.parsers.mtzparser import MtzParser
 from swamp.mr.searchmodel_prepare.core import Core
 from swamp.mr.searchmodel_prepare.polyala import PolyALA
 
@@ -627,7 +627,7 @@ class MrRun(Mr):
         resolution = reflection_file.resolution_high()
 
         # MTZ column labels
-        mtz_labels = MTZLabels(target_mtz)
+        mtz_labels = MtzParser(target_mtz)
         mtz_labels.parse()
         if mtz_labels.i is None and mtz_labels.f is not None:
             use_f = True

@@ -3,7 +3,7 @@ import shutil
 import collections
 from swamp.wrappers.wrapper import Wrapper
 from swamp.wrappers.wrefmac import wRefmac
-from swamp.parsers.mtzparser import MTZLabels
+from swamp.parsers.mtzparser import MtzParser
 from swamp.parsers.phaserparser import PhaserParser
 from swamp.mr.searchmodel_prepare.polyala import PolyALA
 from phaser import InputMR_DAT, runMR_DAT, InputMR_AUTO, runMR_AUTO
@@ -434,7 +434,7 @@ class Phaser(Wrapper):
         self.input_mr_dat.setHKLI(self.mtzfile)
 
         # Set reflection data fields (I and SIGI preferred over FP and SIGFP)
-        mtz_head = MTZLabels(self.mtzfile)
+        mtz_head = MtzParser(self.mtzfile)
         mtz_head.parse()
         if mtz_head.i is not None and mtz_head.sigi is not None:
             self.input_mr_dat.setLABI_I_SIGI(mtz_head.i, mtz_head.sigi)
@@ -682,7 +682,8 @@ class Phaser(Wrapper):
         :rtype bool
         """
 
-        mtz_head = mtz_util.GetLabels(input_mtz)
+        mtz_head = MtzParser(input_mtz)
+        mtz_head.parse()
         if mtz_head.i is not None and mtz_head.sigi is not None:
             return True
         else:
