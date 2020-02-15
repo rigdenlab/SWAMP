@@ -15,12 +15,12 @@ Documentation
    api/cloptions.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    api/mr_core.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    api/wrappers.rst
 
@@ -35,12 +35,12 @@ Documentation
    api/library_scan.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    api/library_tools.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    api/library_clustering.rst
 
 .. only:: html
