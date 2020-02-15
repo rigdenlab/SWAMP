@@ -33,3 +33,8 @@ Depiction of SWAMP flowchart:
 .. image:: https://raw.githubusercontent.com/rigdenlab/SWAMP/master/docs/_static/flowchart.png
    :width: 100%
    :align: center
+
+Do you want to know more?
++++++++++++++++++++++++++
+
+Are you interested in running SWAMP and you want to know more about how to install it and use it? Read all about it `here <https://swamp.readthedocs.io/en/latest/>`_.
