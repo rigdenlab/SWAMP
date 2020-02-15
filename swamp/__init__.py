@@ -57,7 +57,7 @@ if 'THIS_IS_READTHEDOCS' not in os.environ:
 
 TMP_DIR = os.environ["CCP4_SCR"]
 PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")
-LIBRARY = os.path.join(os.environ["CCP4"], "share", "swamp", "db")
+LIBRARY = os.path.join(os.environ["CCP4"], "share", "swamp")
 IDEALHELICES_DIR = os.path.join(LIBRARY, "idealhelices")
 FRAG_MAPALIGN_DB = os.path.join(LIBRARY, "mapalign")
 FRAG_EIGEN_DB = os.path.join(LIBRARY, "eigen")
