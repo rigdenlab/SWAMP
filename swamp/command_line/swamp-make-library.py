@@ -70,12 +70,17 @@ def main():
     # ------------------ PARSE ARGUMENTS AND CREATE LOGGER ------------------
 
     args = parse_arguments()
-    if not os.path.isdir(args.workdir):
-        os.mkdir(args.workdir)
+
+    idx = 0
+    workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
+    while os.path.isdir(workdir):
+        idx += 0
+        workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
+    os.mkdir(workdir)
 
     global logger
     logger = SwampLogger('SWAMP-MAKE-CLUSTERS')
-    logger.init(logfile=os.path.join(args.workdir, "swamp_clustering.log"), use_console=True, console_level='info',
+    logger.init(logfile=os.path.join(workdir, "swamp_clustering.log"), use_console=True, console_level='info',
                 logfile_level='debug')
 
     # --------------- LOAD SWAMP LIBRARY AND REMOVE HOMOLOGS ----------------
@@ -112,9 +117,9 @@ def main():
         cluster_composition_pckl = swamp.CLUSTER_COMPOSITION_PCKL
         centroid_dict_pckl = swamp.CENTROID_DICT_PCKL
     else:
-        output_dir = args.workdir
-        cluster_composition_pckl = os.path.join(args.workdir, 'cluster_composition.pckl')
-        centroid_dict_pckl = os.path.join(args.workdir, 'centroid_dict.pckl')
+        output_dir = workdir
+        cluster_composition_pckl = os.path.join(workdir, 'cluster_composition.pckl')
+        centroid_dict_pckl = os.path.join(workdir, 'centroid_dict.pckl')
 
     for ensebmle_id in my_cluster.ensemble_dict.keys():
         if my_cluster.ensemble_dict[ensebmle_id] is not None:

@@ -5,6 +5,8 @@ from swamp.parsers.parser import Parser
 
 
 class MTZLabels(Enum):
+    """An enumerator that contains the regular expression used to detect the column labels of a given MTZ file"""
+
     free = re.compile(r"[Ff][Rr][Ee][Ee]")
     i = re.compile(r"[Ii]$")
     sigi = re.compile(r"[Ss][Ii][Gg][Ii]$")
@@ -52,11 +54,12 @@ class MtzParser(Parser):
 
     @property
     def summary(self):
-        """Abstract property to store a summary of the parsed figures of merit"""
+        """Abstract property not in use"""
         return None
 
     def parse(self):
-        """Method to parse the input mtz file and retrieve tha label names"""
+        """Parse the input mtz file and retrieve the column names of the labels as described
+           at :py:obj:`~swamp.parsers.mtzparser.MTZLabels`"""
 
         if self.error:
             self.logger.warning("Previous errors prevent parsing mtz file!")

@@ -82,8 +82,8 @@ class Mr(ABC):
 
     @property
     def id(self):
-        """Unique identifier for the MR instance. It is the result of combining :py:attr:`~swamp.mr.mr.Mr.search_id` and
-         :py:attr:`~swamp.mr.mr.Mr.run_id`"""
+        """Unique identifier for the MR instance. It is the result of combining :py:attr:`~swamp.mr.mr.Mr.search_id`\
+        and :py:attr:`~swamp.mr.mr.Mr.run_id`"""
         return self._id
 
     @id.setter
@@ -243,7 +243,7 @@ class Mr(ABC):
         pickle_file.close()
 
     def create_result_table_outfile(self, fname=None):
-        """Method to write string representation of :py:attr:`~swamp.mr.mr.Mr.table_contents` into
+        """Method to write string representation of :py:attr:`~swamp.mr.mr.Mr.table_contents` into \
         :py:attr:`~swamp.mr.mr.Mr.result_table_fname` or into a specific file if `fname` is set.
 
         :param fname: filename where the result table will be created (default None)
@@ -278,8 +278,8 @@ class Mr(ABC):
 
     @staticmethod
     def _inform_args(**kwargs):
-        """Create a string representation of the initial parameters used for the creation of this instance, as stored in
-        :py:attr:`~swamp.mr.mr.Mr.init_params`"""
+        """Create a string representation of the initial parameters used for the creation of this instance, as stored \
+        in :py:attr:`~swamp.mr.mr.Mr.init_params`"""
 
         msg = "Arguments provided:\n\n"
         for key in kwargs.keys():

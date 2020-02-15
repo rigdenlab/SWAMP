@@ -149,8 +149,8 @@ class MrArray(Mr):
 
     @property
     def scripts(self):
-        """List of :py:obj:`pyjob.Scripts` instances to be executed on
-         this :py:obj:`~swamp.mr.core.mrarray.MrArray` instance"""
+        """List of :py:obj:`pyjob.Scripts` instances to be executed on this \
+        :py:obj:`~swamp.mr.core.mrarray.MrArray` instance"""
         return self._scripts
 
     @scripts.setter
@@ -168,9 +168,9 @@ class MrArray(Mr):
 
     @property
     def job_dict(self):
-        """A dictionary of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this
-          :py:obj:`~swamp.mr.core.mrarray.MrArray` instance. Key corresponds with
-          :py:attr:`swamp.mr.core.mrjob.MrJob.id`"""
+        """A dictionary of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this \
+        :py:obj:`~swamp.mr.core.mrarray.MrArray` instance. Key corresponds with \
+        :py:attr:`swamp.mr.core.mrjob.MrJob.id`"""
         return self._job_dict
 
     @job_dict.setter
@@ -179,8 +179,8 @@ class MrArray(Mr):
 
     @property
     def job_list(self):
-        """A list of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this
-          :py:obj:`~swamp.mr.core.mrarray.MrArray` instance."""
+        """A list of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this \
+        :py:obj:`~swamp.mr.core.mrarray.MrArray` instance."""
         return self._job_list
 
     @job_list.setter
@@ -203,8 +203,8 @@ class MrArray(Mr):
     # ------------------ Methods ------------------
 
     def add(self, value):
-        """Add an instance of :py:obj:`~swamp.mr.core.mrjob.MrJob` to the array. This includes both the MrJob object and
-         its :py:obj:`pyjob.Script` attribute.
+        """Add an instance of :py:obj:`~swamp.mr.core.mrjob.MrJob` to the array. This includes both the MrJob object \
+        and its :py:obj:`pyjob.Script` attribute.
 
         :param value: :py:obj:`~swamp.mr.core.mrjob.MrJob` instance to be added to the array for execution
         :type value: :py:obj:`~swamp.mr.core.mrjob.MrJob`
@@ -248,8 +248,8 @@ class MrArray(Mr):
         self.logger.info('Retrieving results')
 
     def append_results(self):
-        """Append the results obtained in each :py:obj:`~swamp.mr.core.mrjob.MrJob` instance listed at
-          :py:attr:`~swamp.mr.core.mrarray.MrArray.job_list` into :py:attr:`~swamp.mr.core.mr.Mr.results`"""
+        """Append the results obtained in each :py:obj:`~swamp.mr.core.mrjob.MrJob` instance listed at \
+        :py:attr:`~swamp.mr.core.mrarray.MrArray.job_list` into :py:attr:`~swamp.mr.core.mr.Mr.results`"""
 
         for job in self.job_list:
 

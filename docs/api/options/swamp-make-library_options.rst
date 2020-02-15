@@ -18,7 +18,7 @@ positional arguments:
 .. code-block:: text
 
 
-      workdir               Working directory for SWAMP-MAKE-LIBRARY.
+      workdir               Working directory for SWAMP
 
 
 optional arguments:
@@ -36,8 +36,7 @@ optional arguments:
   -overwrite_library    If set, overwrite the SWAMP library with the new
                         ensembles
 
-  -min_samples [INT]
-                        sklearn.OPTICS: no. of samples in a neighborhood for a
+  -min_samples [INT]    sklearn.OPTICS: no. of samples in a neighborhood for a
                         point to be considered as a core
 
   -xi [XI]              sklearn.OPTICS: min.steepness on the reachability plot
@@ -47,8 +46,7 @@ optional arguments:
                         sklearn.OPTICS: extraction method using the calculated
                         cluster reachability
 
-  -max_eps [MAX_EPS]
-                        sklearn.OPTICS: max. dist. between points to consider
+  -max_eps [MAX_EPS]    sklearn.OPTICS: max. dist. between points to consider
                         within neighborhood of each other
 
   -eps [EPS]            sklearn.OPTICS: max. dist. between points to consider
