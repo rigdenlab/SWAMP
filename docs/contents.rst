@@ -17,12 +17,7 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   api/mr.rst
-
-.. toctree::
-   :maxdepth: 2
-
-   api/library.rst
+   api/mr_core.rst
 
 .. toctree::
    :maxdepth: 2
@@ -33,6 +28,20 @@ Documentation
    :maxdepth: 2
 
    api/parsers.rst
+
+.. toctree::
+   :maxdepth: 2
+
+   api/library_scan.rst
+
+.. toctree::
+   :maxdepth: 2
+
+   api/library_tools.rst
+
+.. toctree::
+   :maxdepth: 2
+   api/library_clustering.rst
 
 .. only:: html
 

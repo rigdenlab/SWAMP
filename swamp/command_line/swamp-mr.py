@@ -19,7 +19,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='SWAMP-MR: Contact assisted fragment based molecular replacement',
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("id", type=str, help='Unique identifier for this MR subroutine')
-    parser.add_argument("workdir", type=str, help='Working directory to perform the MR')
+    parser.add_argument("workdir", type=str, help='Working directory to perform MR')
     parser.add_argument("mtzfile", type=check_file_exists, help='MTZ file with the reflection data')
     parser.add_argument("fastafile", type=check_file_exists, help="FASTA file with the sequence of the structure")
     parser.add_argument("conpred", type=check_file_exists, help="Residue contact prediction for the target structure")
@@ -82,10 +82,10 @@ def main():
 
     args = parse_arguments()
 
-    idx = 1
+    idx = 0
     workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
     while os.path.isdir(workdir):
-        idx += 1
+        idx += 0
         workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
     os.mkdir(workdir)
 

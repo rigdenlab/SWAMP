@@ -8,12 +8,11 @@ __credits__ = "Daniel Rigden, & Ronan Keegan"
 __email__ = "filomeno.sanchez-rodriguez@liv.ac.uk"
 
 from swamp import version
+import os
 
 __version__ = version.__version__
 
-import os
-
-if "CCP4" not in os.environ:
+if 'THIS_IS_READTHEDOCS' not in os.environ and "CCP4" not in os.environ:
     raise RuntimeError("Cannot find CCP4 root directory")
 
 _PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")

@@ -19,6 +19,7 @@ import sys
 # Make SWAMP believe we are running it as part of CCP4
 os.environ['CCP4'] = "/empty/path"
 os.environ['CCP4_SCR'] = "/empty/path"
+os.environ['THIS_IS_READTHEDOCS'] = "True"
 
 
 # Required by autosummary

@@ -12,6 +12,9 @@ import os
 
 __version__ = version.__version__
 
+if 'THIS_IS_READTHEDOCS' not in os.environ and "CCP4" not in os.environ:
+    raise RuntimeError("Cannot find CCP4 root directory")
+
 
 def check_file_exists(input_path):
     """Check if a given path corresponds with an existing file
