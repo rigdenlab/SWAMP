@@ -8,9 +8,9 @@ def invert_contactmap(cmap):
     """Method to invert a contact map
 
     :param cmap: the contact map of interest
-    :type cmap: :object:`conkit.core.ContactMap`
+    :type cmap: :py:obj:`~conkit.core.ContactMap`
     :returns inverted_cmap: the contact map corresponding with the inverted sequence (1-res_seq)
-    :rtype :object:`conkit.core.ContactMap`
+    :rtype :py:obj:`~conkit.core.ContactMap`
     """
 
     inverted_cmap = ContactMap('inverted')
@@ -29,7 +29,7 @@ def extract_interhelical_cmap(cmap, helices, residues, new_id, score_threshold=0
     """Method to extract the interhelical contacts
 
     :param cmap: the contact map of interest
-    :type cmap: :object:`conkit.core.ContactMap`
+    :type cmap: :py:obj:`~conkit.core.ContactMap`
     :param helices: a nested list with the listed residue numbers of the two helices of interest
     :type helices: tuple, list
     :param new_id: the new identifies given to the resulting contact map
@@ -37,7 +37,7 @@ def extract_interhelical_cmap(cmap, helices, residues, new_id, score_threshold=0
     :param score_threshold: the raw score threshold at which contacts will be included (default 0.0)
     :type score_threshold: float
     :returns inverted_cmap: the contact map containing only the inter-helical contacts between the pair of helices
-    :rtype :object:`conkit.core.ContactMap`
+    :rtype :py:obj:`~conkit.core.ContactMap`
     """
 
     result_cmap = ContactMap(new_id)
@@ -61,11 +61,11 @@ def extract_fragment_cmap(pdb_hierarchy, helices):
     """Method to extract the interhelical contact map of a given pdb file
 
     :param pdb_hierarchy: the pdb hierarchy of the fragment
-    :type pdb_hierarchy: :obj:`gemmi.Structure`
+    :type pdb_hierarchy: :py:obj:`~gemmi.Structure`
     :param helices: a nested list with the listed residues numbers of the helices of interest
     :type helices: tuple, list
     :returns the contact map with the interhelical contacts
-    :rtype :object:`conkit.core.ContactMap`
+    :rtype :py:obj:`~conkit.core.ContactMap`
     """
 
     residues = [i for sub in helices for i in sub]

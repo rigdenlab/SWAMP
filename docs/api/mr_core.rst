@@ -1,7 +1,7 @@
 Molecular Replacement subpackage
 ================================
 
-.. automodule:: swamp.mr
+.. automodule:: swamp.mr.core
    :members:
    :undoc-members:
    :show-inheritance:

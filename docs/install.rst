@@ -26,6 +26,7 @@ Before installing SWAMP, make sure that you systems meets the following dependen
 
 .. code-block:: shell
 
+    mkdir SWAMP/build
     cd SWAMP/build
     cmake ..
     make install
