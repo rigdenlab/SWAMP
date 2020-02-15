@@ -54,6 +54,8 @@ class MrRun(Mr):
         super(MrRun, self).__init__(id, target_fa, target_mtz, workdir, phased_mtz=phased_mtz, logger=logger,
                                     silent=silent)
 
+        self._search_id = id.split('_')[1]
+        self._run_id = id.split('_')[3]
         self.init_params = locals()
         if not quiet_start:
             self.logger.info(self.pipeline_header.format(' MR-RUN '))
@@ -92,6 +94,24 @@ class MrRun(Mr):
     @save_disk_space.setter
     def save_disk_space(self, value):
         self._save_disk_space = value
+
+    @property
+    def search_id(self):
+        """Corresponds with the unique search model identifier of the instance"""
+        return self._search_id
+
+    @search_id.setter
+    def search_id(self, value):
+        self._search_id = value
+
+    @property
+    def run_id(self):
+        """Corresponds with the unique MR run identifier of the search model"""
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, value):
+        self._run_id = value
 
     @property
     def idealhelix_run(self):

@@ -26,8 +26,6 @@ class Mr(ABC):
 
         self._init_params = locals()
         self._id = id
-        self._search_id = id.split('_')[1]
-        self._run_id = id.split('_')[3]
         self._workdir = workdir
         self.make_workdir()
         os.chdir(self.workdir)
@@ -89,24 +87,6 @@ class Mr(ABC):
     @id.setter
     def id(self, value):
         self._id = value
-
-    @property
-    def search_id(self):
-        """Corresponds with the unique search model identifier of the instance"""
-        return self._search_id
-
-    @search_id.setter
-    def search_id(self, value):
-        self._search_id = value
-
-    @property
-    def run_id(self):
-        """Corresponds with the unique MR run identifier of the search model"""
-        return self._run_id
-
-    @run_id.setter
-    def run_id(self, value):
-        self._run_id = value
 
     @property
     def target_fa(self):
