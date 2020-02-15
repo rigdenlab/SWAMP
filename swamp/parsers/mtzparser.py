@@ -68,4 +68,4 @@ class MtzParser(Parser):
         for label in MTZLabels:
             matches = list(filter(label.value.match, self.all_labels))
             if any(matches):
-                self.__setattr__(label.name, matches[0])
+                self.__setattr__(label.name, matches[0].encode('utf-8'))
