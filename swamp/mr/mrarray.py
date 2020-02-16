@@ -144,7 +144,7 @@ class MrArray(Mr):
         :py:attr:`swamp.mr.mrjob.MrJob.id` is already contained in the array
         """
 
-        if not isinstance(value, swamp.mr.mrjob.MrJob):
+        if not isinstance(value, MrJob):
             raise TypeError('Can only add MrJob instances to an MrArray!')
 
         if value.id in self:

@@ -210,9 +210,9 @@ class SearchJob(ABC):
 
     @property
     def _python_script(self):
-        """Python script to create and execute the corresponding :obj:`swamp.library.search.searchjob` instance"""
+        """Python script to create and execute the corresponding :obj:`swamp.search.searchjob` instance"""
 
-        script = 'cd {}\n{} << EOF\nfrom swamp.library.search.searchjob import SearchJob\n'.format(self.workdir,
+        script = 'cd {}\n{} << EOF\nfrom swamp.search import SearchJob\n'.format(self.workdir,
                                                                                                    self.python_interpreter)
 
         attributes = ['id', 'workdir', 'query', 'template_library', 'con_format', 'library_format', 'pdb_library',

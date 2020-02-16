@@ -7,7 +7,8 @@ import pandas as pd
 from pyjob import TaskFactory
 from swamp.logger import SwampLogger
 from swamp.search.searchjob import SearchJob
-from swamp.utils import TargetSplit, SwampLibrary, renumber_hierarchy
+from swamp.utils.swamplibrary import SwampLibrary
+from swamp.utils import TargetSplit, renumber_hierarchy
 
 
 class SearchTarget(object):
@@ -310,7 +311,7 @@ class SearchTarget(object):
     def _other_task_info(self):
         """Dictionary with extra arguments for :py:obj:pyjob.TaskFactory"""
 
-        info = {'directory': self.workdir, 'shell': self.shell_interpreter}
+        info = {'directory': self.workdir, 'shell': self.shell_interpreter, 'name': 'swamp_search'}
 
         if self.platform == 'local':
             info['processes'] = self.nthreads
@@ -438,7 +439,7 @@ class SearchTarget(object):
     # ------------------ Some general methods ------------------
 
     def recover_results(self):
-        """Recover the results from all the :obj:`swamp.library.search.searchjob` in the :obj:`pyjob.TaskFactory`
+        """Recover the results from all the :obj:`swamp.search.searchjob` in the :obj:`pyjob.TaskFactory`
 
         :returns results: a list with the results obtained for the contact map alignment across all subtargets
         :rtype list
@@ -478,7 +479,6 @@ class SearchTarget(object):
         self.logger.info('Sending jobs now.')
 
         with TaskFactory(self.platform, tuple(self.scripts), **self._other_task_info) as task:
-            task.name = 'swamp_search'
             task.run()
             self.logger.info('Waiting for workers...')
 
