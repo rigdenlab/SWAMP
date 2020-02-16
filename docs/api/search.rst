@@ -9,4 +9,4 @@ Search subpackage
 .. toctree::
    :glob:
 
-   generated/swamp.search*
+   generated/swamp.search.*

@@ -9,4 +9,4 @@ Logger subpackage
 .. toctree::
    :glob:
 
-   generated/swamp.logger*
+   generated/swamp.logger.*

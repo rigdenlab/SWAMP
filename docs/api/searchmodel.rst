@@ -9,4 +9,4 @@ Search model subpackage
 .. toctree::
    :glob:
 
-   generated/swamp.searchmodel*
+   generated/swamp.searchmodel.*

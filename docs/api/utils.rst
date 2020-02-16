@@ -9,4 +9,4 @@ Utils subpackage
 .. toctree::
    :glob:
 
-   generated/swamp.utils*
+   generated/swamp.utils.*
