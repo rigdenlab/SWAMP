@@ -5,8 +5,9 @@ import threading
 import numpy as np
 import pandas as pd
 from statistics import mean
-from swamp.wrappers import Gesamt
+import swamp.utils.swamplibrary
 from swamp.logger import SwampLogger
+from swamp.wrappers.gesamt import Gesamt
 from itertools import groupby, combinations
 from sklearn.metrics import silhouette_score
 from sklearn.model_selection import ParameterSampler
@@ -15,52 +16,63 @@ ABC = abc.ABCMeta('ABC', (object,), {})
 
 
 class Clustering(ABC):
-    """Abstract class for SWAMP library clustering purposes
+    """Abstract class for SWAMP library clustering purposes, used to cluster similar helical pairs into ensembles
 
-    Implements data structures and methods commonly used in clustering tasks and optimal hyperparameter search
+    Implements data structures and methods commonly used in clustering tasks and optimal hyper-parameter search
 
     :param int nthreads: number of threads to be used for fragment clustering (default 1)
-    :param int n_iter: number of iterations for the random grid search of the optimal clustering hyper paramaters (default 100)
-    :param :obj:`swamp.logger.swamplogger` logger: logger instance to record log messages
-    :ivar bool error: True if errors have occurred at some point on the pipeline
-    :ivar dict best_params: contains the optimal hyperparameters for clustering
-    :ivar :obj:`pandas.DataFrame` rmsd_mtx: square dataframe with the rmsd distance across framgents in the library
-    :ivar :obj:`pandas.DataFrame` similarity_mtx: square dataframe with the similarity across framgents in the library
-    :ivar :obj:`pandas.DataFrame` nalign_mtx: square dataframe with the no. of aligned residues between framgents in the library
+    :param int n_iter: number of iterations for the :py:func:`~swamp.clustering.clustering.grid_search` of the optimal \
+     clustering hyper paramaters (default 100)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logger instance to record log messages
+    :ivar bool error: True if errors have occurred at some point on the process of clustering
+    :ivar dict best_params: contains the optimal hyper-parameters as found on the \
+    :py:func:`~swamp.clustering.clustering.grid_search`
+    :ivar list labels: a list with the cluster labels assigned to each member of the \
+    :py:attr:`~swamp.clustering.clustering.similarity_mtx`
+    :ivar list child_threads: a list with the :py:attr:`threading.thread.name` of each child \
+    :py:obj:`threading.thread` instance used on the :py:func:`~swamp.clustering.clustering.grid_search`
+    :ivar `pandas.DataFrame` rmsd_mtx: square dataframe with the rmsd distance across framgents in the library
+    :ivar `pandas.DataFrame` similarity_mtx: square dataframe with the similarity across framgents in the library
+    :ivar `pandas.DataFrame` nalign_mtx: square dataframe with the no. of aligned residues between framgents in the \
+    library
     :ivar dict centroid_dict: dictionary with the centroids associated with each cluster id
-    :ivar dict cluster_dict: dictionary with the fragments that form each cluster
-    :ivar dict ensemble_dict: dictionary with the fragments that form each ensemble
-    :ivar bool error: True if errors have occurred at some point on the pipeline
+    :ivar dict cluster_dict: dictionary with the list of fragments ids that form each cluster
+    :ivar dict composition_dict: dictionary with the final composition of each ensemble
+    :ivar dict ensemble_dict: dictionary with the list fragments ids that form each ensemble
+    :ivar `threading.Semaphore` semaphore: a `threading.Semaphore` instance to control the execution of threads \
+    on :py:func:`~swamp.clustering.clustering.grid_search`
+    :ivar `~swamp.clustering.ParameterSearchResults` gridsearch_results: a \
+    :py:obj:`~swamp.clustering.ParameterSearchResults` instance with the results obtained on \
+    :py:func:`~swamp.clustering.clustering.grid_search`
     """
 
     def __init__(self, nthreads=1, n_iter=100, logger=None):
-        self._error = False
+        self.error = False
         if logger is None:
             self._logger = SwampLogger(__name__)
             self.logger.init(use_console=True, console_level='info')
         else:
             self._logger = logger
-        self._best_params = None
-        self._labels = None
-        self._child_threads = None
-        self._nthreads = nthreads
-        self._n_iter = n_iter
-        self._outdir = None
-        self._cluster_dict = None
-        self._centroid_dict = None
-        self._ensemble_dict = None
-        self._rmsd_mtx = None
-        self._nalign_mtx = None
-        self._similarity_mtx = None
-        self._semaphore = threading.Semaphore(value=self.nthreads)
-        self._gridsearch_results = ParameterSearchResults(self.logger)
-        self._composition_dict = {}
+        self.best_params = None
+        self.labels = None
+        self.child_threads = None
+        self.nthreads = nthreads
+        self.n_iter = n_iter
+        self.cluster_dict = None
+        self.centroid_dict = None
+        self.ensemble_dict = None
+        self.rmsd_mtx = None
+        self.nalign_mtx = None
+        self.similarity_mtx = None
+        self.semaphore = threading.Semaphore(value=self.nthreads)
+        self.gridsearch_results = ParameterSearchResults(self.logger)
+        self.composition_dict = {}
 
     # ------------------ Abstract methods and properties ------------------
 
     @abc.abstractmethod
     def cluster(self):
-        """ Abstract method to run the wrapper"""
+        """ Abstract method to run the clustering algorithm"""
         pass
 
     @abc.abstractmethod
@@ -71,171 +83,43 @@ class Clustering(ABC):
     @property
     @abc.abstractmethod
     def _algorithm_name(self):
-        """Abstract method to hold the name of the specific clustering algorithm"""
+        """Abstract property to hold the name of the specific clustering algorithm"""
         pass
 
     @property
     @abc.abstractmethod
     def _hyper_params(self):
-        """Abstract method to hold the name of the hyperparameters for the specific clustering algorithm"""
+        """Abstract property to hold the hyperparameters for the specific clustering algorithm"""
         pass
 
     # ------------------ Some general properties ------------------
 
     @property
     def clustering_header(self):
-        """Abstract property to store the clustering header for the logger"""
+        """The header to be displayed when initialising the logger"""
 
         return """**********************************************************************
-***************         SWAMP CLUSTERING %s          *************
+*****************         SWAMP CLUSTERING           *****************
 **********************************************************************
 
-""" % self._algorithm_name.upper()
-
-    @property
-    def composition_dict(self):
-        """Property to store the composition of the final ensembles (to output to the actual library)"""
-        return self._composition_dict
-
-    @composition_dict.setter
-    def composition_dict(self, value):
-        self._composition_dict = value
-
-    @property
-    def similarity_mtx(self):
-        return self._similarity_mtx
-
-    @similarity_mtx.setter
-    def similarity_mtx(self, value):
-        self._similarity_mtx = value
-
-    @property
-    def cluster_dict(self):
-        return self._cluster_dict
-
-    @cluster_dict.setter
-    def cluster_dict(self, value):
-        self._cluster_dict = value
-
-    @property
-    def ensemble_dict(self):
-        return self._ensemble_dict
-
-    @ensemble_dict.setter
-    def ensemble_dict(self, value):
-        self._ensemble_dict = value
-
-    @property
-    def centroid_dict(self):
-        return self._centroid_dict
-
-    @centroid_dict.setter
-    def centroid_dict(self, value):
-        self._centroid_dict = value
-
-    @property
-    def child_threads(self):
-        return self._child_threads
-
-    @child_threads.setter
-    def child_threads(self, value):
-        self._child_threads = value
-
-    @property
-    def nthreads(self):
-        return self._nthreads
-
-    @nthreads.setter
-    def nthreads(self, value):
-        self._nthreads = value
-
-    @property
-    def n_iter(self):
-        return self._n_iter
-
-    @n_iter.setter
-    def n_iter(self, value):
-        self._n_iter = value
-
-    @property
-    def outdir(self):
-        return self._outdir
-
-    @outdir.setter
-    def outdir(self, value):
-        self._outdir = value
-
-    @property
-    def best_params(self):
-        return self._best_params
-
-    @best_params.setter
-    def best_params(self, value):
-        self._best_params = value
-
-    @property
-    def error(self):
-        return self._error
-
-    @error.setter
-    def error(self, value):
-        self._error = value
-
-    @property
-    def logger(self):
-        return self._logger
-
-    @logger.setter
-    def logger(self, value):
-        self._logger = value
-
-    @property
-    def semaphore(self):
-        return self._semaphore
-
-    @semaphore.setter
-    def semaphore(self, value):
-        self._semaphore = value
-
-    @property
-    def labels(self):
-        return self._labels
-
-    @labels.setter
-    def labels(self, value):
-        self._labels = value
-
-    @property
-    def nalign_mtx(self):
-        return self._nalign_mtx
-
-    @nalign_mtx.setter
-    def nalign_mtx(self, value):
-        self._nalign_mtx = value
-
-    @property
-    def rmsd_mtx(self):
-        return self._rmsd_mtx
-
-    @rmsd_mtx.setter
-    def rmsd_mtx(self, value):
-        self._rmsd_mtx = value
+"""
 
     @property
     def _param_sample(self):
-        """Sample of hyperparameters to be tested in the randomised grid search"""
+        """Sample of hyperparameters to be tested in the :py:func:`~swamp.clustering.clustering.grid_search`"""
 
         sampler = ParameterSampler(self._hyper_params, n_iter=self.n_iter, random_state=41)
         return [d for d in sampler]
 
     @property
     def distance_mtx(self):
-        """1 - the distances between fragments"""
+        """Square matrix that corresponds to 1 - :py:attr:`~swamp.clustering.clustering.distance_mtx`"""
         return 1 - self.similarity_mtx
 
     @property
     def fragment_list(self):
-        """All the fragments loaded in the distance/similarity matrices"""
+        """Columns of the :py:attr:`~swamp.clustering.clustering.distance_mtx`, which correspond with the list of \
+        fragments in the library"""
         return self.distance_mtx.columns
 
     @property
@@ -252,7 +136,7 @@ class Clustering(ABC):
     # ------------------ Some protected methods ------------------
 
     def _join_threads(self):
-        """Join the child theads so that the code waits for their completion"""
+        """Join the threads listed at :py:attr:`~swamp.clustering.child_threads` to wait for their completion"""
 
         mainthread = threading.current_thread()
         self.logger.debug("Mainthread is %s" % mainthread.getName())
@@ -264,10 +148,8 @@ class Clustering(ABC):
     def _get_clst_qscore(self, frag_ids):
         """Method to get the average qscore among the models in a given cluster
 
-        :param frag_ids: a list with the fragment ids of contained in the cluster
-        :type frag_ids: list, tuple
-        :returns qscore: the average qscore among the models in the cluster
-        :rtype float
+        :param tuple frag_ids: a list with the fragment ids of contained in the cluster
+        :returns: the average qscore among the models in the cluster (float)
         """
 
         qscores = []
@@ -277,14 +159,10 @@ class Clustering(ABC):
         return mean(qscores)
 
     def _test_params(self, idx, **kwargs):
-        """Method to cluster the fragments with a given set of parameters
+        """Method to test clustering the library of fragments with a given set of parameters
 
-        :param idx: index of the current test respect the rest of runs in the randomised grid search
-        :type idx: int
-        :param kwargs: arguments passed to the clustering instance :obj:`swamp.cluster.clustering._clustering()`
-        :type kwargs: dict
-        :returns nothing
-        :rtype None
+        :param int idx: index of the current test within the :py:func:`~swamp.clustering.clustering.grid_search`
+        :param dict kwargs: arguments passed to :py:obj:`~swamp.cluster.clustering._clustering()`
         """
 
         self.semaphore.acquire()
@@ -302,12 +180,10 @@ class Clustering(ABC):
     # ------------------ Some general methods ------------------
 
     def get_clst_id(self, frag_id):
-        """Get the cluster id where a fragment is located
+        """Get the unique cluster identifier where a given fragment is assigned
 
-        :param frag_id: the id of the fragment of interest
-        :type frag_id: str
-        :returns clst_id: the cluster id where the fragment can be found
-        :rtype str, int, None
+        :param str frag_id: the id of the fragment of interest
+        :returns: the cluster id where the fragment can be found (str)
         """
 
         if self.cluster_dict is None:
@@ -318,12 +194,10 @@ class Clustering(ABC):
                 return clst_id
 
     def get_centroid_id(self, frag_id):
-        """Get the cluster id where of a given centroid is located
+        """Get the unique cluster identifier where a given centroid is assigned
 
-        :param frag_id: the id of the centroid of interest
-        :type frag_id: str
-        :returns clst_id: the cluster id where the fragment can be found
-        :rtype str, int, None
+        :param str frag_id: the id of the centroid of interest
+        :returns the cluster id where the fragment can be found (str)
         """
 
         if self.centroid_dict is None:
@@ -333,18 +207,17 @@ class Clustering(ABC):
             if frag_id == self.centroid_dict[clst_id]:
                 return clst_id
 
-    def make_outdir(self):
-        """Method to crete the workdir for the wrapper"""
-
-        if not os.path.isdir(self.outdir):
-            os.mkdir(self.outdir)
-
     def register_library(self, library):
-        """Register a given fragment library to load the distance matrices
+        """Register a given :py:obj:`~swamp.utils.swamplibrary.SwampLibrary` instance in order to load the fragment \
+        distance info
 
-        :argument library: fragment library with the distance matrices loaded
-        :type :object ~swamp.framgent_library.swamplibrary.FragmentLibrary
+        :argument `~swamp.utils.swamplibrary.SwampLibrary` library: the \
+        :py:obj:`~swamp.utils.swamplibrary.SwampLibrary` insntance to be registered
+        :raises TypeError: if `library` is not a :py:obj:`~swamp.utils.swamplibrary.SwampLibrary` insntance
         """
+
+        if not isinstance(library, swamp.utils.swamplibrary.SwampLibrary):
+            raise TypeError('Library to be registered must be a swamp.utils.swamplibrary.SwampLibrary !')
 
         nalign_mtx = library.nalign_matrix.fillna(0, inplace=False)
         self.nalign_mtx = nalign_mtx.astype(int)
@@ -355,8 +228,9 @@ class Clustering(ABC):
         qscore_mtx = library.qscore_matrix.fillna(0, inplace=False)
         self.similarity_mtx = qscore_mtx.astype(float)
 
-    def parameter_search(self):
-        """Method to do a grid random search for optimal clustering hyperparameters"""
+    def grid_search(self):
+        """Method to do a grid random search for a range of clustering hyper-parameters defined at \
+        :py:attr:`~swamp.clustering.clustering._hyper_params`"""
 
         self.logger.info("Starting grid hyper parameter search with %s parallel threads and %s iterations" % (
             self.nthreads, self.n_iter))
@@ -371,12 +245,11 @@ class Clustering(ABC):
         self.logger.debug("Grid parameter search is done!")
 
     def assess_clustering(self, labels):
-        """Method to asses the quality of the clustering
+        """Method to asses the quality of the obtained clustering
 
-        :param labels: the list containing the labels assigned to each fragment
-        :type labels: list, tuple
-        :returns no. clusters, average cluster size, average cluster qscore, silhouette score, no. singletons
-        :rtype tuple
+        :param tuple labels: the labels assigned to each fragment
+        :returns: a tuple with no. clusters, average cluster size, average cluster qscore, silhouette score and the \
+         no. singletons
         """
 
         # Clst size
@@ -400,14 +273,12 @@ class Clustering(ABC):
         return [len(set([x for x in tmp_labels])), clst_size, clst_qscore, silhouette_sco, singletons]
 
     def get_cluster_dict(self, labels, inplace=True):
-        """Method to generate a cluster dictionary containing the cluster id as keys and the frag ids as the values
+        """Method to generate a cluster dictionary containing the cluster identifiers as keys and the fragment names \
+        as the values
 
-        :param labels: list with the labels assigned to each fragment in the library
-        :type labels: list, tuple
-        :param inplace: if True, then it set the cluster dicionary attribute of the instance with the result
-        :type inplace: bool
-        :returns if inplace is True, a dictionary containing the cluster id as keys and the frag ids as the values
-        :rtype dict, None
+        :param tuple labels: the labels assigned to each fragment in the library
+        :param bool inplace: if True, then it sets :py:attr:`~swamp.clustering.clustering.cluster dict` (default True)
+        :returns: a dictionary containing the cluster id as keys and the frag ids as the values (if not `inplace`)
         """
 
         self.logger.debug('Creating cluster dictionary')
@@ -425,7 +296,8 @@ class Clustering(ABC):
             return clst_dict
 
     def get_centroid_dict(self):
-        """Method to get a dictionary with the centroids of each cluster"""
+        """Get a dictionary with the centroids of each cluster at \
+        :py:attr:`~swamp.clustering.clustering.cluster dict`"""
 
         self.logger.debug('Creating centroid dictionary')
 
@@ -451,21 +323,15 @@ class Clustering(ABC):
                     self.centroid_dict[clst_id] = current_centroid[1]
 
     def get_ensemble_dict(self, rmsd_threshold=0.7, nalign_threshold=30, qscore_threshold=None, nthreads=1):
-        """Method to create the a dictionary with the ensembles (clustering with replacement)
+        """Merge similar fragments to create a dictionary with fragment ensembles (clustering with replacement)
 
         An rmsd and no. aligned residues threshold can be used, but if a qscore threshold is given, this one will
         be used instead
 
-        :param rmsd_threshold: the rmsd threshold at which fragments are included into the ensemble (default 0.7)
-        :type rmsd_threshold: float
-        :param nalign_threshold: threshold no. aligned residues for a fragment to be included into an ensemble (default 30)
-        :type nalign_threshold: int
-        :param qscore_threshold: he qscore threshold at which fragments are included into the ensemble (default None)
-        :type qscore_threshold: None, float
-        :param nthreads: number of threads to compute the ensemble optimal parameter (default 1)
-        :type nthreads: int
-        :returns nothing
-        :rtype None
+        :param float rmsd_threshold: the rmsd threshold at which fragments are included into the ensemble (default 0.7)
+        :param int nalign_threshold: threshold of aligned residues to include a fragment into an ensemble (default 30)
+        :param float qscore_threshold: qscore threshold at which fragments are included into the ensemble (default None)
+        :param int nthreads: number of threads to compute the ensemble optimal parameter (default 1)
         """
 
         self.logger.debug('Creating ensemble dictionary')
@@ -474,28 +340,22 @@ class Clustering(ABC):
         # Check all centroids
         for clst_id in self.centroid_dict.keys():
             if clst_id != -1:
-                self.ensemble_dict[clst_id] = self.get_ensemble(clst_id=clst_id, rmsd_threshold=rmsd_threshold,
+                self.ensemble_dict[clst_id] = self.get_ensemble(centroid_id=clst_id, rmsd_threshold=rmsd_threshold,
                                                                 nalign_threshold=nalign_threshold, nthreads=nthreads,
                                                                 qscore_threshold=qscore_threshold)
 
-    def get_ensemble(self, clst_id, rmsd_threshold=0.7, nalign_threshold=30, qscore_threshold=None, nthreads=1):
-        """Search for fragments to form an ensemble given a cluster id
+    def get_ensemble(self, centroid_id, rmsd_threshold=0.7, nalign_threshold=30, qscore_threshold=None, nthreads=1):
+        """Search for fragments to form an ensemble given a centroid identifier
 
-        Fragments within the threshold distance from the centroid will be included in the ensemble.
-        Other centroids apart from the one corresponding with the cluster of interest are excluded from this search.
+        Fragments within the threshold distance from the centroid will be included in the ensemble. Other centroids \
+        will be excluded from this search.
 
-        :param clst_id: cluster id of the centroid of interest
-        :type clst_id: int
-        :param rmsd_threshold: the rmsd threshold at which fragments are included into the ensemble (default 0.7)
-        :type rmsd_threshold: float
-        :param nalign_threshold: threshold no. aligned residues for a fragment to be included into an ensemble (default 30)
-        :type nalign_threshold: int
-        :param qscore_threshold: he qscore threshold at which fragments are included into the ensemble (default None)
-        :type qscore_threshold: None, float
-        :param nthreads: number of threads to compute the ensemble optimal parameter (default 1)
-        :type nthreads: int
-        :returns hierarchy: pdb hierarchy with the ensemble (models are combined into an optimal structural alignment)
-        :rtype :obj:`gemmi.Structure`
+        :param int centroid_id: centroid identifier of the centroid of interest
+        :param float rmsd_threshold: the rmsd threshold at which fragments are included into the ensemble (default 0.7)
+        :param int nalign_threshold: threshold of aligned residues to include a fragment into an ensemble (default 30)
+        :param float qscore_threshold: qscore threshold at which fragments are included into the ensemble (default None)
+        :param int nthreads: number of threads to compute the ensemble optimal model alignment (default 1)
+        :returns: a :py:obj:`gemmi.Structure` hierarchy with the ensemble
         """
 
         if self.centroid_dict is None:
@@ -512,9 +372,9 @@ class Clustering(ABC):
                 len(cluster_fragments), threshold))
             return list(set(tmp_dist_mtx.index[tmp_dist_mtx.astype(float) >= threshold].tolist())), threshold
 
-        self.logger.debug('Retrieving ensemble for cluster %s' % clst_id)
+        self.logger.debug('Retrieving ensemble for cluster %s' % centroid_id)
         fname = os.path.join(swamp.FRAG_PDB_DB, '{}.pdb')
-        centroid = self.centroid_dict[clst_id]
+        centroid = self.centroid_dict[centroid_id]
 
         # Get the the valid fragments close enough to this centroid
         if qscore_threshold is None:
@@ -538,7 +398,7 @@ class Clustering(ABC):
         cluster_fragments.append(centroid)
         # Only add the ensemble if this combination of fragments didn't appear yet
         if sorted(cluster_fragments) not in self.composition_dict.values():
-            self.composition_dict[clst_id] = sorted(cluster_fragments)
+            self.composition_dict[centroid_id] = sorted(cluster_fragments)
 
         # If there are enough good fragments, make an ensemble and write into a file
         self.logger.debug('Retrieving optimum alignment for %s fragments [%s]' % (
@@ -551,13 +411,13 @@ class Clustering(ABC):
 
 
 class ParameterSearchResults(object):
-    """Class to hold the results from a multi-threaded hyperparameter grid search
+    """Class to hold the results from a multi-threaded :py:func:`~swamp.clustering.clustering.grid_search`
 
-    Implements semaphore methods to regulate thread I/O into the result list
+    Implements `~threading.Semaphore` methods to regulate thread I/O into a result list
 
-    :param :obj:`swamp.logger.swamplogger` logger: logger instance to record log messages
-    :ivar :obj:`threading.lock` lock: lock to control I/O to the result instance
-    :ivar :obj:`pandas.DataFrame` value: dataframe with the results of the grid search
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logger instance to record thread log messages
+    :ivar `threading.lock` lock: lock to control I/O to the result instance
+    :ivar `pandas.DataFrame` value: dataframe with the results of the grid search
     """
 
     def __init__(self, logger):
@@ -567,6 +427,11 @@ class ParameterSearchResults(object):
         self.logger = logger
 
     def register(self, new_results):
+        """Register a given set of new results into :py:attr:`~swamp.clustering.ParameterSearchResults.value`
+
+        :param `pandas.DataFrame` new_results: the set of new results to be registered
+        """
+
         self.logger.debug('Waiting for lock')
         self.lock.acquire()
         self.logger.debug('Acquired lock')

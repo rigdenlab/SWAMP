@@ -1,4 +1,4 @@
-"""This is SWAMP: Solving structures With Alpha Membrane Pairs
+"""SWAMP: Solving structures With Alpha Membrane Pairs
 
 This module implements classes and methods to cluster the fragments present in the SWAMP library to form ensembles that
 can be used as search models.
@@ -48,11 +48,11 @@ def Spectral(*args, **kwargs):
     return Spectral(*args, **kwargs)
 
 
-def AffProp(*args, **kwargs):
-    """:py:obj:`~swamp.clustering.affinity_propagation.AffProp` instance"""
-    from swamp.clustering.affinity_propagation import AffProp
+def SwampAffinityPropagation(*args, **kwargs):
+    """:py:obj:`~swamp.clustering.affinity_propagation.SwampAffinityPropagation` instance"""
+    from swamp.clustering.swampaffinitypropagation import SwampAffinityPropagation
 
-    return AffProp(*args, **kwargs)
+    return SwampAffinityPropagation(*args, **kwargs)
 
 
 def Optics(*args, **kwargs):

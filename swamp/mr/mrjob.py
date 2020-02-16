@@ -1,7 +1,7 @@
 import os
 import dill
+import swamp.mr.mrarray
 from pyjob import Script
-from swamp.mr.mrarray import MrArray
 
 
 class MrJob(object):
@@ -58,7 +58,7 @@ class MrJob(object):
 
         if value is None:
             pass
-        elif not isinstance(value, MrArray):
+        elif not isinstance(value, swamp.mr.mrarray.MrArray):
             raise TypeError('Parent array must be a swamp.mr.mrarray.MrArray instance!')
         else:
             self._parent_array = value
@@ -87,10 +87,10 @@ class MrJob(object):
         """String with the python script to create and execute the :py:obj:`~swamp.mr.mrrun.MrRun` instance \
         associated with this :py:obj:`~swamp.mr.mrjob.MrJob`"""
 
-        script = """cd {_workdir}
-{_python_interpreter} << EOF
+        script = """cd {workdir}
+{python_interpreter} << EOF
 from swamp.mr import MrRun
-mr_run = MrRun(id='{_id}', workdir='{_workdir}', target_fa='{_target_fa}', target_mtz='{_target_mtz}')\n""".format(
+mr_run = MrRun(id='{id}', workdir='{workdir}', target_fa='{target_fa}', target_mtz='{target_mtz}')\n""".format(
             **self.__dict__)
 
         if self.phased_mtz is not None:

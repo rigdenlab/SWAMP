@@ -4,16 +4,16 @@ from scipy.stats import randint
 
 
 class Optics(Clustering):
-    """ Class to wrap a sklearn Optics clustering instance
+    """This class implements methods and datastructures to work with :py:obj:`sklearn.cluster.OPTICS`
 
-    :example
+    :example:
 
     >>> import joblib
     >>> from swamp.clustering import Optics
     >>> dist_mtx = joblib.load('<dist_mtx.pckl>')
     >>> dist_mtx = dist_mtx.fillna(0)
     >>> my_clst = Optics(dist_mtx)
-    >>> my_clst.parameter_search()
+    >>> my_clst.grid_search()
     >>> my_clst.cluster()
     >>> my_clst.assess_clustering(my_clst.labels)
     >>> my_clst.assess_clustering(my_clst.labels)
@@ -21,11 +21,12 @@ class Optics(Clustering):
 
     @property
     def _algorithm_name(self):
+        """Name of the clustering algorithm (optics)"""
         return "optics"
 
     @property
     def _hyper_params(self):
-        """Property containing all the hyper parameters that can be modified for optics clustering"""
+        """Dictionary with the range of possible values for each of the clustering hyper-parameters"""
 
         return {"min_samples": randint(2, 5),
                 "max_eps": [0.5, 0.6, 0.7, 0.8, 0.9],
@@ -38,10 +39,14 @@ class Optics(Clustering):
                 }
 
     def _clustering(self, **kwargs):
+        """Perform clustering with a given set of arguments"""
         return OPTICS(metric='precomputed', n_jobs=1, **kwargs)
 
     def cluster(self):
-        """Method to perform a clustering using the best parameters and over a given distance matrix"""
+        """Method to perform a clustering using the :py:attr:`~swamp.clustering.Clustering.best_params`
+
+        :raises ValueError: the attribute :py:attr:`~swamp.clustering.Clustering.similarity_mtx` is None
+        """
 
         self.logger.info(self.clustering_header)
 

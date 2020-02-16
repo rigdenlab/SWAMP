@@ -50,7 +50,7 @@ def MrRun(*args, **kwargs):
     """:py:obj:`~swamp.mr.mrrun.MrRun` instance"""
     from swamp.mr.mrrun import MrRun
 
-    return Mr(*args, **kwargs)
+    return MrRun(*args, **kwargs)
 
 
 def MrArray(*args, **kwargs):
