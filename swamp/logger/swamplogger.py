@@ -7,21 +7,18 @@ from swamp.logger.colorformat import ColorFormatter
 
 
 class SwampLogger(logging.Logger):
-    """Class that extends logging.Logger and assist with swamp logging messages.
+    """Class that implements methods to assist with SWAMP logging messages.
 
-    :param name: name to identify the logger
-    :type name: str
-    :param silent
-    :type silent: bool
-    :param args: arguments passed to logging.Logger
-    :type args: list, tuple
-    :param kwargs: arguments passed to logging.Logger
-    :type kwargs: dict
+    :param str name: name to identify the logger
+    :param bool silent: if True, messages are not logged
+    :param list args: arguments passed to :py:obj:`~logging.Logger`
+    :param dict kwargs: arguments passed to :py:obj:`~logging.Logger`
+    :ivar list msg_record: a list with all the messaged recorded into the log (even if `silent` is set to True)
     """
 
     def __init__(self, name, silent=False, *args, **kwargs):
-        self._silent = silent
-        self._msg_record = []
+        self.silent = silent
+        self.msg_record = []
         super(SwampLogger, self).__init__(name, *args, **kwargs)
 
     def __repr__(self):
@@ -31,7 +28,7 @@ class SwampLogger(logging.Logger):
 
     @property
     def greeting_msg(self):
-        """First message to appear when the logger initiates"""
+        """A greeting message to appear when the logger initiates, informs of the current time and SWAMP version"""
 
         return """\n#########################################################################
 #########################################################################
@@ -44,7 +41,7 @@ Current time: %s\n
 
     @property
     def error_header(self):
-        """Header for error messages"""
+        """Header to highlight error messages"""
 
         return """
 \033[91m\033[1m**********************************************************************
@@ -67,31 +64,14 @@ Current time: %s\n
         }
 
     @property
-    def silent(self):
-        """If set to True messages are not logged"""
-        return self._silent
-
-    @silent.setter
-    def silent(self, value):
-        self._silent = value
-
-    @property
-    def msg_record(self):
-        """List containing the recorded messages"""
-        return self._msg_record
-
-    @msg_record.setter
-    def msg_record(self, value):
-        self._msg_record = value
-
-    @property
     def record(self):
-        """Named tuple to be used as a template for records"""
+        """Named tuple to be used as a template for the records stored at \
+        :py:attr:`~swamp.logger.swamplogger.SwampLogger.msg_record`"""
         return collections.namedtuple('record', ['msg', 'level'])
 
     @property
     def msg(self):
-        """Format a given message before logging it"""
+        """Property to be used as the format for logged messages"""
         return '%s {}: {}' % self.now
 
     @property
@@ -103,7 +83,9 @@ Current time: %s\n
     # ------------------ Methods ------------------
 
     def error(self, msg, *args, **kwargs):
-        """Extend logging.logger method to include error message header and check if the logger is silenced"""
+        """Extend :py:func:`logging.logger.error` to include the \
+        :py:attr:`~swamp.logger.swamplogger.SwampLogger.error_header`, check if \
+        :py:attr:`~swamp.logger.swamplogger.SwampLogger.silent` and format the message"""
 
         msg = self.msg.format('ERROR', msg)
 
@@ -115,8 +97,8 @@ Current time: %s\n
         self.msg_record.append(self.record(msg=msg, level=logging.ERROR))
 
     def warning(self, msg, *args, **kwargs):
-        """Extend logging.logger method to check if the logger is silenced"""
-
+        """Extend :py:func:`logging.logger.warning` to check if \
+        :py:attr:`~swamp.logger.swamplogger.SwampLogger.silent` and format the message"""
         msg = self.msg.format('WARNING', msg)
 
         if not self.silent:
@@ -125,7 +107,8 @@ Current time: %s\n
         self.msg_record.append(self.record(msg=msg, level=logging.WARNING))
 
     def info(self, msg, *args, **kwargs):
-        """Extend logging.logger method to check if the logger is silenced"""
+        """Extend :py:func:`logging.logger.info` to check if \
+        :py:attr:`~swamp.logger.swamplogger.SwampLogger.silent` and  and format the message"""
 
         if isinstance(msg, collections.Iterable) and '****' not in msg and '####' not in msg:
             msg = self.msg.format('INFO', msg)
@@ -136,7 +119,8 @@ Current time: %s\n
         self.msg_record.append(self.record(msg=msg, level=logging.INFO))
 
     def debug(self, msg, *args, **kwargs):
-        """Extend logging.logger method to check if the logger is silenced"""
+        """Extend :py:func:`logging.logger.debug` to check if \
+        :py:attr:`~swamp.logger.swamplogger.SwampLogger.silent` and  and format the message"""
 
         msg = self.msg.format('DEBUG', msg)
 
@@ -146,7 +130,7 @@ Current time: %s\n
         self.msg_record.append(self.record(msg=msg, level=logging.DEBUG))
 
     def add_console_handler(self, level='info'):
-        """Add the console handler to the logger"""
+        """Add the console handler to the :py:obj:`~logging.Logger`"""
 
         ch = logging.StreamHandler(stream=sys.stdout)
         ch.setLevel(self.logging_levels.get(level, logging.INFO))
@@ -154,7 +138,7 @@ Current time: %s\n
         self.addHandler(ch)
 
     def add_file_handler(self, fname, level='debug'):
-        """Add the file handler to the logger"""
+        """Add the file handler to the :py:obj:`~logging.Logger`"""
 
         fh = logging.FileHandler(fname)
         fh.setLevel(self.logging_levels.get(level, logging.INFO))
@@ -162,16 +146,12 @@ Current time: %s\n
         self.addHandler(fh)
 
     def init(self, console_level="info", logfile_level="debug", logfile=None, use_console=True):
-        """Method to initiate the logger
+        """Method to initiate the :py:obj:`~swamp.logger.swamplogger.SwampLogger`
 
-        :param console_level: indicate the console logging level (default: 'info')
-        :type console_level: str
-        :param logfile_level: indicate the logfile logging level (default: 'debug')
-        :type logfile_level: str
-        :param logfile: file name to create a log file (default: None)
-        :type logfile: str, None
-        :param use_console: indicate whether or not to use the console while logging (default: True)
-        :type use_console: bool
+        :param str console_level: indicate the console logging level (default: 'info')
+        :param str logfile_level: indicate the logfile logging level (default: 'debug')
+        :param str logfile: file name to create a log file (default: None)
+        :param bool use_console: indicate whether or not to use the console while logging (default: True)
         """
 
         if use_console:
@@ -185,7 +165,7 @@ Current time: %s\n
         self.debug("Console logger level: %s", self.logging_levels.get(console_level, logging.INFO))
 
     def dump_records(self):
-        """Log all the records in the message record list"""
+        """Log all the records in the :py:attr:`~swamp.logger.swamplogger.SwampLogger.msg_record`"""
 
         current_list = list(self.msg_record)
         for record in current_list:
