@@ -24,27 +24,34 @@ class MrRun(Mr):
     phaser for search model placement, refmac5 for refinement, shelxe for density modification and model building. If
     scattering data has been recorded into the target's mtz file.
 
-    :param str, int id: unique identifier for the instance
+    :param str id: unique identifier for the instance
     :param str workdir: working directory where the MR task will be executed
     :param int threads: number of threads to be used in the pipeline (only affects phaser) (default 1)
     :param str target_fa: target's fasta filename
     :param str target_mtz: target's mtz filename
     :param str phased_mtz: target's mtz filename containing phases (default: None)
-    :param str phaser_sgalternative: parameter to be passed to phaser as SGAL_SELE (default 'NONE')
-    :param float, None phaser_packcutoff: parameter to be passed to phaser as setPACK_CUTO (default None)
-    :param float, None phaser_peaks_rotcutoff: parameter to be passed to phaser as setPEAK_ROTA_CUTO (default None)
-    :param bool phaser_early_kill: pipeline will stop execution if phaser placement is incorrect when True (default False)
-    :param int phaser_timeout: parameter to be passed to phaser as KILL_TIME (default 360)
+    :param str phaser_sgalternative: parameter to be passed :py:func:`phaser.InputMR_AUTO.SGAL_SELE` (default 'NONE')
+    :param float phaser_packcutoff: parameter to be passed to :py:func:`phaser.InputMR_AUTO.setPACK_CUTO` (default None)
+    :param float phaser_peaks_rotcutoff: parameter to be passed to :py:func:`phaser.InputMR_AUTO.setPEAK_ROTA_CUTO` \
+    (default None)
+    :param bool phaser_early_kill: if True pipeline will stop execution if phaser scores are low (default False)
+    :param int phaser_timeout: parameter to be passed to :py:func:`phaser.InputMR_AUTO.KILL_TIME` (default 360)
     :param bool extend_solution: if True then solutions will be completed with ideal helices (default False)
     :param bool save_disk_space: if True metadata will be removed to save disk space (default False)
-    :param logger: logging interface for the MR pipeline
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the MR pipeline (default None)
     :param bool silent: if set to True the logger will not print messages
     :param bool quiet_start: if True the logger will not display the header section and the inital parameters
-    :ivar error: True if errors have occurred at some point on the pipeline
-    :ivar is_extended: indicates number of cycles used to extend the solution
-    :ivar phaser: phaser wrapper used in the pipeline
-    :ivar refmac: refmac wrapper used in the pipeline
-    :ivar shelxe: shelxe wrapper used in the pipeline
+    :ivar bool error: True if errors have occurred at some point on the pipeline
+    :ivar str is_extended: 'YES' if the instance corresponds with an ideal helices extension run, otherwise 'NO'
+    :ivar `~swamp.wrappers.wphaser.Phaser` phaser: phaser wrapper used in the pipeline
+    :ivar `~swamp.wrappers.wrefmac.Refmac` refmac: refmac wrapper used in the pipeline
+    :ivar `~swamp.wrappers.shelxe` shelxe: shelxe wrapper used in the pipeline
+    :ivar str search_id: the search model identifier for the `~swamp.mr.core.mrrun.MrRun` instance
+    :ivar str run_id: the run identifier for the `~swamp.mr.core.mrrun.MrRun` instance
+    :ivar list search_model_list: a list of the search models to be used in this \
+    :py:obj:`~swamp.mr.core.mrrun.MrRun` instance
+    :ivar str solution: 'YES' if shelxe CC > 25, otherwise 'NO'
+    :ivar idealhelix_run: instance of :py:obj:`~swamp.mr.core.mrrun.MrRun to extend the solution with ideal helices
     """
 
     def __init__(self, id, workdir, target_fa, target_mtz, phased_mtz=None, threads=1, phaser_sgalternative="NONE",
@@ -54,28 +61,27 @@ class MrRun(Mr):
         super(MrRun, self).__init__(id, target_fa, target_mtz, workdir, phased_mtz=phased_mtz, logger=logger,
                                     silent=silent)
 
-        self._search_id = id.split('_')[1]
-        self._run_id = id.split('_')[3]
+        self.search_id = id.split('_')[1]
+        self.run_id = id.split('_')[3]
         self.init_params = locals()
         if not quiet_start:
             self.logger.info(self.pipeline_header.format(' MR-RUN '))
             self.logger.info(self._inform_args(**self.init_params))
-        self._searchmodel_list = []
-        self._threads = threads
-        self._save_disk_space = save_disk_space
-        self._extend_solution = extend_solution
-        self._phaser_sgalternative = phaser_sgalternative
-        self._phaser_early_kill = phaser_early_kill
-        self._phaser_timeout = phaser_timeout
-        self._is_extended = "NO"
-        self._phaser = None
-        self._refmac = None
-        self._shelxe = None
-        self._parent_array = None
-        self._solution = None
-        self._idealhelix_run = None
-        self._phaser_packcutoff = phaser_packcutoff
-        self._phaser_peaks_rotcutoff = phaser_peaks_rotcutoff
+        self.searchmodel_list = []
+        self.threads = threads
+        self.save_disk_space = save_disk_space
+        self.extend_solution = extend_solution
+        self.phaser_sgalternative = phaser_sgalternative
+        self.phaser_early_kill = phaser_early_kill
+        self.phaser_timeout = phaser_timeout
+        self.is_extended = "NO"
+        self.phaser = None
+        self.refmac = None
+        self.shelxe = None
+        self.solution = None
+        self.idealhelix_run = None
+        self.phaser_packcutoff = phaser_packcutoff
+        self.phaser_peaks_rotcutoff = phaser_peaks_rotcutoff
 
     # ------------------ Some general properties ------------------
 
@@ -85,153 +91,6 @@ class MrRun(Mr):
 
         return [self.phaser_info['workdir'], self.refmac_info['workdir'], self.shelxe_info['workdir'],
                 self.searchmodel_dir, os.path.join(self.workdir, "ideal_helices")]
-
-    @property
-    def save_disk_space(self):
-        """True if it is necessary to save disk space and remove unnecessary results"""
-        return self._save_disk_space
-
-    @save_disk_space.setter
-    def save_disk_space(self, value):
-        self._save_disk_space = value
-
-    @property
-    def search_id(self):
-        """Corresponds with the unique search model identifier of the instance"""
-        return self._search_id
-
-    @search_id.setter
-    def search_id(self, value):
-        self._search_id = value
-
-    @property
-    def run_id(self):
-        """Corresponds with the unique MR run identifier of the search model"""
-        return self._run_id
-
-    @run_id.setter
-    def run_id(self, value):
-        self._run_id = value
-
-    @property
-    def idealhelix_run(self):
-        """Instance of :obj:`swamp.mr.mrrun.MrRun to extend the solution with ideal helices"""
-        return self._idealhelix_run
-
-    @idealhelix_run.setter
-    def idealhelix_run(self, value):
-        self._idealhelix_run = value
-
-    @property
-    def phaser_packcutoff(self):
-        return self._phaser_packcutoff
-
-    @phaser_packcutoff.setter
-    def phaser_packcutoff(self, value):
-        self._phaser_packcutoff = value
-
-    @property
-    def phaser_peaks_rotcutoff(self):
-        return self._phaser_peaks_rotcutoff
-
-    @phaser_peaks_rotcutoff.setter
-    def phaser_peaks_rotcutoff(self, value):
-        self._phaser_peaks_rotcutoff = value
-
-    @property
-    def threads(self):
-        return self._threads
-
-    @threads.setter
-    def threads(self, value):
-        self._threads = value
-
-    @property
-    def phaser_early_kill(self):
-        return self._phaser_early_kill
-
-    @phaser_early_kill.setter
-    def phaser_early_kill(self, value):
-        self._phaser_early_kill = value
-
-    @property
-    def phaser_sgalternative(self):
-        return self._phaser_sgalternative
-
-    @phaser_sgalternative.setter
-    def phaser_sgalternative(self, value):
-        self._phaser_sgalternative = value
-
-    @property
-    def phaser_timeout(self):
-        return self._phaser_timeout
-
-    @phaser_timeout.setter
-    def phaser_timeout(self, value):
-        self._phaser_timeout = value
-
-    @property
-    def phaser(self):
-        """Property to hold the phaser wrapper :obj:`swamp.wrappers.wphaser.Phaser` instance"""
-        return self._phaser
-
-    @phaser.setter
-    def phaser(self, value):
-        self._phaser = value
-
-    @property
-    def shelxe(self):
-        """Property to hold the shelxe wrapper :obj:`swamp.wrappers.shelxe.Shelxe` instance"""
-        return self._shelxe
-
-    @shelxe.setter
-    def shelxe(self, value):
-        self._shelxe = value
-
-    @property
-    def refmac(self):
-        """Property to hold the refmac wrapper :obj:`swamp.wrappers.wrefmac.Refmac` instance"""
-        return self._refmac
-
-    @refmac.setter
-    def refmac(self, value):
-        self._refmac = value
-
-    @property
-    def extend_solution(self):
-        """If True extend the solution with ideal helices"""
-        return self._extend_solution
-
-    @extend_solution.setter
-    def extend_solution(self, value):
-        self._extend_solution = value
-
-    @property
-    def searchmodel_list(self):
-        """List of the search models to be used in this Mr run"""
-        return self._searchmodel_list
-
-    @searchmodel_list.setter
-    def searchmodel_list(self, value):
-        self._searchmodel_list = value
-
-    @property
-    def is_extended(self):
-        """If True ideal helices have been used to extend the solution"""
-        return self._is_extended
-
-    @is_extended.setter
-    def is_extended(self, value):
-        self._is_extended = value
-
-    @property
-    def solution(self):
-        """If 'YES' the MrRun solved the structure"""
-        return self._solution
-
-    @solution.setter
-    def solution(self, value):
-        self._solution = value
 
     @property
     def searchmodel_dir(self):
@@ -245,11 +104,9 @@ class MrRun(Mr):
 
     @property
     def target_info(self):
-        """Dictionary to contain information about the target
+        """Dictionary to contain useful information about the target
 
         :raises ValueError if the target's mtz and fasta files were not provided
-        :returns a dictionary with the target information
-        :rtype dict
         """
 
         if self.target_mtz is None or self.target_fa is None:
@@ -273,11 +130,7 @@ class MrRun(Mr):
 
     @property
     def phaser_info(self):
-        """Dictionary to contain information about the phaser run
-
-        :returns a dictionary with the arguments for phaser
-        :rtype dict
-        """
+        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.core.mrrun.MrRun.phaser`"""
 
         return {'early_kill': self.phaser_early_kill,
                 'workdir': os.path.join(self.workdir, "phaser"),
@@ -295,11 +148,7 @@ class MrRun(Mr):
 
     @property
     def refmac_info(self):
-        """Dictionary to contain information about the refmac run
-
-        :returns a dictionary with the arguments for refmac
-        :rtype dict
-        """
+        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.core.mrrun.MrRun.refmac`"""
 
         return {'workdir': os.path.join(self.workdir, "refmac"),
                 'pdbin': self.phaser.pdbout,
@@ -310,11 +159,7 @@ class MrRun(Mr):
 
     @property
     def shelxe_info(self):
-        """Dictionary to contain information about the shelxe run
-
-        :returns a dictionary with the arguments for shelxe
-        :rtype dict
-        """
+        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.core.mrrun.MrRun.shelxe`"""
 
         return {'workdir': os.path.join(self.workdir, 'shelxe'),
                 'logger': self.logger,
@@ -328,7 +173,7 @@ class MrRun(Mr):
 
     @property
     def _list_idealhelices(self):
-        """List of the ideal helices available to extend the solution"""
+        """List of file names of the ideal helices available to extend the solution"""
 
         permited_sizes = ["10", "15", "20", "25"]
         permited_modification = ["nativebfact", "gradientbfact"]
@@ -351,24 +196,15 @@ class MrRun(Mr):
 
     def add_searchmodel(self, id, ensemble_code, ermsd=0.1, nsearch=1, disable_check=True, mod='unmod',
                         model='ensemble'):
-        """Add a search model to the phaser run
+        """Add a search model to :py:attr:`~swamp.mr.core.mrrun.MrRun.phaser`
 
-        :param id: unique identifier for the search model to be added
-        :type id: str, int
-        :param ensemble_code: the ensemble's SWAMP library id to be used as search model
-        :type ensemble_code: str, int
-        :param ermsd: the eRMSD to be used with phaser to place the search model (default 0.1)
-        :type ermsd: float
-        :param nsearch: number of copies to search with phaser
-        :type nsearch: int
-        :param disable_check: passed to :obj:`phaser.InputMR_AUTO.setENSE_DISA_CHEC` (default True)
-        :type disable_check: bool
-        :param mod: indicate how to prepare the search model (default 'unmod')
-        :type mod: str
-        :param model: indicate if the search model is an ensemble or a centroid (default 'ensemble')
-        :type model: str
-        :returns nothing
-        :rtype None
+        :param str id: unique identifier for the search model to be added
+        :param str ensemble_code: the ensemble's SWAMP library id to be used as search model
+        :param float ermsd: the eRMSD to be used with phaser to place the search model (default 0.1)
+        :param int nsearch: number of copies to search with phaser
+        :param bool disable_check: passed to :py:obj:`phaser.InputMR_AUTO.setENSE_DISA_CHEC` (default True)
+        :param str mod: indicate how to prepare the search model (default 'unmod')
+        :param str model: indicate if the search model is an ensemble or a centroid (default 'ensemble')
         """
 
         if ensemble_code == 'idealhelix':
@@ -409,11 +245,11 @@ class MrRun(Mr):
             return
 
     def register_solution(self, **kwargs):
-        """Register an existing solution information to be used with phaser"""
+        """Register an existing solution information to be used with :py:attr:`~swamp.mr.core.mrrun.MrRun.phaser`"""
         self.solution = kwargs
 
     def append_results(self):
-        """Method to append the results obtained into the result list"""
+        """Method to append the results obtained into :py:attr:`~swamp.mr.core.mr.Mr.results`"""
 
         self.results.append(
             [self.search_id, self.run_id, self.phaser.LLG, self.phaser.TFZ, self.phaser.local_CC,
@@ -421,11 +257,7 @@ class MrRun(Mr):
              self.refmac.overall_CC, self.shelxe.cc, self.shelxe.acl, self.is_extended, self.shelxe.solution])
 
     def run(self):
-        """Run the MR pipeline using of phaser, refmac5 and shelxe. Extend the possible solution with ideal helices.
-
-        :returns no value
-        :rtype None
-        """
+        """Run the MR pipeline using of phaser, refmac5 and shelxe. Extend the possible solution with ideal helices"""
 
         self._initiate_wrappers()
 
@@ -481,7 +313,7 @@ class MrRun(Mr):
     def fit_helices(self):
         """Method to extend the solution with ideal helices
 
-        This method will create and set running another :obj:`swamp.mr.mrrun.MrRun` instance that will take
+        This method will create and set running another :py:obj:`swamp.mr.core.mrrun.MrRun` instance that will take
         the placed search model as an existing solution and try to place ideal helices to extend it.
         """
 
@@ -516,12 +348,8 @@ class MrRun(Mr):
     def prepare_search_model(self, modification='polyala', **kwargs):
         """ Method to prepare the search model with a given modification protocol
 
-        :param modification: indicates the modification to be used (default 'polyala')
-        :type modification: str
-        :param kwargs: arguments to be passed to :obj:`swamp.searchmodel_prepare.prepare`
-        :type kwargs: dict
-        :returns nothing
-        :rtype None
+        :param str modification: indicates the modification to be used (default 'polyala')
+        :param dict kwargs: arguments to be passed to :py:obj:`~swamp.mr.searchmodel_prepare.prepare`
         :raises ValueError if the modification is not recognised (valid mods: unmod, polyala, core)
         """
 
@@ -546,10 +374,8 @@ class MrRun(Mr):
     def characterise_searchmodel(self, searchmodel_filename):
         """Method to characterise a given search model (no. of models, no. of residues and avg. qscore of the ensemble)
     
-        :param searchmodel_filename: filename of the pdb file of the search model
-        :type searchmodel_filename: str
-        :returns tuple containing the number of models, number of residues and average qscore of the ensemble
-        :rtype: tuple
+        :param str searchmodel_filename: filename of the pdb file of the search model
+        :returns: tuple containing the number of models, number of residues and average qscore of the ensemble
         """
 
         # Read hierarchy
@@ -579,8 +405,9 @@ class MrRun(Mr):
     def _initiate_wrappers(self):
         """Method to instantiate the wrappers to be used in the pipeline
 
-        This method will instantiate the :onj:`swamp.wrapper.wrapper` classes required for the pipeline execution:
-        phaser, refmac, shelxe, phenix_get_cc
+        This method will instantiate all the :py:obj:`swamp.wrapper.wrapper` instances with the arguments necessary \
+         for the pipeline execution: :py:attr:`~swamp.mr.core.mrrun.MrRun.phaser`, \
+         :py:attr:`~swamp.mr.core.mrrun.MrRun.refmac`, :py:attr:`~swamp.mr.core.mrrun.MrRun.shelxe`
         """
 
         if not self.searchmodel_list:
@@ -602,12 +429,9 @@ class MrRun(Mr):
     def characterise_target(target_fa, target_mtz):
         """Method to characterise a given target
     
-        :param target_fa: filename of the fasta file of the target
-        :type target_fa: str
-        :param target_mtz: filename of the mtz file of the target
-        :type target_mtz: str
-        :returns tuple containing target's characteristics
-        :rtype: tuple
+        :param str target_fa: filename of the fasta file of the target
+        :param str target_mtz: filename of the mtz file of the target
+        :returns: tuple containing target's characteristics
         """
 
         # Sequence information

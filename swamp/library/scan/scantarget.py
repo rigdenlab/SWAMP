@@ -310,7 +310,7 @@ class ScanTarget(object):
 
     @property
     def _other_task_info(self):
-        """Dictionary with extra arguments for :obj:pyjob.TaskFactory"""
+        """Dictionary with extra arguments for :py:obj:pyjob.TaskFactory"""
 
         info = {'directory': self.workdir, 'shell': self.shell_interpreter}
 
@@ -318,6 +318,10 @@ class ScanTarget(object):
             info['processes'] = self.nthreads
         else:
             info['max_array_size'] = self.nthreads
+        if self.queue_environment is not None:
+            info['environment'] = self.queue_environment
+        if self.queue_name is not None:
+            info['queue'] = self.queue_name
 
         return info
 
@@ -470,17 +474,16 @@ class ScanTarget(object):
         if self.target.error:
             self.logger.warning('Previous errors prevent scanning the library with the target contacts!')
             return
+
         self.logger.info('Creating a list of jobs to scan the library using contacts.')
         self._create_scripts()
         self.logger.info('Sending jobs now.')
+
         with TaskFactory(self.platform, tuple(self.scripts), **self._other_task_info) as task:
             task.name = 'swamp_scan'
-            if self.queue_environment is not None:
-                task.environment = self.queue_environment
-            if self.queue_name is not None:
-                task.queue = self.queue_name
-            self.logger.info('Waiting for workers...')
             task.run()
+            self.logger.info('Waiting for workers...')
+
         self.logger.info('All scan tasks have been completed! Retrieving results')
         results = self.recover_results()
         self._make_dataframe(results)

@@ -14,18 +14,25 @@ class MrJob(object):
 
      :param str id: unique identifier of this :py:obj:`~swamp.mr.core.mrjob.MrJob` isntance
      :param str workdir: working directory for :py:obj:`~swamp.mr.core.mrjob.MrJob` instance
+     :param str python_interpreter: python interpreter for the :py:obj:`pyjob.Script`
+     :ivar str id: Unique identifier of this :py:obj:`~swamp.mr.core.mrjob.MrJob` isntance
+     :ivar str phased_mtz: target's mtz filename containing phases (default None)
+     :ivar str target_mtz: target's mtz filename (default None)
+     :ivar str target_fa: target's fasta filename (default None)
+     :ivar list searchmodel_list: A list with the search models to be used in the \
+     :py:obj:`~swamp.mr.core.mrrun.MrRun` instance
      """
 
     def __init__(self, id, workdir, python_interpreter=os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python')):
 
-        self._id = id
-        self._workdir = workdir
-        self._python_interpreter = python_interpreter
-        self._target_mtz = None
-        self._target_fa = None
-        self._phased_mtz = None
-        self._parent_array = None
-        self._searchmodel_list = []
+        self.id = id
+        self.workdir = workdir
+        self.python_interpreter = python_interpreter
+        self.target_mtz = None
+        self.target_fa = None
+        self.phased_mtz = None
+        self.parent_array = None
+        self.searchmodel_list = []
 
         if not os.path.isdir(self.workdir):
             os.makedirs(self.workdir)
@@ -34,69 +41,6 @@ class MrJob(object):
         return '{}(id={}, workdir="{}")'.format(self.__class__.__name__, self.id, self.workdir)
 
     # ------------------ General properties ------------------
-
-    @property
-    def id(self):
-        """Unique identifier of this :py:obj:`~swamp.mr.core.mrjob.MrJob` isntance"""
-        return self._id
-
-    @id.setter
-    def id(self, value):
-        self._id = value
-
-    @property
-    def python_interpreter(self):
-        """The python interpreter for the script"""
-        return self._python_interpreter
-
-    @python_interpreter.setter
-    def python_interpreter(self, value):
-        self._python_interpreter = value
-
-    @property
-    def workdir(self):
-        """Working directory for :py:obj:`~swamp.mr.core.mrjob.MrJob` instance"""
-        return self._workdir
-
-    @workdir.setter
-    def workdir(self, value):
-        self._workdir = value
-
-    @property
-    def phased_mtz(self):
-        """Target's mtz filename containing phases (default None)"""
-        return self._phased_mtz
-
-    @phased_mtz.setter
-    def phased_mtz(self, value):
-        self._phased_mtz = value
-
-    @property
-    def target_mtz(self):
-        """Target's mtz filename"""
-        return self._target_mtz
-
-    @target_mtz.setter
-    def target_mtz(self, value):
-        self._target_mtz = value
-
-    @property
-    def target_fa(self):
-        """Target's fasta filename"""
-        return self._target_fa
-
-    @target_fa.setter
-    def target_fa(self, value):
-        self._target_fa = value
-
-    @property
-    def searchmodel_list(self):
-        """A list with the search models to be used in the :py:obj:`~swamp.mr.core.mrrun.MrRun` instance"""
-        return self._searchmodel_list
-
-    @searchmodel_list.setter
-    def searchmodel_list(self, value):
-        self._searchmodel_list = value
 
     @property
     def parent_array(self):
@@ -125,7 +69,7 @@ class MrJob(object):
     @property
     def results(self):
         """A nested list with the results of the :py:obj:`~swamp.mr.core.mrrun.MrRun` instance created with the \
-        execution of :py:attr:`~swamp.mr.core.mrjob.MrJob._python_script`"""
+        execution of :py:attr:`~swamp.mr.core.mrjob.MrJob.python_script`"""
 
         pickle_fname = os.path.join(self.workdir, "results.pckl")
 
@@ -139,7 +83,7 @@ class MrJob(object):
             return None
 
     @property
-    def _python_script(self):
+    def python_script(self):
         """String with the python script to create and execute the :py:obj:`~swamp.mr.core.mrrun.MrRun` instance \
         associated with this :py:obj:`~swamp.mr.core.mrjob.MrJob`"""
 
@@ -168,11 +112,11 @@ EOF
 
     @property
     def script(self):
-        """A :py:obj:`~pyjo.Script` instance that will be executed on this :py:obj:`~swamp.mr.core.mrjob.MrJob`"""
+        """A :py:obj:`pyjob.Script` instance that will be executed on this :py:obj:`~swamp.mr.core.mrjob.MrJob`"""
 
         script = Script(directory=os.path.join(os.path.abspath(os.path.join(self.workdir, os.pardir))),
                         prefix=self.id.lower(), stem='', suffix='.sh')
-        script.append(self._python_script)
+        script.append(self.python_script)
         return script
 
     # ------------------ Methods ------------------
@@ -181,7 +125,7 @@ EOF
         """Provide necessary information to add a given search model to the :py:obj:`~swamp.mr.core.mrrun.MrRun` \
         instance.
 
-        :param kwargs: used in :py:func:`~swamp.mr.core.mrrun.MrRun.add_searchmodel`
+        :param kwargs: directly used into :py:func:`~swamp.mr.core.mrrun.MrRun.add_searchmodel`
         """
 
         self.searchmodel_list.append(kwargs)

@@ -21,6 +21,17 @@ class MrArray(Mr):
     :param int job_kill_time: kill time assigned to :py:obj:`~swamp.mr.core.mrjob.MrJob` instances (default None)
     :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the MR pipeline (default None)
     :param bool silent: if set to True the logger will not print messages
+    :ivar list results: A list with the figures of merit obtained after the completion of the pipeline
+    :ivar bool error: True if errors have occurred at some point on the pipeline
+    :ivar list job_list: A list of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this \
+    :py:obj:`~swamp.mr.core.mrarray.MrArray` instance.
+    :ivar dict job_dict: A dictionary of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this \
+    :py:obj:`~swamp.mr.core.mrarray.MrArray` instance. Key corresponds with :py:attr:`swamp.mr.core.mrjob.MrJob.id`
+    :ivar list scripts: List of :py:obj:`pyjob.Scripts` instances to be executed on this \
+    :py:obj:`~swamp.mr.core.mrarray.MrArray` instance
+    :ivar str shell_interpreter: Indicates shell interpreter to execute \
+    :py:obj:`~swamp.mr.core.mrjob.MrJob` (default '/bin/bash')
+    :ivar int max_array_size: the maximum permitted size of a task array (default 1000)
 
     :example:
 
@@ -42,16 +53,16 @@ class MrArray(Mr):
         self.init_params = locals()
         self.logger.info(self.pipeline_header.format('MR-ARRAY'))
         self.logger.info(self._inform_args(**self.init_params))
-        self._max_concurrent_nprocs = max_concurrent_nprocs
-        self._platform = platform
-        self._job_kill_time = job_kill_time
-        self._queue_name = queue_name
-        self._queue_environment = queue_environment
-        self._job_list = []
-        self._job_dict = {}
-        self._scripts = []
-        self._error = False
-        self._shell_interpreter = "/bin/bash"
+        self.max_concurrent_nprocs = max_concurrent_nprocs
+        self.platform = platform
+        self.job_kill_time = job_kill_time
+        self.queue_name = queue_name
+        self.queue_environment = queue_environment
+        self.job_list = []
+        self.job_dict = {}
+        self.scripts = []
+        self.shell_interpreter = "/bin/bash"
+        self.max_array_size = 1000
 
     def __repr__(self):
         return '{}(id={}, njobs={})'.format(self.__class__.__name__, self.id, len(self.job_list))
@@ -103,93 +114,8 @@ class MrArray(Mr):
         return None
 
     @property
-    def shell_interpreter(self):
-        """Indicates shell interpreter to execute :py:obj:`~swamp.mr.core.mrjob.MrJob` (default '/bin/bash')"""
-        return self._shell_interpreter
-
-    @shell_interpreter.setter
-    def shell_interpreter(self, value):
-        self._shell_interpreter = value
-
-    @property
-    def job_kill_time(self):
-        """Kill time assigned to :py:obj:`~swamp.mr.core.mrjob.MrJob` instances"""
-        return self._job_kill_time
-
-    @job_kill_time.setter
-    def job_kill_time(self, value):
-        self._job_kill_time = value
-
-    @property
-    def queue_name(self):
-        """Name of the queue where the tasks should be submitted"""
-        return self._queue_name
-
-    @queue_name.setter
-    def queue_name(self, value):
-        self._queue_name = value
-
-    @property
-    def queue_environment(self):
-        """Queue environment where the tasks should be submitted ('mpi', 'openmpi', 'mpe'...etc.)"""
-        return self._queue_environment
-
-    @queue_environment.setter
-    def queue_environment(self, value):
-        self._queue_environment = value
-
-    @property
-    def platform(self):
-        """Platform where the array of tasks will be executed ('sge', 'slurm', 'local', 'pbs')"""
-        return self._platform
-
-    @platform.setter
-    def platform(self, value):
-        self._platform = value
-
-    @property
-    def scripts(self):
-        """List of :py:obj:`pyjob.Scripts` instances to be executed on this \
-        :py:obj:`~swamp.mr.core.mrarray.MrArray` instance"""
-        return self._scripts
-
-    @scripts.setter
-    def scripts(self, value):
-        self._scripts = value
-
-    @property
-    def max_concurrent_nprocs(self):
-        """The maximum number of concurrent tasks to be executed at any given time"""
-        return self._max_concurrent_nprocs
-
-    @max_concurrent_nprocs.setter
-    def max_concurrent_nprocs(self, value):
-        self._max_concurrent_nprocs = value
-
-    @property
-    def job_dict(self):
-        """A dictionary of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this \
-        :py:obj:`~swamp.mr.core.mrarray.MrArray` instance. Key corresponds with \
-        :py:attr:`swamp.mr.core.mrjob.MrJob.id`"""
-        return self._job_dict
-
-    @job_dict.setter
-    def job_dict(self, value):
-        self._job_dict = value
-
-    @property
-    def job_list(self):
-        """A list of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this \
-        :py:obj:`~swamp.mr.core.mrarray.MrArray` instance."""
-        return self._job_list
-
-    @job_list.setter
-    def job_list(self, value):
-        self._job_list = value
-
-    @property
     def _other_task_info(self):
-        """A dictionary with the extra **kwargs for :py:obj:`pyjob.TaskFactory`"""
+        """A dictionary with the extra kwargs for :py:obj:`pyjob.TaskFactory`"""
 
         info = {'directory': self.workdir, 'shell': self.shell_interpreter}
 
@@ -197,6 +123,12 @@ class MrArray(Mr):
             info['processes'] = self.max_concurrent_nprocs
         else:
             info['max_array_size'] = self.max_concurrent_nprocs
+        if self.queue_environment is not None:
+            info['environment'] = self.queue_environment
+        if self.queue_name is not None:
+            info['queue'] = self.queue_name
+        if self.job_kill_time is not None:
+            info['runtime'] = self.job_kill_time
 
         return info
 
@@ -206,10 +138,11 @@ class MrArray(Mr):
         """Add an instance of :py:obj:`~swamp.mr.core.mrjob.MrJob` to the array. This includes both the MrJob object \
         and its :py:obj:`pyjob.Script` attribute.
 
-        :param value: :py:obj:`~swamp.mr.core.mrjob.MrJob` instance to be added to the array for execution
-        :type value: :py:obj:`~swamp.mr.core.mrjob.MrJob`
+        :argument value: :py:obj:`~swamp.mr.core.mrjob.MrJob` instance to be added \
+        to the array for execution
         :raises TypeError: value is not an instance of :py:obj:`~swamp.mr.core.mrjob.MrJob`
-        :raises ValueError: a :py:obj:`~swamp.mr.core.mrjob.MrJob` instance with the same id is already contained in the array
+        :raises ValueError: a :py:obj:`~swamp.mr.core.mrjob.MrJob` instance with the same \
+        :py:attr:`swamp.mr.core.mrjob.MrJob.id` is already contained in the array
         """
 
         if not isinstance(value, swamp.mr.core.mrjob.MrJob):
@@ -229,20 +162,19 @@ class MrArray(Mr):
     def run(self, store_results=False):
         """Send the array for execution in the HPC using :py:obj:`pyjob.TaskFactory`
 
-        :argument store_results: Not implemented
-        :type store_results: bool
+        :argument bool store_results: Not implemented
         """
 
         self.logger.info("Sending the MR task array to the HPC for execution")
 
-        with TaskFactory(self.platform, tuple(self.scripts), **self._other_task_info) as task:
-            task.name = self.id
-            if self.queue_name is not None:
-                task.queue = self.queue_name
-            if self.queue_environment is not None:
-                task.environment = self.queue_environment
-            task.runtime = self.job_kill_time
-            task.run()
+        all_scripts = [tuple(self.scripts[x:x + self.max_array_size]) for x in
+                       range(0, len(self.scripts), self.max_array_size)]
+
+        for idx, scripts in enumerate(all_scripts):
+            self.logger.info('Sending task array %s / %s' % (idx, len(all_scripts)))
+            with TaskFactory(self.platform, scripts, **self._other_task_info) as task:
+                task.name = 'swamp_%s' % idx
+                task.run()
 
         self.logger.info('All tasks in the array have been completed!')
         self.logger.info('Retrieving results')

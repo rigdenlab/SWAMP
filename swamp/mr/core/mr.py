@@ -18,6 +18,7 @@ class Mr(ABC):
     :param str phased_mtz: filename of the target's mtz containing phase information (default None)
     :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the MR pipeline (default None)
     :param bool silent: if set to True the logger will not print messages (default False)
+    :ivar list results: A list with the figures of merit obtained after the completion of the pipeline
     :ivar bool error: True if errors have occurred at some point on the pipeline
     :ivar list results: contains the results obtained in the MR pipeline
     """
@@ -25,21 +26,21 @@ class Mr(ABC):
     def __init__(self, id, target_fa, target_mtz, workdir, phased_mtz=None, logger=None, silent=False):
 
         self._init_params = locals()
-        self._id = id
-        self._workdir = workdir
+        self.id = id
+        self.workdir = workdir
         self.make_workdir()
         os.chdir(self.workdir)
-        self._target_fa = target_fa
-        self._target_mtz = target_mtz
-        self._phased_mtz = phased_mtz
-        self._error = False
-        self._results = []
+        self.target_fa = target_fa
+        self.target_mtz = target_mtz
+        self.phased_mtz = phased_mtz
+        self.error = False
+        self.results = []
         if logger is None:
-            self._logger = SwampLogger(__name__, silent=silent)
+            self.logger = SwampLogger(__name__, silent=silent)
             self.logger.init(logfile=os.path.join(self.workdir, "swamp_%s.debug" % id), use_console=True,
                              console_level='info', logfile_level='debug')
         else:
-            self._logger = logger
+            self.logger = logger
             self.logger.silent = silent
 
     # ------------------ Abstract methods and properties ------------------
@@ -51,7 +52,7 @@ class Mr(ABC):
 
     @abc.abstractmethod
     def append_results(self):
-        """Abstract method to append the results obtained so far into :py:attr:`~swamp.mr.mr.Mr.results`"""
+        """Abstract method to append the results obtained so far into :py:attr:`~swamp.mr.core.mr.Mr.results`"""
         pass
 
     @property
@@ -64,83 +65,10 @@ class Mr(ABC):
 
     @property
     def _result_table_fields(self):
-        """A list of the column names in the :py:attr:`~swamp.mr.mr.Mr.table_contents`"""
+        """A list of the column names in the :py:attr:`~swamp.mr.core.mr.Mr.table_contents`"""
 
         return ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT",
                 "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
-
-    @property
-    def logger(self):
-        """ :py:obj:`~swamp.logger.swamplogger.SwampLogger` logging interface for the MR pipeline (default None)"""
-        return self._logger
-
-    @logger.setter
-    def logger(self, value):
-        self._logger = value
-
-    @property
-    def id(self):
-        """Unique identifier for the MR instance. It is the result of combining :py:attr:`~swamp.mr.mr.Mr.search_id`\
-        and :py:attr:`~swamp.mr.mr.Mr.run_id`"""
-        return self._id
-
-    @id.setter
-    def id(self, value):
-        self._id = value
-
-    @property
-    def target_fa(self):
-        """Target's fasta filename"""
-        return self._target_fa
-
-    @target_fa.setter
-    def target_fa(self, value):
-        self._target_fa = value
-
-    @property
-    def workdir(self):
-        """working directory where the MR pipeline will be executed"""
-        return self._workdir
-
-    @workdir.setter
-    def workdir(self, value):
-        self._workdir = value
-
-    @property
-    def phased_mtz(self):
-        """Filename of the target's mtz containing phase information"""
-        return self._phased_mtz
-
-    @phased_mtz.setter
-    def phased_mtz(self, value):
-        """Filename of the target's mtz"""
-        self._phased_mtz = value
-
-    @property
-    def target_mtz(self):
-        return self._target_mtz
-
-    @target_mtz.setter
-    def target_mtz(self, value):
-        self._target_mtz = value
-
-    @property
-    def error(self):
-        """This property returns True if errors have been detected during the completion of the pipeline"""
-        return self._error
-
-    @error.setter
-    def error(self, value):
-        self._error = value
-
-    @property
-    def results(self):
-        """A list with the figures of merit obtained after the completion of the pipeline"""
-        return self._results
-
-    @results.setter
-    def results(self, value):
-        self._results = value
 
     @property
     def init_params(self):
@@ -162,7 +90,7 @@ class Mr(ABC):
 
     @property
     def result_table_fname(self):
-        """Filename where the string representation of :py:attr:`~swamp.mr.mr.Mr.table_contents` will be written"""
+        """Filename where the string representation of :py:attr:`~swamp.mr.core.mr.Mr.table_contents` will be written"""
         return os.path.join(self.workdir, "results.table")
 
     @property
@@ -182,7 +110,7 @@ class Mr(ABC):
 
     @property
     def table_contents(self):
-        """String representation of :py:attr:`~swamp.mr.mr.Mr.results` displayed as a table"""
+        """String representation of :py:attr:`~swamp.mr.core.mr.Mr.results` displayed as a table"""
 
         self.results = sorted(self.results, key=lambda x: x[10] if x[10] != 'NA' else float('0.0'), reverse=True)
 
@@ -209,10 +137,8 @@ class Mr(ABC):
     def store_pickle(self, fname=None, mode="ab"):
         """Method to pickle the :py:obj:`~swamp.mr.core.mr.Mr` instance into a file
 
-        :param fname: filename where the pickle will be created (default None)
-        :type fname: str
-        :param mode: mode that will be used to open the file handle (default 'ab')
-        :type mode: str
+        :param str fname: filename where the pickle will be created (default None)
+        :param str mode: mode that will be used to open the file handle (default 'ab')
         """
 
         if fname is None:
@@ -223,11 +149,10 @@ class Mr(ABC):
         pickle_file.close()
 
     def create_result_table_outfile(self, fname=None):
-        """Method to write string representation of :py:attr:`~swamp.mr.mr.Mr.table_contents` into \
-        :py:attr:`~swamp.mr.mr.Mr.result_table_fname` or into a specific file if `fname` is set.
+        """Method to write string representation of :py:attr:`~swamp.mr.core.mr.Mr.table_contents` into \
+        :py:attr:`~swamp.mr.core.mr.Mr.result_table_fname` or into a specific file if `fname` is set.
 
-        :param fname: filename where the result table will be created (default None)
-        :type fname: str
+        :param str fname: filename where the result table will be created (default None)
         """
 
         if fname is None:
@@ -247,7 +172,7 @@ class Mr(ABC):
     # ------------------ Some protected and static methods ------------------
 
     def _cleanup_files(self):
-        """Method to cleanup the files indicated at :py:attr:`~swamp.mr.mr.Mr.cleanup_dir_list`"""
+        """Method to cleanup the files indicated at :py:attr:`~swamp.mr.core.mr.Mr.cleanup_dir_list`"""
 
         self.logger.info("Saving disk space now...")
 
@@ -259,7 +184,7 @@ class Mr(ABC):
     @staticmethod
     def _inform_args(**kwargs):
         """Create a string representation of the initial parameters used for the creation of this instance, as stored \
-        in :py:attr:`~swamp.mr.mr.Mr.init_params`"""
+        in :py:attr:`~swamp.mr.core.mr.Mr.init_params`"""
 
         msg = "Arguments provided:\n\n"
         for key in kwargs.keys():

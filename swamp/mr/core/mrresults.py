@@ -6,10 +6,16 @@ from swamp.logger.swamplogger import SwampLogger
 
 
 class MrResults(object):
-    """Class to handle the results from a SWAMP MR array task
+    """Class to handle the results py:obj:`~swamp.mr.core.mrarray.MrArray` instance
 
-    :param swamp_workdir: SWAMP_X working directory
-    :type swamp_workdir: str
+    :param str swamp_workdir: the :py:obj:`~swamp.mr.core.mrarray.MrArray` working directory
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the MR pipeline (default None)
+    :ivar list results: nested list with the figures of merit obtained after the completion of \
+    :py:obj:`~swamp.mr.core.mrarray.MrArray` isntance
+    :ivar list pickle_list: a list of pickle file names for all the :py:obj:`~swamp.mr.core.mrrun.MrRun` instances \
+    contained in the :py:obj:`~swamp.mr.core.mrarray.MrArray` instance
+    :ivar str mr_dir: the directory with the MR results obtained with :py:obj:`~swamp.mr.core.mrarray.MrArray` instance
+
     """
 
     def __init__(self, swamp_workdir, logger=None):
@@ -30,7 +36,7 @@ class MrResults(object):
 
     @property
     def logger_header(self):
-        """Header used at the top of the logger"""
+        """Header used whe initialising the `~swamp.logger.swamplogger.SwampLogger`"""
 
         return """\n**********************************************************************
 *******************          SWAMP-MR RESULTS          ***************
@@ -41,16 +47,16 @@ Recovering results now...
 
     @property
     def _result_table_fields(self):
-        """List of the field names in the results table"""
+        """List of the field names in the results table printed at \
+        :py:func:`~swamp.mr.core.mrresults.MrResults.report_results`"""
 
         return ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT",
                 "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
 
     def report_results(self, top=50):
-        """Print in the stdout the table with the top results
+        """Print in the stdout a table with the indicated top :py:attr:`~swamp.mr.core.mrresults.MrResults.results`
 
-        :param top: top number of results to display
-        :type top: int
+        :param int top: top number of results to display
         """
 
         table = PrettyTable(self._result_table_fields)
@@ -66,7 +72,7 @@ Recovering results now...
         self.logger.info('Results retrieved. Showing top %s scoring results:\n\n%s' % (top, table.get_string()))
 
     def _recover_results(self):
-        """Recover the results stored in each Mr run pickle"""
+        """Recover the results stored in each pickle at :py:attr:`~swamp.mr.core.mrresults.MrResults.pickle_list`"""
 
         for pickle_fname in self.pickle_list:
             with open(pickle_fname, 'rb') as pickle_fhandle:
@@ -78,7 +84,11 @@ Recovering results now...
 
     @staticmethod
     def lookup_pickles(mr_dir):
-        """Search a given mr directory for result pickle files"""
+        """Search a given directory for result pickle files
+
+        :param str mr_dir: the directory of interest to be searched
+        :returns: a tuple with the pickle files that were found
+        """
 
         pickle_list = []
         for search_dir in filter(MrResults.is_searchdir, [os.path.join(mr_dir, dir) for dir in os.listdir(mr_dir)]):
@@ -93,13 +103,10 @@ Recovering results now...
 
     @staticmethod
     def is_searchdir(dir):
-        """Check if a given directory is a mr swamp search directory
+        """Check if a given directory is a swamp-mr search directory
 
-        :param dir: directory of interest
-        :type dir: str
-        :returns True if the input directory is a swamp search directory
-        :rtype bool
-
+        :param str dir: directory of interest
+        :returns: True if the input directory is a swamp search directory otherwise False
         """
         if os.path.isdir(dir) and 'search_' in dir:
             return True
@@ -108,12 +115,10 @@ Recovering results now...
 
     @staticmethod
     def is_rundir(dir):
-        """Check if a given directory is a mr swamp run directory
+        """Check if a given directory is a valid swamp-mr run directory
 
-        :param dir: directory of interest
-        :type dir: str
-        :returns True if the input directory is a swamp run directory
-        :rtype bool
+        :param str dir: directory of interest
+        :returns: True if the input directory is an existing swamp run directory otherwise False
 
         """
         if os.path.isdir(dir) and 'run_' in dir:
