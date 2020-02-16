@@ -2,7 +2,16 @@ from swamp.parsers.parser import Parser
 
 
 class PhaserParser(Parser):
-    """Phaser output parser
+    """A Phaser output parser
+
+    :param str fname: the file name to be parsed (default None)
+    :param str stdout: the stdout to be parsed (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the parser (default None)
+    :ivar str RFZ: the RFZ as parsed from the :py:attr:`~swamp.parsers.parser.fname`
+    :ivar str TFZ: the RFZ as parsed from the :py:attr:`~swamp.parsers.parser.fname`
+    :ivar str LLG: the LLG as parsed from the :py:attr:`~swamp.parsers.parser.fname`
+    :ivar str eLLG: the eLLG as parsed from the :py:attr:`~swamp.parsers.parser.stdout`
+    :ivar str VRMS: the VRMS as parsed from the :py:attr:`~swamp.parsers.parser.stdout`
 
     :example:
 
@@ -13,61 +22,22 @@ class PhaserParser(Parser):
 
     def __init__(self, fname, stdout, logger=None):
 
-        self._RFZ = "NA"
-        self._TFZ = "NA"
-        self._LLG = "NA"
-        self._eLLG = "NA"
-        self._VRMS = "NA"
+        self.RFZ = "NA"
+        self.TFZ = "NA"
+        self.LLG = "NA"
+        self.eLLG = "NA"
+        self.VRMS = "NA"
 
         super(PhaserParser, self).__init__(fname, stdout, logger=logger)
 
     @property
     def summary(self):
-        """A summary of the figures of  merit"""
+        """A summary of the parsed figures of  merit"""
         return self.LLG, self.TFZ, self.RFZ, self.eLLG, self.VRMS
 
-    @property
-    def RFZ(self):
-        return self._RFZ
-
-    @RFZ.setter
-    def RFZ(self, value):
-        self._RFZ = value
-
-    @property
-    def TFZ(self):
-        return self._TFZ
-
-    @TFZ.setter
-    def TFZ(self, value):
-        self._TFZ = value
-
-    @property
-    def LLG(self):
-        return self._LLG
-
-    @LLG.setter
-    def LLG(self, value):
-        self._LLG = value
-
-    @property
-    def eLLG(self):
-        return self._eLLG
-
-    @eLLG.setter
-    def eLLG(self, value):
-        self._eLLG = value
-
-    @property
-    def VRMS(self):
-        return self._VRMS
-
-    @VRMS.setter
-    def VRMS(self, value):
-        self._VRMS = value
-
     def parse(self):
-        """Extract the figures of merit from the logfile and the pdb output file"""
+        """Extract the figures of merit from :py:attr:`~swamp.parsers.parser.fname` and \
+        :py:attr:`~swamp.parsers.parser.stdout`"""
 
         # Parse the pdbout for LLG, TFZ and RFZ
         with open(self.fname, "r") as fhandle:

@@ -7,10 +7,10 @@ from operator import itemgetter
 class TopconsParser(Parser):
     """Topcons file parser
 
-    :ivar tmhelices: Dataframe with the mappings for the TM helices predicted by topcons
-    :type tmhelices: :object pandas.Dataframe, None
-    :ivar residue_topology: Dataframe with the residue topology as predicted by topcons
-    :type residue_topology: :object pandas.Dataframe, None
+    :param str fname: the file name to be parsed (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the parser (default None)
+    :ivar `~pandas.Dataframe` tmhelices: Dataframe with the mappings for the TM helices predicted by topcons
+    :ivar `~pandas.Dataframe` residue_topology: Dataframe with the residue topology as predicted by topcons
 
     :example:
 
@@ -20,8 +20,8 @@ class TopconsParser(Parser):
     """
 
     def __init__(self, fname, logger=None):
-        self._tmhelices = None
-        self._residue_topology = None
+        self.tmhelices = None
+        self.residue_topology = None
         super(TopconsParser, self).__init__(fname, logger=logger)
 
     @property
@@ -29,24 +29,8 @@ class TopconsParser(Parser):
         """Abstract property to store a summary of the parsed figures of merit"""
         return None
 
-    @property
-    def tmhelices(self):
-        return self._tmhelices
-
-    @tmhelices.setter
-    def tmhelices(self, value):
-        self._tmhelices = value
-
-    @property
-    def residue_topology(self):
-        return self._residue_topology
-
-    @residue_topology.setter
-    def residue_topology(self, value):
-        self._residue_topology = value
-
     def parse(self):
-        """Parse the topcons prediction file and retrieve the TM topology"""
+        """Parse the :py:attr:`~swamp.parsers.parser.fname` prediction file and retrieve the TM topology"""
 
         if self.error:
             self.logger.warning("Previous errors prevent parsing TOPCONS file!")

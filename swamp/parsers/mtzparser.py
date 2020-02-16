@@ -25,6 +25,9 @@ class MTZLabels(Enum):
 class MtzParser(Parser):
     """Class to parse and store mtz label data.
 
+    :param str stdout: the stdout to be parsed (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the parser (default None)
+
     :example:
 
     >>> from swamp.parsers import MtzParser
@@ -54,7 +57,7 @@ class MtzParser(Parser):
 
     @property
     def summary(self):
-        """Abstract property not in use"""
+        """Abstract property to store a summary of the parsed figures of merit (not in use)"""
         return None
 
     def parse(self):

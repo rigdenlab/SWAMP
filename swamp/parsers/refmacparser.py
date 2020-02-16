@@ -4,6 +4,16 @@ from swamp.parsers.parser import Parser
 class RefmacParser(Parser):
     """Refmac output parser
 
+    :param str stdout: the stdout to be parsed (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the parser (default None)
+    :ivar str rfactor: the Rfactor as parsed from the :py:attr:`~swamp.parsers.parser.fname`
+    :ivar tuple rfactor_delta: the intial and final Rfactor as parsed from the :py:attr:`~swamp.parsers.parser.fname`
+    :ivar str rfree: the Rfree as parsed from the :py:attr:`~swamp.parsers.parser.fname`
+    :ivar tuple rfree_delta: the intial and final Rfree as parsed from the :py:attr:`~swamp.parsers.parser.fname`
+    :ivar tuple bondlenght_delta: the intial and final Bond length parsed from :py:attr:`~swamp.parsers.parser.fname`
+    :ivar tuple bondangle_delta: the intial and final Bond angle parsed from :py:attr:`~swamp.parsers.parser.fname`
+    :ivar tuple chirvol_delta: the intial and final Chirvol as parsed from the :py:attr:`~swamp.parsers.parser.fname`
+
     :example:
 
     >>> from swamp.parsers import RefmacParser
@@ -13,13 +23,13 @@ class RefmacParser(Parser):
 
     def __init__(self, stdout, logger=None):
 
-        self._rfactor = "NA"
-        self._rfree = "NA"
-        self._rfactor_delta = ("NA", "NA")
-        self._rfree_delta = ("NA", "NA")
-        self._bondlenght_delta = ("NA", "NA")
-        self._bondangle_delta = ("NA", "NA")
-        self._chirvol_delta = ("NA", "NA")
+        self.rfactor = "NA"
+        self.rfree = "NA"
+        self.rfactor_delta = ("NA", "NA")
+        self.rfree_delta = ("NA", "NA")
+        self.bondlenght_delta = ("NA", "NA")
+        self.bondangle_delta = ("NA", "NA")
+        self.chirvol_delta = ("NA", "NA")
 
         super(RefmacParser, self).__init__(fname=None, stdout=stdout, logger=logger)
 
@@ -29,64 +39,8 @@ class RefmacParser(Parser):
         return self.rfactor, self.rfree, self.rfactor_delta, self.rfree_delta, \
                self.bondlenght_delta, self.bondangle_delta, self.chirvol_delta
 
-    @property
-    def rfactor(self):
-        return self._rfactor
-
-    @rfactor.setter
-    def rfactor(self, value):
-        self._rfactor = value
-
-    @property
-    def rfactor_delta(self):
-        return self._rfactor_delta
-
-    @rfactor_delta.setter
-    def rfactor_delta(self, value):
-        self._rfactor_delta = value
-
-    @property
-    def rfree(self):
-        return self._rfree
-
-    @rfree.setter
-    def rfree(self, value):
-        self._rfree = value
-
-    @property
-    def rfree_delta(self):
-        return self._rfree_delta
-
-    @rfree_delta.setter
-    def rfree_delta(self, value):
-        self._rfree_delta = value
-
-    @property
-    def bondlenght_delta(self):
-        return self._bondlenght_delta
-
-    @bondlenght_delta.setter
-    def bondlenght_delta(self, value):
-        self._bondlenght_delta = value
-
-    @property
-    def bondangle_delta(self):
-        return self._bondangle_delta
-
-    @bondangle_delta.setter
-    def bondangle_delta(self, value):
-        self._bondangle_delta = value
-
-    @property
-    def chirvol_delta(self):
-        return self._chirvol_delta
-
-    @chirvol_delta.setter
-    def chirvol_delta(self, value):
-        self._chirvol_delta = value
-
     def parse(self):
-        """Extract the figures of merit from the stdout"""
+        """Extract the figures of merit from :py:attr:`~swamp.parsers.parser.stdout`"""
 
         reached_end = False
         for line in self.stdout.split("\n"):

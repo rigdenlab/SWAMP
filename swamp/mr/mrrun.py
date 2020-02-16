@@ -103,7 +103,7 @@ class MrRun(Mr):
     def target_info(self):
         """Dictionary to contain useful information about the target
 
-        :raises ValueError if the target's mtz and fasta files were not provided
+        :raises: ValueError if the target's mtz and fasta files were not provided
         """
 
         if self.target_mtz is None or self.target_fa is None:
@@ -347,7 +347,7 @@ class MrRun(Mr):
 
         :param str modification: indicates the modification to be used (default 'polyala')
         :param dict kwargs: arguments to be passed to :py:obj:`~swamp.searchmodel.prepare`
-        :raises ValueError if the modification is not recognised (valid mods: unmod, polyala, core)
+        :raises: ValueError if the modification is not recognised (valid mods: unmod, polyala, core)
         """
 
         self.logger.info('Preparing searchmodel for MR run (modification: %s)' % modification)

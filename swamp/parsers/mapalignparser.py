@@ -4,6 +4,14 @@ from swamp.parsers.parser import Parser
 class MapAlignParser(Parser):
     """map_align contact map alignment output parser
 
+    :param str stdout: the stdout to be parsed (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the parser (default None)
+    :ivar str con_sco: the contact score obtained after alignment of the input maps
+    :ivar str gap_sco: the gap score obtained in the alignment
+    :ivar str total_sco: the gap score obtained after alignment of the input maps
+    :ivar int alignment_length: the length of the alignment obtained between the two input maps
+    :ivar dict alignemnt: a dictionary with the residue sequence number equivalence across the two input maps
+
     :example:
 
     >>> from swamp.parsers import MapAlignParser
@@ -13,11 +21,11 @@ class MapAlignParser(Parser):
 
     def __init__(self, stdout, logger=None):
 
-        self._alignment = {}
-        self._con_sco = None
-        self._gap_sco = None
-        self._total_sco = None
-        self._alignment_length = None
+        self.alignment = {}
+        self.con_sco = None
+        self.gap_sco = None
+        self.total_sco = None
+        self.alignment_length = None
 
         super(MapAlignParser, self).__init__(stdout=stdout, fname=None, logger=logger)
 
@@ -26,53 +34,8 @@ class MapAlignParser(Parser):
         """A summary of the figures of  merit"""
         return self.alignment, self.con_sco, self.gap_sco, self.total_sco, self.alignment_length
 
-    @property
-    def alignment(self):
-        """Property to store  (dictionary with the residue sequence number equivalence across the input maps)"""
-        return self._alignment
-
-    @alignment.setter
-    def alignment(self, value):
-        self._alignment = value
-
-    @property
-    def con_sco(self):
-        """Property to store the contact score obtained with the map alignment"""
-        return self._con_sco
-
-    @con_sco.setter
-    def con_sco(self, value):
-        self._con_sco = value
-
-    @property
-    def gap_sco(self):
-        """Property to store gap score assigned to the map alignment"""
-        return self._gap_sco
-
-    @gap_sco.setter
-    def gap_sco(self, value):
-        self._gap_sco = value
-
-    @property
-    def total_sco(self):
-        """Property to store total score (contact_score - gap_score)"""
-        return self._total_sco
-
-    @total_sco.setter
-    def total_sco(self, value):
-        self._total_sco = value
-
-    @property
-    def alignment_length(self):
-        """Property to store contact map alignment length"""
-        return self._alignment_length
-
-    @alignment_length.setter
-    def alignment_length(self, value):
-        self._alignment_length = value
-
     def parse(self):
-        """Extract the figures of merit from the stdout produced by map_align"""
+        """Extract the figures of merit out of :py:attr:`~swamp.parsers.parser.stdout`"""
 
         self.alignment = {}
         for line in self.stdout.split("\n"):

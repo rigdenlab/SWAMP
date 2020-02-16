@@ -6,8 +6,9 @@ from swamp.parsers.parser import Parser
 class PdbtmXmlParser(Parser):
     """Class to parse and store pdbtm data contained in xml format files
 
-    :ivar ss2_annotation: List of named tuples containing secondary structure annotations found in the input file
-    :type ss2_annotation: list, None
+    :param str fname: the file name to be parsed (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the parser (default None)
+    :ivar list ss2_annotation: List of named tuples containing secondary structure annotations found in the input file
 
     :example:
 
@@ -22,27 +23,21 @@ class PdbtmXmlParser(Parser):
 
     @property
     def summary(self):
-        """Abstract property to store a summary of the parsed figures of merit"""
+        """Abstract property to store a summary of the parsed figures of merit (not in use)"""
         return None
 
     @property
-    def ss2_annotation(self):
-        return self._ss2_annotation
-
-    @ss2_annotation.setter
-    def ss2_annotation(self, value):
-        self._ss2_annotation = value
-
-    @property
     def _annotation_template(self):
-        """Template with the named tuple to contain information about the secondary structure information"""
+        """Named tuple to contain information about the secondary structure information extracted from \
+        :py:attr:`~swamp.parsers.parser.fname`"""
 
         return collections.namedtuple("AnnotationInfo",
                                       ["pdb_start", "pdb_stop", "seq_start", "seq_end", "type", "chain", "index",
                                        "length", "pdb_region"])
 
     def parse(self):
-        """Method to parse the input xml file and retrieve the ss2 annotation"""
+        """Method to parse :py:attr:`~swamp.parsers.parser.fname` and store \
+        :py:attr:`~swamp.parsers.pdbtmxmlparser.ss2 annotation`"""
 
         if self.error:
             self.logger.warning("Previous errors prevent parsing PDBTM file!")

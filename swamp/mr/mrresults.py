@@ -36,7 +36,7 @@ class MrResults(object):
 
     @property
     def logger_header(self):
-        """Header used whe initialising the `~swamp.logger.swamplogger.SwampLogger`"""
+        """Header used whe initialising the :py:obj:`~swamp.logger.swamplogger.SwampLogger`"""
 
         return """\n**********************************************************************
 *******************          SWAMP-MR RESULTS          ***************

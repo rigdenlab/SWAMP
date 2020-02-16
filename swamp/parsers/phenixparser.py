@@ -2,7 +2,12 @@ from swamp.parsers.parser import Parser
 
 
 class PhenixParser(Parser):
-    """A phenix.get_cc output parser
+    """A phenix.get_cc stdout parser
+
+    :param str stdout: the stdout to be parsed (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the parser (default None)
+    :ivar overall_CC: the overall correlation coefficient parsed from :py:attr:`~swamp.parsers.parser.stdout`
+    :ivar local_CC: the local correlation coefficient parsed from :py:attr:`~swamp.parsers.parser.stdout`
 
     :example:
 
@@ -23,26 +28,8 @@ class PhenixParser(Parser):
         """A summary of the figures of  merit"""
         return self.local_CC, self.overall_CC
 
-    @property
-    def local_CC(self):
-        """Local correlation coefficient between the mtz file and the pdb file"""
-        return self._local_CC
-
-    @local_CC.setter
-    def local_CC(self, value):
-        self._local_CC = value
-
-    @property
-    def overall_CC(self):
-        """Overall correlation coefficient between the mtz file and the pdb file"""
-        return self._overall_CC
-
-    @overall_CC.setter
-    def overall_CC(self, value):
-        self._overall_CC = value
-
     def parse(self):
-        """Extract the figures of merit from the logfile and the pdb output file"""
+        """Extract the figures of merit from :py:attr:`~swamp.parsers.parser.stdout`"""
 
         for line in self.stdout.split('\n'):
             if "overall CC" in line:
