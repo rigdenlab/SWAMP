@@ -1,7 +1,7 @@
 import os
 import dill
 from pyjob import Script
-from swamp.mr import MrArray
+from swamp.mr.mrarray import MrArray
 
 
 class MrJob(object):

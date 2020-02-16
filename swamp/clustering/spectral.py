@@ -1,4 +1,4 @@
-from swamp.clustering import Clustering
+from swamp.clustering.clustering import Clustering
 from sklearn.cluster import SpectralClustering
 from scipy.stats import randint, expon
 

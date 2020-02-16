@@ -1,4 +1,4 @@
-from swamp.clustering import Clustering
+from swamp.clustering.clustering import Clustering
 from sklearn.cluster import AffinityPropagation
 from scipy.stats import randint, expon
 

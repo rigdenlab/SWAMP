@@ -3,8 +3,8 @@ import swamp
 import conkit.io
 import numpy as np
 from pyjob import cexec
-from swamp.wrappers import Wrapper
-from swamp.wrappers import Gesamt
+from swamp.wrappers.wrapper import Wrapper
+from swamp.wrappers.gesamt import Gesamt
 from swamp.parsers import MapAlignParser
 
 

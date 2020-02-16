@@ -5,7 +5,7 @@ import swamp
 import shutil
 import subprocess
 from Bio import SeqIO
-from swamp.mr import Mr
+from swamp.mr.mr import Mr
 from swamp.wrappers import Phaser, wRefmac, Shelxe
 from Bio.Alphabet import generic_protein
 from Bio.SeqUtils import molecular_weight

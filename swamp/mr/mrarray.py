@@ -1,5 +1,6 @@
 from pyjob import TaskFactory
-from swamp.mr import Mr, MrJob
+from swamp.mr.mr import Mr
+from swamp.mr.mrjob import MrJob
 
 
 class MrArray(Mr):

@@ -1,7 +1,7 @@
 import os
 from pyjob import cexec
 from swamp.parsers import MtzParser
-from swamp.wrappers import Wrapper
+from swamp.wrappers.wrapper import Wrapper
 
 
 class Mtz2Various(Wrapper):

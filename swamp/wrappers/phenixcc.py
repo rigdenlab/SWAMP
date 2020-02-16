@@ -1,7 +1,7 @@
 import os
 import shutil
 from pyjob import cexec
-from swamp.wrappers import Wrapper
+from swamp.wrappers.wrapper import Wrapper
 from swamp.parsers import PhenixParser
 
 

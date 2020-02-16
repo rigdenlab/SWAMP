@@ -1,7 +1,7 @@
 import os
 import gemmi
 from swamp.utils import renumber_hierarchy
-from swamp.searchmodel import SearchModel
+from swamp.searchmodel.searchmodel import SearchModel
 
 
 class PolyALA(SearchModel):

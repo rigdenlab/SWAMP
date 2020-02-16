@@ -1,7 +1,7 @@
 import os
 from pyjob import cexec
-from swamp.wrappers import Wrapper
 from swamp.parsers import RefmacParser
+from swamp.wrappers.wrapper import Wrapper
 
 
 class wRefmac(Wrapper):

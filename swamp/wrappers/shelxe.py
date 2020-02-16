@@ -2,9 +2,9 @@ import os
 import math
 from pyjob import cexec
 from shutil import copyfile
-from swamp.wrappers import Wrapper
 from swamp.parsers import ShelxeParser
-from swamp.wrappers import Mtz2Various
+from swamp.wrappers.wrapper import Wrapper
+from swamp.wrappers.mtz2various import Mtz2Various
 
 
 class Shelxe(Wrapper):
@@ -252,7 +252,7 @@ class Shelxe(Wrapper):
         return os.path.join(self.workdir, "shelxe-input.pdb")
 
     @property
-    def result_summary(self):
+    def summary_results(self):
         """String with a summary of the figures of merit obtained"""
         return "Shelxe results: CC - %s   ACL - %s   SOLUTION - %s\n" % (self.cc, self.acl, self.solution)
 

@@ -3,8 +3,8 @@ import swamp
 import conkit.io
 import numpy as np
 from pyjob import cexec
-from swamp.wrappers import MapAlign
 from swamp.parsers import AleigenParser
+from swamp.wrappers.mapalign import MapAlign
 
 
 class AlEigen(MapAlign):

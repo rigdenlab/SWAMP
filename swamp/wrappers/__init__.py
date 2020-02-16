@@ -18,9 +18,9 @@ if 'THIS_IS_READTHEDOCS' not in os.environ and "CCP4" not in os.environ:
 
 def AlEigen(*args, **kwargs):
     """:py:obj:`~swamp.wrappers.aleigen.AlEigen` instance"""
-    from swamp.wrappers.aleigen import AlEigen
+    import swamp.wrappers.aleigen
 
-    return AlEigen(*args, **kwargs)
+    return swamp.wrappers.aleigen.AlEigen(*args, **kwargs)
 
 
 def MapAlign(*args, **kwargs):

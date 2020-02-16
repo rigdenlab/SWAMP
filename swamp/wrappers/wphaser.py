@@ -1,9 +1,10 @@
 import os
 import shutil
 import collections
-from swamp.wrappers import Wrapper, wRefmac
-from swamp.parsers import MtzParser, PhaserParser
 from swamp.searchmodel import PolyALA
+from swamp.wrappers.wrapper import Wrapper
+from swamp.wrappers.wrefmac import wRefmac
+from swamp.parsers import MtzParser, PhaserParser
 from phaser import InputMR_DAT, runMR_DAT, InputMR_AUTO, runMR_AUTO
 
 
