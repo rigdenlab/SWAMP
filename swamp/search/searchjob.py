@@ -3,9 +3,10 @@ import abc
 import swamp
 import joblib
 from pyjob import Script
+from swamp.wrappers import MapAlign
 from swamp.logger import SwampLogger
-from swamp.wrappers import MapAlign, AlEigen
-from swamp.utils import SwampLibrary
+from swamp.wrappers.aleigen import AlEigen
+from swamp.utils.swamplibrary import SwampLibrary
 
 ABC = abc.ABCMeta('ABC', (object,), {})
 
@@ -212,7 +213,7 @@ class SearchJob(ABC):
         """Python script to create and execute the corresponding :obj:`swamp.library.search.searchjob` instance"""
 
         script = 'cd {}\n{} << EOF\nfrom swamp.library.search.searchjob import SearchJob\n'.format(self.workdir,
-                                                                                             self.python_interpreter)
+                                                                                                   self.python_interpreter)
 
         attributes = ['id', 'workdir', 'query', 'template_library', 'con_format', 'library_format', 'pdb_library',
                       'query_pdb_benchmark', 'template_subset', 'algorithm']
