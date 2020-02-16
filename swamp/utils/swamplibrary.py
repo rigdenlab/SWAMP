@@ -231,10 +231,10 @@ class SwampLibrary(object):
     def create_distance_mtx(self, gesamt_dir):
         """Method to create the distance matrices for the library.
 
-        Requires a the all vs all gesamt scan results. The distance matrices contain the optimal structural
+        Requires a the all vs all gesamt search results. The distance matrices contain the optimal structural
         alignment between every set of fragments present in the lirbary.
 
-        :param gesamt_dir: directory containing the .hit files resulting from the all vs all gesamt scan results
+        :param gesamt_dir: directory containing the .hit files resulting from the all vs all gesamt search results
         :type gesamt_dir: str
         :returns nothing
         :rtype None
@@ -386,7 +386,7 @@ class SwampLibrary(object):
         :type inputdir: str
         :param outdir: the output directory where the .hit files will be created
         :type outdir: str
-        :param nthreads: number of threads to be used in the gesamt scan search (default 1)
+        :param nthreads: number of threads to be used in the gesamt search search (default 1)
         :type nthreads: int
         :returns nothing
         :rtype None
@@ -404,7 +404,7 @@ class SwampLibrary(object):
                          fname[-4:] == ".pdb" and os.path.isfile(os.path.join(inputdir, fname))]
         for pdbfile in fragment_list:
             id = os.path.basename(pdbfile)[:-4]
-            gesamt = Gesamt(mode="scan-archive", pdbin=pdbfile, gesamt_archive=os.path.join(outdir, "gesamt_archive"),
+            gesamt = Gesamt(mode="search-archive", pdbin=pdbfile, gesamt_archive=os.path.join(outdir, "gesamt_archive"),
                             min2="0", nthreads=str(nthreads), min1="0", workdir=None,
                             hits_out=os.path.join(outdir, "%s_hits.txt" % id))
             gesamt.run()
@@ -470,7 +470,7 @@ class SwampLibrary(object):
 
     @staticmethod
     def _get_frag_id_dict(gesamt_dir):
-        """Method to get all the frag_ids in a given gesamt scan dir.
+        """Method to get all the frag_ids in a given gesamt search dir.
 
         It will compute both orientations into a dictionary where the key is the unique frag id
 

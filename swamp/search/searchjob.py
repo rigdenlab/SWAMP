@@ -10,19 +10,19 @@ from swamp.utils import SwampLibrary
 ABC = abc.ABCMeta('ABC', (object,), {})
 
 
-class ScanJob(ABC):
-    """Class that implements methods to scan a library of templates using contact map alignment utils
+class SearchJob(ABC):
+    """Class that implements methods to search a library of templates using contact map alignment utils
     
-    The class is used to scan a single subtarget against the SWAMP library. The CMO between the observed contacts
+    The class is used to search a single subtarget against the SWAMP library. The CMO between the observed contacts
     for each member of the library and the predicted contacts of the subtarget is computed.
     
     :param id: the id given to the MrRun and identifying this job
     :type id: str, int
-    :param workdir: working directory where the scan will be executed and temporary files will be created
+    :param workdir: working directory where the search will be executed and temporary files will be created
     :type workdir: str
     :param query: file name of the query contact file
     :type query: str
-    :param template_library: the directory containing all the templates to be used in the scan
+    :param template_library: the directory containing all the templates to be used in the search
     :type template_library: str
     :param con_format: format of the contact prediction of the query (default 'psicov')
     :type con_format: str
@@ -34,9 +34,9 @@ class ScanJob(ABC):
     :type pdb_library: str
     :param template_subset: a subset of templates to be used instead of the full library (default None)
     :type template_subset: list, tuple, None
-    :param logger: logging interface to be used on the scan (default None)
+    :param logger: logging interface to be used on the search (default None)
     :type logger: None, :obj:`swamp.logger.swamplogger.SwampLogger`
-    :param algorithm: Indicate the alignment algorithm to be used in the scan (default: 'mapalign')
+    :param algorithm: Indicate the alignment algorithm to be used in the search (default: 'mapalign')
     :type algorithm: str
     """
 
@@ -63,7 +63,7 @@ class ScanJob(ABC):
         if logger is None:
             self._logger = SwampLogger(__name__)
             self.logger.init(logfile=None, use_console=True, console_level='debug')
-            self.logger.info(self.scan_header)
+            self.logger.info(self.search_header)
         else:
             self._logger = logger
 
@@ -78,7 +78,7 @@ class ScanJob(ABC):
     # ------------------ Some general properties ------------------
 
     @property
-    def scan_header(self):
+    def search_header(self):
         """Wrapper header for the logger"""
 
         return """**********************************************************************
@@ -193,7 +193,7 @@ class ScanJob(ABC):
 
     @property
     def template_list(self):
-        """List of templates to be used in the scan (considers the subset selection, if any)"""
+        """List of templates to be used in the search (considers the subset selection, if any)"""
 
         if self.template_subset is None:
             return [os.path.join(self.template_library, filename) for filename in os.listdir(self.template_library)]
@@ -204,14 +204,14 @@ class ScanJob(ABC):
 
     @property
     def pickle_fname(self):
-        """A pickle where the results of the scan will be stored"""
-        return os.path.join(self.workdir, 'scan_%s_results.pckl' % self.id)
+        """A pickle where the results of the search will be stored"""
+        return os.path.join(self.workdir, 'search_%s_results.pckl' % self.id)
 
     @property
     def _python_script(self):
-        """Python script to create and execute the corresponding :obj:`swamp.library.scan.scanjob` instance"""
+        """Python script to create and execute the corresponding :obj:`swamp.library.search.searchjob` instance"""
 
-        script = 'cd {}\n{} << EOF\nfrom swamp.library.scan.scanjob import ScanJob\n'.format(self.workdir,
+        script = 'cd {}\n{} << EOF\nfrom swamp.library.search.searchjob import SearchJob\n'.format(self.workdir,
                                                                                              self.python_interpreter)
 
         attributes = ['id', 'workdir', 'query', 'template_library', 'con_format', 'library_format', 'pdb_library',
@@ -225,7 +225,7 @@ class ScanJob(ABC):
                 else:
                     arguments.append('%s=(%s)' % (att, ', '.join(['"%s"' % x for x in self.__getattribute__(att)])))
 
-        script += 'job=ScanJob(%s)' % ', '.join(arguments)
+        script += 'job=SearchJob(%s)' % ', '.join(arguments)
         script += '\njob.run()\njob.store_pickle()\nEOF\n'
 
         return script
@@ -234,13 +234,13 @@ class ScanJob(ABC):
     def script(self):
         """Instance of :object:`pyjob.Script` that corresponds with the job to be executed"""
 
-        script = Script(directory=self.workdir, prefix='scanjob_%s' % self.id, stem='', suffix='.sh')
+        script = Script(directory=self.workdir, prefix='searchjob_%s' % self.id, stem='', suffix='.sh')
         script.append(self._python_script)
         return script
 
     @property
     def _alignment_wrapper(self):
-        """Location of the template library to be used during the CMO scan
+        """Location of the template library to be used during the CMO search
 
         :returns nothing
         :rtype None
@@ -357,9 +357,9 @@ class ScanJob(ABC):
         joblib.dump(self.results, self.pickle_fname)
 
     def run(self):
-        """Scan the query against the templates using the indicated algorithm"""
+        """Use the query to search against the templates using the indicated algorithm"""
 
-        self.logger.info("Scanning template library")
+        self.logger.info("Searching template library")
 
         for job in self.joblist:
             self.logger.debug("Alignment of query %s with template %s" % (job.map_a, job.map_b))

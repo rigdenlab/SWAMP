@@ -9,5 +9,5 @@ Parsers subpackage
 .. toctree::
    :glob:
 
-   generated/swamp.parsers.*
+   generated/swamp.parsers*
 

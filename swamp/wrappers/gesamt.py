@@ -220,7 +220,7 @@ class Gesamt(Wrapper):
             return cmd
 
         # Scan an archive
-        elif self.mode == "scan-archive":
+        elif self.mode == "search-archive":
             cmd = [self._SRC_GESAMT, self.pdbin, '-archive', self.gesamt_archive, '-o', self.hits_out]
             self._filthy_files.append(self.hits_out)
             if self.nthreads is not None:
@@ -235,7 +235,7 @@ class Gesamt(Wrapper):
         else:
             self.error = True
             self.logger.error("Unkown mode! %s" % self.mode)
-            self.logger.warning('Allowed modes are: %s' % ",".join(['alignment', "scan-archive", "make-archive"]))
+            self.logger.warning('Allowed modes are: %s' % ",".join(['alignment', "search-archive", "make-archive"]))
             return None
 
     # ------------------ General methods ------------------
@@ -249,7 +249,7 @@ class Gesamt(Wrapper):
         :rtype None
         """
 
-        if self.mode == "scan-archive":
+        if self.mode == "search-archive":
             self.summary_results = self.parse_hitfile(self.hits_out)
         elif self.mode == "alignment":
             self.qscore, self.rmsd, self.seq_id, self.n_align = self.parse_stdout(self.logcontents, len(self.pdbin))

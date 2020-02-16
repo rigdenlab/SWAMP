@@ -5,19 +5,19 @@ import conkit.io
 import itertools
 import pandas as pd
 from pyjob import TaskFactory
-from swamp.scan import ScanJob
+from swamp.search import SearchJob
 from swamp.logger import SwampLogger
 from swamp.utils import TargetSplit, SwampLibrary, renumber_hierarchy
 
 
-class ScanTarget(object):
-    """Class to scan the library and rank search models according to their CMO with a given target.
+class SearchTarget(object):
+    """Class to search the library and rank search models according to their CMO with a given target.
 
     Using CMO alignment tools determine the best fragments in the library to be used as search models. The target
     will be split into several subtargets (one for each helical pair with enough interhelical contact information,
-    and several scan jobs will take place (one for each subtarget).
+    and several search jobs will take place (one for each subtarget).
 
-    :param str workdir: working directory where the scan tasks will be executed
+    :param str workdir: working directory where the search tasks will be executed
     :param str conpred: contact prediction file of the target
     :param str sspred: secondary structure prediction file of the target (must be topcons file)
     :param str conformat: format of the contact prediction file for the target
@@ -25,8 +25,8 @@ class ScanTarget(object):
     :param list template_subset: set of templates to be used rather than the full fragment library (deafult: None)
     :param str target_pdb_benchmark: target's pdb file for benchmark purposes (default: None)
     :param str alignment_algorithm_name: algorithm used for CMO calculation (default: 'mapalign')
-    :param `swamp.logger.swamplogger.SwampLogger` logger: logging interface for the scan (default: None)
-    :param int n_contacts_threshold: min. no. of interhelical contacts to include a subtarget in the scan (default: 28)
+    :param `swamp.logger.swamplogger.SwampLogger` logger: logging interface for the search (default: None)
+    :param int n_contacts_threshold: min. no. of interhelical contacts to include a subtarget in the search (default: 28)
     :param str platform: queueing system used in the HPC where the array will be executed (default 'sge')
     :param str queue_name: name of the HPC qeue where the tasks should be sent (default None)
     :param str queue_environment: name of the HPC queue environment where the tasks should be sent (default None)
@@ -34,9 +34,9 @@ class ScanTarget(object):
     :ivar bool error: True if errors have occurred at some point on the pipeline
 
     :example:
-    >>> from swamp.library.scan.scantarget import ScanTarget
-    >>> my_rank = ScanTarget('<workdir>', '<conpred>', '<sspred>')
-    >>> my_rank.scan()
+    >>> from swamp.search import SearchTarget
+    >>> my_rank = SearchTarget('<workdir>', '<conpred>', '<sspred>')
+    >>> my_rank.search()
     >>> my_rank.rank()
     """
 
@@ -59,7 +59,7 @@ class ScanTarget(object):
         self._shell_interpreter = '/bin/bash'
         self._python_interpreter = python_interpreter
         self._con_precision_dict = None
-        self._scan_pickle_dict = None
+        self._search_pickle_dict = None
         self._scripts = None
         self._results = None
         self._make_workdir()
@@ -88,11 +88,11 @@ class ScanTarget(object):
     # ------------------ Properties ------------------
 
     @property
-    def scan_header(self):
+    def search_header(self):
         """Abstract property to store the wrapper header for the logger"""
 
         return """**********************************************************************
-********************            SWAMP SCAN            ****************
+*****************            SWAMP SEARCH            *****************
 **********************************************************************
 
 """
@@ -182,7 +182,7 @@ class ScanTarget(object):
 
     @property
     def target(self):
-        """Target splitter :obj:`~swamp.scan.targetsplit.SplitTarget`"""
+        """Target splitter :obj:`~swamp.search.targetsplit.SplitTarget`"""
         return self._target
 
     @target.setter
@@ -262,20 +262,20 @@ class ScanTarget(object):
         self._workdir = value
 
     @property
-    def scan_pickle_dict(self):
-        return self._scan_pickle_dict
+    def search_pickle_dict(self):
+        return self._search_pickle_dict
 
-    @scan_pickle_dict.setter
-    def scan_pickle_dict(self, value):
-        self._scan_pickle_dict = value
+    @search_pickle_dict.setter
+    def search_pickle_dict(self, value):
+        self._search_pickle_dict = value
 
     @property
     def _tmp_cmap(self):
         return os.path.join(self.workdir, "tmp_cmap_{}.map")
 
     @property
-    def _scan_workdir(self):
-        return os.path.join(self.workdir, "scan_{}")
+    def _search_workdir(self):
+        return os.path.join(self.workdir, "search_{}")
 
     @property
     def _tmp_pdb(self):
@@ -286,7 +286,7 @@ class ScanTarget(object):
 
     @property
     def template_library(self):
-        """Location of the template library to be used during the CMO scan"""
+        """Location of the template library to be used during the CMO search"""
 
         if self.alignment_algorithm_name == 'aleigen':
             return swamp.FRAG_ALEIGEN_DB
@@ -350,7 +350,7 @@ class ScanTarget(object):
 
         self.scripts = []
         self.con_precision_dict = {}
-        self.scan_pickle_dict = {}
+        self.search_pickle_dict = {}
 
         for idx, subtarget in enumerate(self.target.ranked_subtargets, 1):
             self.logger.info("%s interhelical contacts found for subtarget %s" % (subtarget.ncontacts, idx))
@@ -369,27 +369,27 @@ class ScanTarget(object):
                     precision = subtarget.match(perfect_contacts).precision
                     self.con_precision_dict[subtarget.id] = precision
 
-                scanner = ScanJob(**self._scan_info(idx))
+                searcher = SearchJob(**self._search_info(idx))
 
-                self.scripts.append(scanner.script)
-                self.scan_pickle_dict[scanner.pickle_fname] = subtarget
+                self.scripts.append(searcher.script)
+                self.search_pickle_dict[searcher.pickle_fname] = subtarget
 
             else:
                 self.logger.info("No. of contacts below the %s threshold. "
-                                 "Subtarget will not be used in the scan." % self.n_contacts_threshold)
+                                 "Subtarget will not be used in the search." % self.n_contacts_threshold)
 
-        self.logger.info('%s subtargets will be used in the scan. Creating task now.' % len(self.scan_pickle_dict))
+        self.logger.info('%s subtargets will be used in the search. Creating task now.' % len(self.search_pickle_dict))
 
-    def _scan_info(self, idx):
-        """Create a dictionary with the arguments for the library scan
+    def _search_info(self, idx):
+        """Create a dictionary with the arguments for the library search
 
-        :param idx: the index of the scan job
+        :param idx: the index of the search job
         :type idx: int
-        :returns dictionary wuth the arguments to use for the library scan
+        :returns dictionary wuth the arguments to use for the library search
         :rtype dict
         """
 
-        info = {'workdir': self._scan_workdir.format(idx), 'pdb_library': swamp.FRAG_PDB_DB,
+        info = {'workdir': self._search_workdir.format(idx), 'pdb_library': swamp.FRAG_PDB_DB,
                 'query': self._tmp_cmap.format(idx), 'algorithm': self.alignment_algorithm_name,
                 'template_subset': self.template_subset, 'python_interpreter': self.python_interpreter,
                 'template_library': self.template_library, 'library_format': self.library_format,
@@ -405,7 +405,7 @@ class ScanTarget(object):
 
         :param results: Nested list with the results of each of the CMO scans
         :type results: list
-        :param kwargs: Passed to :obj:`~swamp.scan.fragrank._get_best_alignment`
+        :param kwargs: Passed to :obj:`~swamp.search.fragrank._get_best_alignment`
         :return: no value
         :rtype: None
         """
@@ -438,14 +438,14 @@ class ScanTarget(object):
     # ------------------ Some general methods ------------------
 
     def recover_results(self):
-        """Recover the results from all the :obj:`swamp.library.scan.scanjob` in the :obj:`pyjob.TaskFactory`
+        """Recover the results from all the :obj:`swamp.library.search.searchjob` in the :obj:`pyjob.TaskFactory`
 
         :returns results: a list with the results obtained for the contact map alignment across all subtargets
         :rtype list
         """
 
         results = []
-        for pickle_fname, subtarget in zip(self.scan_pickle_dict.keys(), self.scan_pickle_dict.values()):
+        for pickle_fname, subtarget in zip(self.search_pickle_dict.keys(), self.search_pickle_dict.values()):
 
             if os.path.isfile(pickle_fname):
                 self.logger.debug('Retrieving results from %s' % pickle_fname)
@@ -459,30 +459,30 @@ class ScanTarget(object):
 
         return results
 
-    def scan(self):
-        """Scan the library and compute the CMO between the observed contacts and the predicted contacts of the target.
+    def search(self):
+        """Search the library and compute the CMO between the observed contacts and the predicted contacts of the target.
 
-        This method will run a :obj:`` instance that contains one scan job for each of the subtargets that met the
+        This method will run a :obj:`` instance that contains one search job for each of the subtargets that met the
         no. contacts threshold.
         """
 
-        self.logger.info(self.scan_header)
+        self.logger.info(self.search_header)
         self.logger.info("Splitting the target into sets of contacting helical pairs")
         self.target.split()
         if self.target.error:
             self.logger.warning('Previous errors prevent scanning the library with the target contacts!')
             return
 
-        self.logger.info('Creating a list of jobs to scan the library using contacts.')
+        self.logger.info('Creating a list of jobs to search the library using contacts.')
         self._create_scripts()
         self.logger.info('Sending jobs now.')
 
         with TaskFactory(self.platform, tuple(self.scripts), **self._other_task_info) as task:
-            task.name = 'swamp_scan'
+            task.name = 'swamp_search'
             task.run()
             self.logger.info('Waiting for workers...')
 
-        self.logger.info('All scan tasks have been completed! Retrieving results')
+        self.logger.info('All search tasks have been completed! Retrieving results')
         results = self.recover_results()
         self._make_dataframe(results)
 

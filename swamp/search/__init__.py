@@ -1,6 +1,6 @@
 """This is SWAMP: Solving Structures With Alpha Membrane Pairs
 
-This module implements classes and methods to scan the SWAMP library using contact information
+This module implements classes and methods to search the SWAMP library using contact information
 """
 
 __author__ = "Filomeno Sanchez Rodriguez"
@@ -24,15 +24,15 @@ if 'THIS_IS_READTHEDOCS' not in os.environ:
         raise ImportError('Joblib must be installed before using SWAMP-SCAN')
 
 
-def ScanJob(*args, **kwargs):
-    """:py:obj:`~swamp.scan.scanjob.ScanJob` instance"""
-    from swamp.scan.scanjob import ScanJob
+def SearchJob(*args, **kwargs):
+    """:py:obj:`~swamp.search.searchjob.SearchJob` instance"""
+    from swamp.search.searchjob import SearchJob
 
-    return ScanJob(*args, **kwargs)
+    return SearchJob(*args, **kwargs)
 
 
-def ScanTarget(*args, **kwargs):
-    """:py:obj:`~swamp.scan.scantarget.ScanTarget` instance"""
-    from swamp.scan.scantarget import ScanTarget
+def SearchTarget(*args, **kwargs):
+    """:py:obj:`~swamp.search.searchtarget.SearchTarget` instance"""
+    from swamp.search.searchtarget import SearchTarget
 
-    return ScanTarget(*args, **kwargs)
+    return SearchTarget(*args, **kwargs)

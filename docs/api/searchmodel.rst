@@ -1,7 +1,7 @@
-Library scan subpackage
+Search model subpackage
 =======================
 
-.. automodule:: swamp.library.scan
+.. automodule:: swamp.searchmodel
    :members:
    :undoc-members:
    :show-inheritance:
@@ -9,4 +9,4 @@ Library scan subpackage
 .. toctree::
    :glob:
 
-   generated/swamp.library.scan.*
+   generated/swamp.searchmodel*

@@ -6,9 +6,9 @@ import argparse
 import traceback
 import itertools
 from swamp.logger import SwampLogger
+from swamp.search import SearchTarget
 from swamp.mr import MrJob, MrArray, MrResults
 from swamp.command_line import check_file_exists
-from swamp.scan import ScanTarget
 
 
 def parse_arguments():
@@ -69,7 +69,7 @@ def get_centroid_id(frag_id):
 def main():
     """Execute a swamp mr run
 
-    This script will run the entire SWAMP MR subroutine for a given target structure. It will first scan the library
+    This script will run the entire SWAMP MR subroutine for a given target structure. It will first search the library
     of helical pairs and compute the CMO between the target's predicted contacts and the observed contacts for all the
     members of the library. Search models will be ranked according to their CMO, each of them will be taken to the
     MR pipeline using phaser > refmac > shelxe. If possible, SWAMP will also try to combine and place several search
@@ -98,16 +98,16 @@ def main():
 
     # ------------------ SCAN LIBRARY OF SEARCH MODELS USING CONTACTS ------------------
 
-    my_rank = ScanTarget(os.path.join(workdir, 'swamp_scan'), conpred=args.conpred, template_subset=centroids,
+    my_rank = SearchTarget(os.path.join(workdir, 'swamp_search'), conpred=args.conpred, template_subset=centroids,
                          alignment_algorithm_name='aleigen', n_contacts_threshold=args.ncontacts_threshold,
                          nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
                          logger=logger, platform=args.platform, python_interpreter=args.python_interpreter,
                          queue_environment=args.environment, queue_name=args.queue)
     logger.info('Using contacts to assess search model quality: matching predicted contacts with observed contacts\n')
-    my_rank.scan()
+    my_rank.search()
     my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)
     if args.pdb_benchmark is not None:
-        joblib.dump(my_rank.results, os.path.join(workdir, 'swamp_scan', 'swamp-scan.pckl'))
+        joblib.dump(my_rank.results, os.path.join(workdir, 'swamp_search', 'swamp-search.pckl'))
 
     # ------------------ CREATE MR TASK ARRAY AND LOAD INDIVIDUAL MR JOBS ------------------
 

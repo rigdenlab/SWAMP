@@ -1,7 +1,7 @@
-Library clustering subpackage
+Clustering subpackage
 =============================
 
-.. automodule:: swamp.library.clustering
+.. automodule:: swamp.clustering
    :members:
    :undoc-members:
    :show-inheritance:
@@ -9,4 +9,4 @@ Library clustering subpackage
 .. toctree::
    :glob:
 
-   generated/swamp.library.clustering.*
+   generated/swamp.clustering.*

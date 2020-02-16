@@ -17,12 +17,17 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   api/mr_core.rst
+   api/clustering.rst
 
 .. toctree::
    :maxdepth: 2
 
-   api/wrappers.rst
+   api/logger.rst
+
+.. toctree::
+   :maxdepth: 2
+
+   api/mr.rst
 
 .. toctree::
    :maxdepth: 2
@@ -32,17 +37,22 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   api/library_scan.rst
+   api/search.rst
 
 .. toctree::
    :maxdepth: 2
 
-   api/library_tools.rst
+   api/searchmodel.rst
 
 .. toctree::
    :maxdepth: 2
 
-   api/library_clustering.rst
+   api/utils.rst
+
+.. toctree::
+   :maxdepth: 2
+
+   api/wrappers.rst
 
 .. only:: html
 
