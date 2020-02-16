@@ -1,8 +1,8 @@
 import os
 import shutil
 from pyjob import cexec
-from swamp.wrappers.wrapper import Wrapper
-from swamp.parsers.phenixparser import PhenixParser
+from swamp.wrappers import Wrapper
+from swamp.parsers import PhenixParser
 
 
 class PhenixCC(Wrapper):
@@ -23,7 +23,7 @@ class PhenixCC(Wrapper):
 
     :example
 
-    >>> from swamp.wrappers.phenix import PhenixCC
+    >>> from swamp.wrappers import PhenixCC
     >>> my_pehnix = PhenixCC('<workdir>', '<pdbin>', '<mtzin>')
     >>> my_pehnix.run()
     """

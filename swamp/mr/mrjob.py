@@ -1,26 +1,26 @@
 import os
 import dill
 from pyjob import Script
-import swamp.mr.core.mrarray
+from swamp.mr import MrArray
 
 
 class MrJob(object):
-    """Class to manage the creation and execution of a :py:obj:`~swamp.mr.core.mrrun.MrRun` in the context of a parent
-     container :py:obj:`~swamp.mr.core.mrarray.MrArray` instance.
+    """Class to manage the creation and execution of a :py:obj:`~swamp.mr.mrrun.MrRun` in the context of a parent
+     container :py:obj:`~swamp.mr.mrarray.MrArray` instance.
 
      This class implements methods to create a python script that can be executed as single independent job.
      It also implements utilities and data structures to retrieve and store the results obtained with the resulting
-     instance of :py:obj:`~swamp.mr.core.mrrun.MrRun`.
+     instance of :py:obj:`~swamp.mr.mrrun.MrRun`.
 
-     :param str id: unique identifier of this :py:obj:`~swamp.mr.core.mrjob.MrJob` isntance
-     :param str workdir: working directory for :py:obj:`~swamp.mr.core.mrjob.MrJob` instance
+     :param str id: unique identifier of this :py:obj:`~swamp.mr.mrjob.MrJob` isntance
+     :param str workdir: working directory for :py:obj:`~swamp.mr.mrjob.MrJob` instance
      :param str python_interpreter: python interpreter for the :py:obj:`pyjob.Script`
-     :ivar str id: Unique identifier of this :py:obj:`~swamp.mr.core.mrjob.MrJob` isntance
+     :ivar str id: Unique identifier of this :py:obj:`~swamp.mr.mrjob.MrJob` isntance
      :ivar str phased_mtz: target's mtz filename containing phases (default None)
      :ivar str target_mtz: target's mtz filename (default None)
      :ivar str target_fa: target's fasta filename (default None)
      :ivar list searchmodel_list: A list with the search models to be used in the \
-     :py:obj:`~swamp.mr.core.mrrun.MrRun` instance
+     :py:obj:`~swamp.mr.mrrun.MrRun` instance
      """
 
     def __init__(self, id, workdir, python_interpreter=os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python')):
@@ -44,21 +44,21 @@ class MrJob(object):
 
     @property
     def parent_array(self):
-        """The parent :py:obj:`~swamp.mr.core.mrarray.MrArray` instance"""
+        """The parent :py:obj:`~swamp.mr.mrarray.MrArray` instance"""
         return self._parent_array
 
     @parent_array.setter
     def parent_array(self, value):
-        """Property setter for :py:attr:`~swamp.mr.core.mrjob.MrJob.parent_array`
+        """Property setter for :py:attr:`~swamp.mr.mrjob.MrJob.parent_array`
 
         :param value: MrArray to be set
-        :type value: :py:obj:`~swamp.mr.core.mrarray.MrArray`
-        :raises TypeError: value is not an instance of :py:obj:`~swamp.mr.core.mrarray.MrArray`
+        :type value: :py:obj:`~swamp.mr.mrarray.MrArray`
+        :raises TypeError: value is not an instance of :py:obj:`~swamp.mr.mrarray.MrArray`
         """
 
         if value is None:
             pass
-        elif not isinstance(value, swamp.mr.core.mrarray.MrArray):
+        elif not isinstance(value, MrArray):
             raise TypeError('Parent array must be a swamp.mr.mrarray.MrArray instance!')
         else:
             self._parent_array = value
@@ -68,8 +68,8 @@ class MrJob(object):
 
     @property
     def results(self):
-        """A nested list with the results of the :py:obj:`~swamp.mr.core.mrrun.MrRun` instance created with the \
-        execution of :py:attr:`~swamp.mr.core.mrjob.MrJob.python_script`"""
+        """A nested list with the results of the :py:obj:`~swamp.mr.mrrun.MrRun` instance created with the \
+        execution of :py:attr:`~swamp.mr.mrjob.MrJob.python_script`"""
 
         pickle_fname = os.path.join(self.workdir, "results.pckl")
 
@@ -84,12 +84,12 @@ class MrJob(object):
 
     @property
     def python_script(self):
-        """String with the python script to create and execute the :py:obj:`~swamp.mr.core.mrrun.MrRun` instance \
-        associated with this :py:obj:`~swamp.mr.core.mrjob.MrJob`"""
+        """String with the python script to create and execute the :py:obj:`~swamp.mr.mrrun.MrRun` instance \
+        associated with this :py:obj:`~swamp.mr.mrjob.MrJob`"""
 
         script = """cd {_workdir}
 {_python_interpreter} << EOF
-from swamp.mr.core.mrrun import MrRun
+from swamp.mr import MrRun
 mr_run = MrRun(id='{_id}', workdir='{_workdir}', target_fa='{_target_fa}', target_mtz='{_target_mtz}')\n""".format(
             **self.__dict__)
 
@@ -112,7 +112,7 @@ EOF
 
     @property
     def script(self):
-        """A :py:obj:`pyjob.Script` instance that will be executed on this :py:obj:`~swamp.mr.core.mrjob.MrJob`"""
+        """A :py:obj:`pyjob.Script` instance that will be executed on this :py:obj:`~swamp.mr.mrjob.MrJob`"""
 
         script = Script(directory=os.path.join(os.path.abspath(os.path.join(self.workdir, os.pardir))),
                         prefix=self.id.lower(), stem='', suffix='.sh')
@@ -122,10 +122,10 @@ EOF
     # ------------------ Methods ------------------
 
     def add_searchmodel(self, **kwargs):
-        """Provide necessary information to add a given search model to the :py:obj:`~swamp.mr.core.mrrun.MrRun` \
+        """Provide necessary information to add a given search model to the :py:obj:`~swamp.mr.mrrun.MrRun` \
         instance.
 
-        :param kwargs: directly used into :py:func:`~swamp.mr.core.mrrun.MrRun.add_searchmodel`
+        :param kwargs: directly used into :py:func:`~swamp.mr.mrrun.MrRun.add_searchmodel`
         """
 
         self.searchmodel_list.append(kwargs)

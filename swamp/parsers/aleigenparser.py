@@ -6,7 +6,7 @@ class AleigenParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.aleigenparser import AleigenParser
+    >>> from swamp.parsers import AleigenParser
     >>> my_parser = AleigenParser('<stdout>')
     >>> my_parser.parse()
     """

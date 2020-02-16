@@ -5,10 +5,10 @@ import threading
 import numpy as np
 import pandas as pd
 from statistics import mean
-from swamp.wrappers.gesamt import Gesamt
+from swamp.wrappers import Gesamt
 from itertools import groupby, combinations
 from sklearn.metrics import silhouette_score
-from swamp.logger.swamplogger import SwampLogger
+from swamp.logger import SwampLogger
 from sklearn.model_selection import ParameterSampler
 
 ABC = abc.ABCMeta('ABC', (object,), {})

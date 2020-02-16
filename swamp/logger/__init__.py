@@ -17,3 +17,10 @@ if 'THIS_IS_READTHEDOCS' not in os.environ and "CCP4" not in os.environ:
 
 _PACKAGE_PATH = os.path.join(os.environ["CCP4"], "lib", "py2", "swamp")
 IDEALHELICES_DIR = os.path.join(_PACKAGE_PATH, "idealhelices")
+
+
+def SwampLogger(*args, **kwargs):
+    """:py:obj:`~swamp.logger.swamplogger.SwampLogger` instance"""
+    from swamp.logger.swamplogger import SwampLogger
+
+    return SwampLogger(*args, **kwargs)

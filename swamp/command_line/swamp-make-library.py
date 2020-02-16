@@ -7,8 +7,8 @@ import argparse
 import traceback
 import pandas as pd
 from swamp.library.tools import compress
-from swamp.mr.searchmodel_prepare.core import Core
-from swamp.logger.swamplogger import SwampLogger
+from swamp.searchmodel import Core
+from swamp.logger import SwampLogger
 from swamp.command_line import check_file_exists
 from swamp.library.clustering.optics import Optics
 from swamp.library.tools.swamplibrary import SwampLibrary
@@ -82,6 +82,7 @@ def main():
     logger = SwampLogger('SWAMP-MAKE-CLUSTERS')
     logger.init(logfile=os.path.join(workdir, "swamp_clustering.log"), use_console=True, console_level='info',
                 logfile_level='debug')
+    logger.info("Invoked with command-line:\n%s\n", " ".join(map(str, ['swamp-make-library'] + sys.argv[1:])))
 
     # --------------- LOAD SWAMP LIBRARY AND REMOVE HOMOLOGS ----------------
 

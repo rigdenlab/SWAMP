@@ -1,7 +1,7 @@
 import os
 from pyjob import cexec
-from swamp.wrappers.wrapper import Wrapper
-from swamp.parsers.refmacparser import RefmacParser
+from swamp.wrappers import Wrapper
+from swamp.parsers import RefmacParser
 
 
 class wRefmac(Wrapper):
@@ -27,7 +27,7 @@ class wRefmac(Wrapper):
 
     :example
 
-    >>> from swamp.wrappers.wrefmac import wRefmac
+    >>> from swamp.wrappers import wRefmac
     >>> my_refmac = wRefmac('<workdir>', '<pdbin>', '<mtzin>')
     >>> my_refmac.run()
     >>> my_refmac.make_logfile()

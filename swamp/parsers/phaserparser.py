@@ -6,7 +6,7 @@ class PhaserParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.phaserparser import PhaserParser
+    >>> from swamp.parsers import PhaserParser
     >>> my_parser = PhaserParser('<fname>', '<logcontents>')
     >>> my_parser.parse()
     """

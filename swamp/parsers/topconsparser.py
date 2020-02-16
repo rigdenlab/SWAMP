@@ -14,7 +14,7 @@ class TopconsParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.topconsparser import TopconsParser
+    >>> from swamp.parsers import TopconsParser
     >>> my_parser = TopconsParser('<fname>')
     >>> my_parser.parse()
     """

@@ -6,7 +6,7 @@ class ShelxeParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.shelxeparser import ShelxeParser
+    >>> from swamp.parsers import ShelxeParser
     >>> my_parser = ShelxeParser('<fname>', '<logcontents>')
     >>> my_parser.parse()
     """

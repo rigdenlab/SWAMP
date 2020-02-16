@@ -1,11 +1,9 @@
 import os
 import shutil
 import collections
-from swamp.wrappers.wrapper import Wrapper
-from swamp.wrappers.wrefmac import wRefmac
-from swamp.parsers.mtzparser import MtzParser
-from swamp.parsers.phaserparser import PhaserParser
-from swamp.mr.searchmodel_prepare.polyala import PolyALA
+from swamp.wrappers import Wrapper, wRefmac
+from swamp.parsers import MtzParser, PhaserParser
+from swamp.searchmodel import PolyALA
 from phaser import InputMR_DAT, runMR_DAT, InputMR_AUTO, runMR_AUTO
 
 
@@ -55,7 +53,7 @@ class Phaser(Wrapper):
 
      :examples
 
-    >>> from swamp.wrappers.wphaser import Phaser
+    >>> from swamp.wrappers import Phaser
     >>> my_phaser = Phaser('<workdir>', '<mtzfile>', <mw>)
     >>> my_phaser.add_searchmodel('<pdbfile>')
     >>> my_phaser.run()

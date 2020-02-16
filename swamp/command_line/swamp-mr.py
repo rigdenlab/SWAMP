@@ -5,10 +5,8 @@ import swamp
 import argparse
 import traceback
 import itertools
-from swamp.mr.core.mrjob import MrJob
-from swamp.mr.core.mrarray import MrArray
-from swamp.mr.core.mrresults import MrResults
-from swamp.logger.swamplogger import SwampLogger
+from swamp.logger import SwampLogger
+from swamp.mr import MrJob, MrArray, MrResults
 from swamp.command_line import check_file_exists
 from swamp.library.scan.scantarget import ScanTarget
 
@@ -96,6 +94,7 @@ def main():
     logger = SwampLogger('SWAMP-MR')
     logger.init(logfile=os.path.join(workdir, "swamp_%s.debug" % args.id), use_console=True,
                 console_level='info', logfile_level='debug')
+    logger.info("Invoked with command-line:\n%s\n", " ".join(map(str, ['swamp-mr'] + sys.argv[1:])))
 
     # ------------------ SCAN LIBRARY OF SEARCH MODELS USING CONTACTS ------------------
 

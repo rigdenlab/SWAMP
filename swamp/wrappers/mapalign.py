@@ -3,9 +3,9 @@ import swamp
 import conkit.io
 import numpy as np
 from pyjob import cexec
-from swamp.wrappers.wrapper import Wrapper
-from swamp.wrappers.gesamt import Gesamt
-from swamp.parsers.mapalignparser import MapAlignParser
+from swamp.wrappers import Wrapper
+from swamp.wrappers import Gesamt
+from swamp.parsers import MapAlignParser
 
 
 class MapAlign(Wrapper):
@@ -38,7 +38,7 @@ class MapAlign(Wrapper):
 
     :examples
 
-    >>> from swamp.wrappers.mapalign import MapAlign
+    >>> from swamp.wrappers import MapAlign
     >>> mapalign = MapAlign('<workdir>', '<map_a>', '<map_b>')
     >>> mapalign.run()
 

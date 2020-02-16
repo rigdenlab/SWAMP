@@ -6,7 +6,7 @@ class MapAlignParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.mapalignparser import MapAlignParser
+    >>> from swamp.parsers import MapAlignParser
     >>> my_parser = MapAlignParser('<stdout>')
     >>> my_parser.parse()
     """

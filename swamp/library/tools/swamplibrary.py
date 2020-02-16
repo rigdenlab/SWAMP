@@ -3,9 +3,9 @@ import gemmi
 import conkit.io
 import itertools
 import pandas as pd
-from swamp.wrappers.gesamt import Gesamt
-from swamp.parsers.pdbtmxmlparser import PdbtmXmlParser
-from swamp.logger.swamplogger import SwampLogger
+from swamp.wrappers import Gesamt
+from swamp.parsers import PdbtmXmlParser
+from swamp.logger import SwampLogger
 import swamp.library.tools.pdb_tools as pdb_tools
 from swamp.library.tools.contact_tools import extract_fragment_cmap, invert_contactmap
 

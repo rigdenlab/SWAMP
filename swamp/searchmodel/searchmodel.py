@@ -3,12 +3,12 @@ import os
 import gemmi
 import shutil
 import logging
-from swamp.wrappers.gesamt import Gesamt
+from swamp.wrappers import Gesamt
 
 ABC = abc.ABCMeta('ABC', (object,), {})
 
 
-class PrepareSearchModel(ABC):
+class SearchModel(ABC):
     """Abstract class for serch model preparation
 
     :param str workdir: working directory where the search model will be prepared
@@ -74,7 +74,7 @@ class PrepareSearchModel(ABC):
     # ------------------ Hidden methods ------------------
 
     def _check_output(self):
-        """Check if the output file has been created, set :py:attr:`~swamp.mr.searchmodel_prepare.prepare.error` to \
+        """Check if the output file has been created, set :py:attr:`~swamp.searchmodel.prepare.error` to \
         True if not"""
 
         if not os.path.isfile(self.pdbout):
@@ -83,8 +83,8 @@ class PrepareSearchModel(ABC):
 
     def _merge_models(self):
         """Merge all the modified models indicated at \
-        :py:attr:`~swamp.mr.searchmodel_prepare.prepare.modified_model_list` into \
-        :py:attr:`~swamp.mr.searchmodel_prepare.prepare.pdbout`"""
+        :py:attr:`~swamp.searchmodel.prepare.modified_model_list` into \
+        :py:attr:`~swamp.searchmodel.prepare.pdbout`"""
 
         if len(self.model_list) > 1:
             gesamt = Gesamt(mode='alignment', pdbin=self.modified_model_list, pdbout=self.pdbout, workdir=self.workdir,
@@ -95,7 +95,7 @@ class PrepareSearchModel(ABC):
             shutil.copyfile(self.modified_model_list[0], self.pdbout)
 
     def _make_workdir(self):
-        """Method to crete the :py:attr:`~swamp.mr.searchmodel_prepare.prepare.workdir` directory"""
+        """Method to crete the :py:attr:`~swamp.searchmodel.prepare.workdir` directory"""
 
         if not os.path.isdir(self.workdir):
             os.mkdir(self.workdir)

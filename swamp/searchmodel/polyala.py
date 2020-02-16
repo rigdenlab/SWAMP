@@ -1,17 +1,17 @@
 import os
 import gemmi
 from swamp.library.tools.pdb_tools import renumber_hierarchy
-from swamp.mr.searchmodel_prepare.preparesearchmodel import PrepareSearchModel
+from swamp.searchmodel import SearchModel
 
 
-class PolyALA(PrepareSearchModel):
+class PolyALA(SearchModel):
     """Class to strip side chains from the search model.
 
-    Extends :py:obj:`~swamp.mr.searchmodel_prepare.prepare.PrepareSearchModel`
+    Extends :py:obj:`~swamp.searchmodel.searchmodel.SearchModel`
 
     :examples
 
-    >>> from swamp.mr.searchmodel_prepare.polyala import PolyALA
+    >>> from swamp.searchmodel.polyala import PolyALA
     >>> my_polyala = PolyALA('<workdir>', '<pdbin>', '<pdbout>')
     >>> my_polyala.prepare()
 
@@ -27,7 +27,7 @@ class PolyALA(PrepareSearchModel):
     # ------------------ Class specific methods ------------------
 
     def prepare(self):
-        """Trim the side chains out of the models in the :py:attr:`~swamp.mr.searchmodel_prepare.prepare.model_list`"""
+        """Trim the side chains out of the models in the :py:attr:`~swamp.searchmodel.prepare.model_list`"""
 
         self._make_workdir()
         os.chdir(self.workdir)

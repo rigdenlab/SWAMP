@@ -6,7 +6,7 @@ class RefmacParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.refmacparser import RefmacParser
+    >>> from swamp.parsers import RefmacParser
     >>> my_parser = RefmacParser('<stdout>')
     >>> my_parser.parse()
     """

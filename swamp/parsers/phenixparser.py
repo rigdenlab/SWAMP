@@ -6,7 +6,7 @@ class PhenixParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.phenixparser import PhenixParser
+    >>> from swamp.parsers import PhenixParser
     >>> my_parser = PhenixParser('<stdout>')
     >>> my_parser.parse()
     """

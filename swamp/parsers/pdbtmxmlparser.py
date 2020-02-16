@@ -11,7 +11,7 @@ class PdbtmXmlParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.pdbtmxmlparser import PdbtmXmlParser
+    >>> from swamp.parsers import PdbtmXmlParser
     >>> my_parser = PdbtmXmlParser('<fname>')
     >>> my_parser.parse()
     """

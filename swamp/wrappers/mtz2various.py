@@ -1,7 +1,7 @@
 import os
 from pyjob import cexec
-from swamp.parsers.mtzparser import MtzParser
-from swamp.wrappers.wrapper import Wrapper
+from swamp.parsers import MtzParser
+from swamp.wrappers import Wrapper
 
 
 class Mtz2Various(Wrapper):
@@ -22,7 +22,7 @@ class Mtz2Various(Wrapper):
 
     :example
 
-    >>> from swamp.wrappers.mtz2various import Mtz2Various
+    >>> from swamp.wrappers import Mtz2Various
     >>> my_mtz2various = Mtz2Various('<workdir>' '<mtzin>', '<hklout>')
     >>> my_mtz2various.run()
     >>> my_mtz2various.make_logfile()

@@ -211,7 +211,7 @@ class Wrapper(ABC):
         :rtype tuple
         """
 
-        from swamp.wrappers.phenix import PhenixCC
+        from swamp.wrappers import PhenixCC
         phenix = PhenixCC(pdbin=pdbfile, workdir=workdir, mtzin=mtzfile, logger=logger)
         phenix.run()
         return phenix.local_CC, phenix.overall_CC

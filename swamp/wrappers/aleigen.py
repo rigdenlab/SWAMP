@@ -3,8 +3,8 @@ import swamp
 import conkit.io
 import numpy as np
 from pyjob import cexec
-from swamp.wrappers.mapalign import MapAlign
-from swamp.parsers.aleigenparser import AleigenParser
+from swamp.wrappers import MapAlign
+from swamp.parsers import AleigenParser
 
 
 class AlEigen(MapAlign):
@@ -42,7 +42,7 @@ class AlEigen(MapAlign):
 
     :examples
 
-    >>> from swamp.wrappers.aleigen import AlEigen
+    >>> from swamp.wrappers import AlEigen
     >>> aleigen = AlEigen('<workdir>', '<map_a>', '<map_b>')
     >>> aleigen.run()
 

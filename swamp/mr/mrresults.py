@@ -2,19 +2,19 @@ import os
 import dill
 from prettytable import PrettyTable
 from argparse import ArgumentParser
-from swamp.logger.swamplogger import SwampLogger
+from swamp.logger import SwampLogger
 
 
 class MrResults(object):
-    """Class to handle the results py:obj:`~swamp.mr.core.mrarray.MrArray` instance
+    """Class to handle the results py:obj:`~swamp.mr.mrarray.MrArray` instance
 
-    :param str swamp_workdir: the :py:obj:`~swamp.mr.core.mrarray.MrArray` working directory
+    :param str swamp_workdir: the :py:obj:`~swamp.mr.mrarray.MrArray` working directory
     :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the MR pipeline (default None)
     :ivar list results: nested list with the figures of merit obtained after the completion of \
-    :py:obj:`~swamp.mr.core.mrarray.MrArray` isntance
-    :ivar list pickle_list: a list of pickle file names for all the :py:obj:`~swamp.mr.core.mrrun.MrRun` instances \
-    contained in the :py:obj:`~swamp.mr.core.mrarray.MrArray` instance
-    :ivar str mr_dir: the directory with the MR results obtained with :py:obj:`~swamp.mr.core.mrarray.MrArray` instance
+    :py:obj:`~swamp.mr.mrarray.MrArray` isntance
+    :ivar list pickle_list: a list of pickle file names for all the :py:obj:`~swamp.mr.mrrun.MrRun` instances \
+    contained in the :py:obj:`~swamp.mr.mrarray.MrArray` instance
+    :ivar str mr_dir: the directory with the MR results obtained with :py:obj:`~swamp.mr.mrarray.MrArray` instance
 
     """
 
@@ -48,13 +48,13 @@ Recovering results now...
     @property
     def _result_table_fields(self):
         """List of the field names in the results table printed at \
-        :py:func:`~swamp.mr.core.mrresults.MrResults.report_results`"""
+        :py:func:`~swamp.mr.mrresults.MrResults.report_results`"""
 
         return ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT",
                 "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
 
     def report_results(self, top=50):
-        """Print in the stdout a table with the indicated top :py:attr:`~swamp.mr.core.mrresults.MrResults.results`
+        """Print in the stdout a table with the indicated top :py:attr:`~swamp.mr.mrresults.MrResults.results`
 
         :param int top: top number of results to display
         """
@@ -72,7 +72,7 @@ Recovering results now...
         self.logger.info('Results retrieved. Showing top %s scoring results:\n\n%s' % (top, table.get_string()))
 
     def _recover_results(self):
-        """Recover the results stored in each pickle at :py:attr:`~swamp.mr.core.mrresults.MrResults.pickle_list`"""
+        """Recover the results stored in each pickle at :py:attr:`~swamp.mr.mrresults.MrResults.pickle_list`"""
 
         for pickle_fname in self.pickle_list:
             with open(pickle_fname, 'rb') as pickle_fhandle:

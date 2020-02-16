@@ -3,7 +3,7 @@ import os
 import dill
 import shutil
 from prettytable import PrettyTable
-from swamp.logger.swamplogger import SwampLogger
+from swamp.logger import SwampLogger
 
 ABC = abc.ABCMeta('ABC', (object,), {})
 
@@ -11,7 +11,7 @@ ABC = abc.ABCMeta('ABC', (object,), {})
 class Mr(ABC):
     """This is an abstract class for MR pipelines. It implements data structures and methods commonly used in MR tasks.
 
-    :param str id: unique identifier for the :py:obj:`~swamp.mr.core.mr.Mr` instance
+    :param str id: unique identifier for the :py:obj:`~swamp.mr.mr.Mr` instance
     :param str target_fa: target's fasta filename
     :param str target_mtz: target's mtz filename
     :param str workdir: working directory where the MR pipeline will be executed
@@ -52,7 +52,7 @@ class Mr(ABC):
 
     @abc.abstractmethod
     def append_results(self):
-        """Abstract method to append the results obtained so far into :py:attr:`~swamp.mr.core.mr.Mr.results`"""
+        """Abstract method to append the results obtained so far into :py:attr:`~swamp.mr.mr.Mr.results`"""
         pass
 
     @property
@@ -65,14 +65,14 @@ class Mr(ABC):
 
     @property
     def _result_table_fields(self):
-        """A list of the column names in the :py:attr:`~swamp.mr.core.mr.Mr.table_contents`"""
+        """A list of the column names in the :py:attr:`~swamp.mr.mr.Mr.table_contents`"""
 
         return ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT",
                 "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
 
     @property
     def init_params(self):
-        """A dictionary to store the initial parameters used to instantiate the :py:obj:`~swamp.mr.core.mr.Mr`"""
+        """A dictionary to store the initial parameters used to instantiate the :py:obj:`~swamp.mr.mr.Mr`"""
 
         if "self" in self._init_params:
             del self._init_params["self"]
@@ -90,12 +90,12 @@ class Mr(ABC):
 
     @property
     def result_table_fname(self):
-        """Filename where the string representation of :py:attr:`~swamp.mr.core.mr.Mr.table_contents` will be written"""
+        """Filename where the string representation of :py:attr:`~swamp.mr.mr.Mr.table_contents` will be written"""
         return os.path.join(self.workdir, "results.table")
 
     @property
     def result_pickle_fname(self):
-        """Filename where the :py:obj:`~swamp.mr.core.mr.Mr` instance will be pickled"""
+        """Filename where the :py:obj:`~swamp.mr.mr.Mr` instance will be pickled"""
         return os.path.join(self.workdir, "results.pckl")
 
     @property
@@ -110,7 +110,7 @@ class Mr(ABC):
 
     @property
     def table_contents(self):
-        """String representation of :py:attr:`~swamp.mr.core.mr.Mr.results` displayed as a table"""
+        """String representation of :py:attr:`~swamp.mr.mr.Mr.results` displayed as a table"""
 
         self.results = sorted(self.results, key=lambda x: x[10] if x[10] != 'NA' else float('0.0'), reverse=True)
 
@@ -129,13 +129,13 @@ class Mr(ABC):
     # ------------------ Some general methods ------------------
 
     def make_workdir(self):
-        """Method to create the working directory of the :py:obj:`~swamp.mr.core.mr.Mr` instance"""
+        """Method to create the working directory of the :py:obj:`~swamp.mr.mr.Mr` instance"""
 
         if not (os.path.isdir(self.workdir)):
             os.makedirs(self.workdir)
 
     def store_pickle(self, fname=None, mode="ab"):
-        """Method to pickle the :py:obj:`~swamp.mr.core.mr.Mr` instance into a file
+        """Method to pickle the :py:obj:`~swamp.mr.mr.Mr` instance into a file
 
         :param str fname: filename where the pickle will be created (default None)
         :param str mode: mode that will be used to open the file handle (default 'ab')
@@ -149,8 +149,8 @@ class Mr(ABC):
         pickle_file.close()
 
     def create_result_table_outfile(self, fname=None):
-        """Method to write string representation of :py:attr:`~swamp.mr.core.mr.Mr.table_contents` into \
-        :py:attr:`~swamp.mr.core.mr.Mr.result_table_fname` or into a specific file if `fname` is set.
+        """Method to write string representation of :py:attr:`~swamp.mr.mr.Mr.table_contents` into \
+        :py:attr:`~swamp.mr.mr.Mr.result_table_fname` or into a specific file if `fname` is set.
 
         :param str fname: filename where the result table will be created (default None)
         """
@@ -172,7 +172,7 @@ class Mr(ABC):
     # ------------------ Some protected and static methods ------------------
 
     def _cleanup_files(self):
-        """Method to cleanup the files indicated at :py:attr:`~swamp.mr.core.mr.Mr.cleanup_dir_list`"""
+        """Method to cleanup the files indicated at :py:attr:`~swamp.mr.mr.Mr.cleanup_dir_list`"""
 
         self.logger.info("Saving disk space now...")
 
@@ -184,7 +184,7 @@ class Mr(ABC):
     @staticmethod
     def _inform_args(**kwargs):
         """Create a string representation of the initial parameters used for the creation of this instance, as stored \
-        in :py:attr:`~swamp.mr.core.mr.Mr.init_params`"""
+        in :py:attr:`~swamp.mr.mr.Mr.init_params`"""
 
         msg = "Arguments provided:\n\n"
         for key in kwargs.keys():

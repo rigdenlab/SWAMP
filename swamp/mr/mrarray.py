@@ -1,16 +1,15 @@
-import swamp.mr.core.mrjob
-from swamp.mr.core.mr import Mr
 from pyjob import TaskFactory
+from swamp.mr import Mr, MrJob
 
 
 class MrArray(Mr):
     """An array of molecular replacement tasks to solve a given structure.
 
     This class implements data structures to hold all the MR tasks to be executed on a target. It implements functions
-    to run and store results of these tasks, contained as instances of :py:obj:`~swamp.mr.core.mrjob.MrJob` instances.
+    to run and store results of these tasks, contained as instances of :py:obj:`~swamp.mr.mrjob.MrJob` instances.
 
-    :param str id: unique identifier for the :py:obj:`~swamp.mr.core.mrarray.MrArray` instance
-    :param str workdir: working directory where the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances will be executed
+    :param str id: unique identifier for the :py:obj:`~swamp.mr.mrarray.MrArray` instance
+    :param str workdir: working directory where the :py:obj:`~swamp.mr.mrjob.MrJob` instances will be executed
     :param str target_mtz: target's mtz filename
     :param str target_fa: target's fasta filename
     :param str platform: platform where the array of tasks will be executed (default 'sge')
@@ -18,25 +17,24 @@ class MrArray(Mr):
     :param str queue_environment: queue environment where the tasks should be submitted (default None)
     :param str phased_mtz: target's mtz filename containing phase information (default None)
     :param int max_concurrent_nprocs: maximum number of concurrent tasks to be executed at any given time (default 1)
-    :param int job_kill_time: kill time assigned to :py:obj:`~swamp.mr.core.mrjob.MrJob` instances (default None)
+    :param int job_kill_time: kill time assigned to :py:obj:`~swamp.mr.mrjob.MrJob` instances (default None)
     :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the MR pipeline (default None)
     :param bool silent: if set to True the logger will not print messages
     :ivar list results: A list with the figures of merit obtained after the completion of the pipeline
     :ivar bool error: True if errors have occurred at some point on the pipeline
-    :ivar list job_list: A list of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this \
-    :py:obj:`~swamp.mr.core.mrarray.MrArray` instance.
-    :ivar dict job_dict: A dictionary of the :py:obj:`~swamp.mr.core.mrjob.MrJob` instances contained on this \
-    :py:obj:`~swamp.mr.core.mrarray.MrArray` instance. Key corresponds with :py:attr:`swamp.mr.core.mrjob.MrJob.id`
+    :ivar list job_list: A list of the :py:obj:`~swamp.mr.mrjob.MrJob` instances contained on this \
+    :py:obj:`~swamp.mr.mrarray.MrArray` instance.
+    :ivar dict job_dict: A dictionary of the :py:obj:`~swamp.mr.mrjob.MrJob` instances contained on this \
+    :py:obj:`~swamp.mr.mrarray.MrArray` instance. Key corresponds with :py:attr:`swamp.mr.mrjob.MrJob.id`
     :ivar list scripts: List of :py:obj:`pyjob.Scripts` instances to be executed on this \
-    :py:obj:`~swamp.mr.core.mrarray.MrArray` instance
+    :py:obj:`~swamp.mr.mrarray.MrArray` instance
     :ivar str shell_interpreter: Indicates shell interpreter to execute \
-    :py:obj:`~swamp.mr.core.mrjob.MrJob` (default '/bin/bash')
+    :py:obj:`~swamp.mr.mrjob.MrJob` (default '/bin/bash')
     :ivar int max_array_size: the maximum permitted size of a task array (default 1000)
 
     :example:
 
-    >>> from swamp.mr.core.mrarray import MrArray
-    >>> from swamp.mr.core.mrjob import MrJob
+    >>> from swamp.mr import MrArray, MrJob
     >>> mr_array = MrArray('<id>', '<workdir>', '<target_mtz>', 'target_fasta>')
     >>> mr_array.add(MrJob('<id>', '<workdir>'))
     >>> print(mr_array)
@@ -135,17 +133,17 @@ class MrArray(Mr):
     # ------------------ Methods ------------------
 
     def add(self, value):
-        """Add an instance of :py:obj:`~swamp.mr.core.mrjob.MrJob` to the array. This includes both the MrJob object \
+        """Add an instance of :py:obj:`~swamp.mr.mrjob.MrJob` to the array. This includes both the MrJob object \
         and its :py:obj:`pyjob.Script` attribute.
 
-        :argument value: :py:obj:`~swamp.mr.core.mrjob.MrJob` instance to be added \
+        :argument value: :py:obj:`~swamp.mr.mrjob.MrJob` instance to be added \
         to the array for execution
-        :raises TypeError: value is not an instance of :py:obj:`~swamp.mr.core.mrjob.MrJob`
-        :raises ValueError: a :py:obj:`~swamp.mr.core.mrjob.MrJob` instance with the same \
-        :py:attr:`swamp.mr.core.mrjob.MrJob.id` is already contained in the array
+        :raises TypeError: value is not an instance of :py:obj:`~swamp.mr.mrjob.MrJob`
+        :raises ValueError: a :py:obj:`~swamp.mr.mrjob.MrJob` instance with the same \
+        :py:attr:`swamp.mr.mrjob.MrJob.id` is already contained in the array
         """
 
-        if not isinstance(value, swamp.mr.core.mrjob.MrJob):
+        if not isinstance(value, swamp.mr.mrjob.MrJob):
             raise TypeError('Can only add MrJob instances to an MrArray!')
 
         if value.id in self:
@@ -180,8 +178,8 @@ class MrArray(Mr):
         self.logger.info('Retrieving results')
 
     def append_results(self):
-        """Append the results obtained in each :py:obj:`~swamp.mr.core.mrjob.MrJob` instance listed at \
-        :py:attr:`~swamp.mr.core.mrarray.MrArray.job_list` into :py:attr:`~swamp.mr.core.mr.Mr.results`"""
+        """Append the results obtained in each :py:obj:`~swamp.mr.mrjob.MrJob` instance listed at \
+        :py:attr:`~swamp.mr.mrarray.MrArray.job_list` into :py:attr:`~swamp.mr.mr.Mr.results`"""
 
         for job in self.job_list:
 

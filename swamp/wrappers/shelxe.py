@@ -2,9 +2,9 @@ import os
 import math
 from pyjob import cexec
 from shutil import copyfile
-from swamp.wrappers.wrapper import Wrapper
-from swamp.parsers.shelxeparser import ShelxeParser
-from swamp.wrappers.mtz2various import Mtz2Various
+from swamp.wrappers import Wrapper
+from swamp.parsers import ShelxeParser
+from swamp.wrappers import Mtz2Various
 
 
 class Shelxe(Wrapper):
@@ -45,7 +45,7 @@ class Shelxe(Wrapper):
 
     :examples
 
-    >>> from swamp.wrappers.shelxe import Shelxe
+    >>> from swamp.wrappers import Shelxe
     >>> my_shelxe = Shelxe('<workdir>', '<mtzin>', '<pdbin>')
     >>> my_shelxe.run()
     >>> my_shelxe.make_logfile()

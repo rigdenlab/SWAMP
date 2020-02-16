@@ -5,16 +5,13 @@ import swamp
 import shutil
 import subprocess
 from Bio import SeqIO
-from swamp.mr.core.mr import Mr
-from swamp.wrappers.shelxe import Shelxe
+from swamp.mr import Mr
+from swamp.wrappers import Phaser, wRefmac, Shelxe
 from Bio.Alphabet import generic_protein
 from Bio.SeqUtils import molecular_weight
-from swamp.wrappers.wphaser import Phaser
-from swamp.wrappers.wrefmac import wRefmac
 from swamp.library.tools import decompress
-from swamp.parsers.mtzparser import MtzParser
-from swamp.mr.searchmodel_prepare.core import Core
-from swamp.mr.searchmodel_prepare.polyala import PolyALA
+from swamp.parsers import MtzParser
+from swamp.searchmodel import Core, PolyALA
 
 
 class MrRun(Mr):
@@ -46,12 +43,12 @@ class MrRun(Mr):
     :ivar `~swamp.wrappers.wphaser.Phaser` phaser: phaser wrapper used in the pipeline
     :ivar `~swamp.wrappers.wrefmac.Refmac` refmac: refmac wrapper used in the pipeline
     :ivar `~swamp.wrappers.shelxe` shelxe: shelxe wrapper used in the pipeline
-    :ivar str search_id: the search model identifier for the `~swamp.mr.core.mrrun.MrRun` instance
-    :ivar str run_id: the run identifier for the `~swamp.mr.core.mrrun.MrRun` instance
+    :ivar str search_id: the search model identifier for the `~swamp.mr.mrrun.MrRun` instance
+    :ivar str run_id: the run identifier for the `~swamp.mr.mrrun.MrRun` instance
     :ivar list search_model_list: a list of the search models to be used in this \
-    :py:obj:`~swamp.mr.core.mrrun.MrRun` instance
+    :py:obj:`~swamp.mr.mrrun.MrRun` instance
     :ivar str solution: 'YES' if shelxe CC > 25, otherwise 'NO'
-    :ivar idealhelix_run: instance of :py:obj:`~swamp.mr.core.mrrun.MrRun to extend the solution with ideal helices
+    :ivar idealhelix_run: instance of :py:obj:`~swamp.mr.mrrun.MrRun to extend the solution with ideal helices
     """
 
     def __init__(self, id, workdir, target_fa, target_mtz, phased_mtz=None, threads=1, phaser_sgalternative="NONE",
@@ -130,7 +127,7 @@ class MrRun(Mr):
 
     @property
     def phaser_info(self):
-        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.core.mrrun.MrRun.phaser`"""
+        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.mrrun.MrRun.phaser`"""
 
         return {'early_kill': self.phaser_early_kill,
                 'workdir': os.path.join(self.workdir, "phaser"),
@@ -148,7 +145,7 @@ class MrRun(Mr):
 
     @property
     def refmac_info(self):
-        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.core.mrrun.MrRun.refmac`"""
+        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.mrrun.MrRun.refmac`"""
 
         return {'workdir': os.path.join(self.workdir, "refmac"),
                 'pdbin': self.phaser.pdbout,
@@ -159,7 +156,7 @@ class MrRun(Mr):
 
     @property
     def shelxe_info(self):
-        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.core.mrrun.MrRun.shelxe`"""
+        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.mrrun.MrRun.shelxe`"""
 
         return {'workdir': os.path.join(self.workdir, 'shelxe'),
                 'logger': self.logger,
@@ -196,7 +193,7 @@ class MrRun(Mr):
 
     def add_searchmodel(self, id, ensemble_code, ermsd=0.1, nsearch=1, disable_check=True, mod='unmod',
                         model='ensemble'):
-        """Add a search model to :py:attr:`~swamp.mr.core.mrrun.MrRun.phaser`
+        """Add a search model to :py:attr:`~swamp.mr.mrrun.MrRun.phaser`
 
         :param str id: unique identifier for the search model to be added
         :param str ensemble_code: the ensemble's SWAMP library id to be used as search model
@@ -245,11 +242,11 @@ class MrRun(Mr):
             return
 
     def register_solution(self, **kwargs):
-        """Register an existing solution information to be used with :py:attr:`~swamp.mr.core.mrrun.MrRun.phaser`"""
+        """Register an existing solution information to be used with :py:attr:`~swamp.mr.mrrun.MrRun.phaser`"""
         self.solution = kwargs
 
     def append_results(self):
-        """Method to append the results obtained into :py:attr:`~swamp.mr.core.mr.Mr.results`"""
+        """Method to append the results obtained into :py:attr:`~swamp.mr.mr.Mr.results`"""
 
         self.results.append(
             [self.search_id, self.run_id, self.phaser.LLG, self.phaser.TFZ, self.phaser.local_CC,
@@ -313,7 +310,7 @@ class MrRun(Mr):
     def fit_helices(self):
         """Method to extend the solution with ideal helices
 
-        This method will create and set running another :py:obj:`swamp.mr.core.mrrun.MrRun` instance that will take
+        This method will create and set running another :py:obj:`swamp.mr.mrrun.MrRun` instance that will take
         the placed search model as an existing solution and try to place ideal helices to extend it.
         """
 
@@ -349,7 +346,7 @@ class MrRun(Mr):
         """ Method to prepare the search model with a given modification protocol
 
         :param str modification: indicates the modification to be used (default 'polyala')
-        :param dict kwargs: arguments to be passed to :py:obj:`~swamp.mr.searchmodel_prepare.prepare`
+        :param dict kwargs: arguments to be passed to :py:obj:`~swamp.searchmodel.prepare`
         :raises ValueError if the modification is not recognised (valid mods: unmod, polyala, core)
         """
 
@@ -406,8 +403,8 @@ class MrRun(Mr):
         """Method to instantiate the wrappers to be used in the pipeline
 
         This method will instantiate all the :py:obj:`swamp.wrapper.wrapper` instances with the arguments necessary \
-         for the pipeline execution: :py:attr:`~swamp.mr.core.mrrun.MrRun.phaser`, \
-         :py:attr:`~swamp.mr.core.mrrun.MrRun.refmac`, :py:attr:`~swamp.mr.core.mrrun.MrRun.shelxe`
+         for the pipeline execution: :py:attr:`~swamp.mr.mrrun.MrRun.phaser`, \
+         :py:attr:`~swamp.mr.mrrun.MrRun.refmac`, :py:attr:`~swamp.mr.mrrun.MrRun.shelxe`
         """
 
         if not self.searchmodel_list:

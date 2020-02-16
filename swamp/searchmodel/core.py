@@ -1,18 +1,18 @@
 import os
 import sys
-from swamp.mr.searchmodel_prepare.preparesearchmodel import PrepareSearchModel
+from swamp.searchmodel import SearchModel
 sys.path.extend([os.path.join(os.environ['CCP4'], 'lib', 'py2')])
 from mrbump.seq_align.MRBUMP_gesamt import Gesamt as MRBUMP_Gesamt
 
 
-class Core(PrepareSearchModel):
+class Core(SearchModel):
     """Class to trim an ensemble to the core structural alignment
 
-    Extends :py:obj:`~swamp.mr.searchmodel_prepare.prepare.PrepareSearchModel`
+    Extends :py:obj:`~swamp.searchmodel.searchmodel.SearchModel`
 
     :examples
 
-    >>> from swamp.mr.searchmodel_prepare.core import Core
+    >>> from swamp.searchmodel.core import Core
     >>> my_core = Core('<workdir>', '<pdbin>', '<pdbout>')
     >>> my_core.prepare()
 

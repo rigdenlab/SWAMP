@@ -3,9 +3,9 @@ import abc
 import swamp
 import joblib
 from pyjob import Script
-from swamp.logger.swamplogger import SwampLogger
-from swamp.wrappers.mapalign import MapAlign
-from swamp.wrappers.aleigen import AlEigen
+from swamp.logger import SwampLogger
+from swamp.wrappers import MapAlign
+from swamp.wrappers import AlEigen
 from swamp.library.tools.swamplibrary import SwampLibrary
 
 ABC = abc.ABCMeta('ABC', (object,), {})

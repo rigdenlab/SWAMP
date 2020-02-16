@@ -27,7 +27,7 @@ class MtzParser(Parser):
 
     :example:
 
-    >>> from swamp.parsers.mtzparser import MtzParser
+    >>> from swamp.parsers import MtzParser
     >>> my_parser = MtzParser('<fname>')
     >>> my_parser.parse()
     """

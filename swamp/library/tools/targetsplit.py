@@ -2,8 +2,8 @@ import os
 import gemmi
 import itertools
 import conkit.io
-from swamp.parsers.topconsparser import TopconsParser
-from swamp.logger.swamplogger import SwampLogger
+from swamp.parsers import TopconsParser
+from swamp.logger import SwampLogger
 from swamp.library.tools.pdb_tools import extract_hierarchy_seqnumber
 from swamp.library.tools.contact_tools import extract_interhelical_cmap
 
