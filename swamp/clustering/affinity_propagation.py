@@ -1,4 +1,4 @@
-from swamp.library.clustering.clustering import Clustering
+from swamp.clustering import Clustering
 from sklearn.cluster import AffinityPropagation
 from scipy.stats import randint, expon
 
@@ -9,7 +9,7 @@ class AffProp(Clustering):
     :example
 
     >>> import joblib
-    >>> from swamp.library.clustering.affinity_propagation import AffProp
+    >>> from swamp.clustering import AffProp
     >>> dist_mtx = joblib.load('<dist_mtx.pckl>')
     >>> dist_mtx = dist_mtx.fillna(0)
     >>> my_clst = AffProp(dist_mtx)

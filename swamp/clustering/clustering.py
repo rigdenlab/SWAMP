@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 from statistics import mean
 from swamp.wrappers import Gesamt
+from swamp.logger import SwampLogger
 from itertools import groupby, combinations
 from sklearn.metrics import silhouette_score
-from swamp.logger import SwampLogger
 from sklearn.model_selection import ParameterSampler
 
 ABC = abc.ABCMeta('ABC', (object,), {})

@@ -10,7 +10,7 @@ from swamp.library.tools import compress
 from swamp.searchmodel import Core
 from swamp.logger import SwampLogger
 from swamp.command_line import check_file_exists
-from swamp.library.clustering.optics import Optics
+from swamp.clustering import Optics
 from swamp.library.tools.swamplibrary import SwampLibrary
 
 

@@ -32,3 +32,31 @@ if 'THIS_IS_READTHEDOCS' not in os.environ:
         import statistics
     except ImportError as e:
         raise ImportError(e)
+
+
+def Clustering(*args, **kwargs):
+    """:py:obj:`~swamp.clustering.clustering.Clustering` instance"""
+    from swamp.clustering.clustering import Clustering
+
+    return Clustering(*args, **kwargs)
+
+
+def Spectral(*args, **kwargs):
+    """:py:obj:`~swamp.clustering.spectral.Spectral` instance"""
+    from swamp.clustering.spectral import Spectral
+
+    return Spectral(*args, **kwargs)
+
+
+def AffProp(*args, **kwargs):
+    """:py:obj:`~swamp.clustering.affinity_propagation.AffProp` instance"""
+    from swamp.clustering.affinity_propagation import AffProp
+
+    return AffProp(*args, **kwargs)
+
+
+def Optics(*args, **kwargs):
+    """:py:obj:`~swamp.clustering.optics.Optics` instance"""
+    from swamp.clustering.optics import Optics
+
+    return Optics(*args, **kwargs)

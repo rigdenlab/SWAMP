@@ -1,4 +1,4 @@
-from swamp.library.clustering.clustering import Clustering
+from swamp.clustering import Clustering
 from sklearn.cluster import SpectralClustering
 from scipy.stats import randint, expon
 
@@ -8,7 +8,7 @@ class Spectral(Clustering):
 
     :example
 
-    >>> from swamp.library.clustering.spectral import Spectral
+    >>> from swamp.clustering import Spectral
     >>> import joblib
     >>> dist_mtx = joblib.load('<dist_mtx.pckl>')
     >>> dist_mtx = dist_mtx.fillna(0)
