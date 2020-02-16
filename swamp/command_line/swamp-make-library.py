@@ -6,12 +6,11 @@ import swamp
 import argparse
 import traceback
 import pandas as pd
-from swamp.library.tools import compress
+from swamp.utils import compress, SwampLibrary
 from swamp.searchmodel import Core
 from swamp.logger import SwampLogger
 from swamp.command_line import check_file_exists
 from swamp.clustering import Optics
-from swamp.library.tools.swamplibrary import SwampLibrary
 
 
 def parse_arguments():

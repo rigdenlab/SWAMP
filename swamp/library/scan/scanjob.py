@@ -4,15 +4,14 @@ import swamp
 import joblib
 from pyjob import Script
 from swamp.logger import SwampLogger
-from swamp.wrappers import MapAlign
-from swamp.wrappers import AlEigen
-from swamp.library.tools.swamplibrary import SwampLibrary
+from swamp.wrappers import MapAlign, Aleigen
+from swamp.utils import SwampLibrary
 
 ABC = abc.ABCMeta('ABC', (object,), {})
 
 
 class ScanJob(ABC):
-    """Class that implements methods to scan a library of templates using contact map alignment tools
+    """Class that implements methods to scan a library of templates using contact map alignment utils
     
     The class is used to scan a single subtarget against the SWAMP library. The CMO between the observed contacts
     for each member of the library and the predicted contacts of the subtarget is computed.

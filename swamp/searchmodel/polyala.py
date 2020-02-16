@@ -1,6 +1,6 @@
 import os
 import gemmi
-from swamp.library.tools.pdb_tools import renumber_hierarchy
+from swamp.utils import renumber_hierarchy
 from swamp.searchmodel import SearchModel
 
 

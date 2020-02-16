@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 from pyjob import cexec
 from swamp.wrappers import Wrapper
-from swamp.library.tools.threadresults import ThreadResults
-from swamp.library.tools.pdb_tools import invert_hiearchy, get_tempfile
+from swamp.utils import ThreadResults, invert_hiearchy, get_tempfile
 
 
 class Gesamt(Wrapper):

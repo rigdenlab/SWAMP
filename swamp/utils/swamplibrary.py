@@ -3,11 +3,10 @@ import gemmi
 import conkit.io
 import itertools
 import pandas as pd
+import swamp.utils as utils
 from swamp.wrappers import Gesamt
 from swamp.parsers import PdbtmXmlParser
 from swamp.logger import SwampLogger
-import swamp.library.tools.pdb_tools as pdb_tools
-from swamp.library.tools.contact_tools import extract_fragment_cmap, invert_contactmap
 
 
 class SwampLibrary(object):
@@ -22,7 +21,7 @@ class SwampLibrary(object):
 
     :example
 
-    >>> from swamp.tools.swamplibrary import SwampLibrary
+    >>> from swamp.utils.swamplibrary import SwampLibrary
     >>> my_library = SwampLibrary('<workdir>')
     >>> pdb_code_list = my_library.parse_nr_listfile("/path/to/nr_list")
     >>> my_library.pdbtm_svn = "/path/to/pdbtm_svn"
@@ -333,15 +332,16 @@ class SwampLibrary(object):
             for idx, helix_a in enumerate(tmhelices):
                 for helix_b in tmhelices[idx + 1:]:
 
-                    helix_a_hierarchy = pdb_tools.extract_hierarchy(to_extract=helix_a.pdb_region,
-                                                                    chainID=helix_a.chain,
-                                                                    full_hierarchy=full_hierarchy)
-                    helix_b_hierarchy = pdb_tools.extract_hierarchy(to_extract=helix_b.pdb_region,
-                                                                    chainID=helix_b.chain,
-                                                                    full_hierarchy=full_hierarchy)
-                    fragment_hierarchy = pdb_tools.merge_hierarchies((helix_a_hierarchy, helix_b_hierarchy),
-                                                                     renumber=False)
-                    fragment_cmap = extract_fragment_cmap(fragment_hierarchy, (helix_a.pdb_region, helix_b.pdb_region))
+                    helix_a_hierarchy = utils.extract_hierarchy(to_extract=helix_a.pdb_region,
+                                                                chainID=helix_a.chain,
+                                                                full_hierarchy=full_hierarchy)
+                    helix_b_hierarchy = utils.extract_hierarchy(to_extract=helix_b.pdb_region,
+                                                                chainID=helix_b.chain,
+                                                                full_hierarchy=full_hierarchy)
+                    fragment_hierarchy = utils.merge_hierarchies((helix_a_hierarchy, helix_b_hierarchy),
+                                                                 renumber=False)
+                    fragment_cmap = utils.extract_fragment_cmap(fragment_hierarchy,
+                                                                (helix_a.pdb_region, helix_b.pdb_region))
 
                     if fragment_cmap is None:
                         self.logger.warning(
@@ -354,8 +354,8 @@ class SwampLibrary(object):
 
                         # Write pdb files
                         fragment_hierarchy.cell = full_hierarchy.cell
-                        pdb_tools.renumber_hierarchy(fragment_hierarchy)
-                        inverted_fragment = pdb_tools.invert_hiearchy(fragment_hierarchy)
+                        utils.renumber_hierarchy(fragment_hierarchy)
+                        inverted_fragment = utils.invert_hiearchy(fragment_hierarchy)
                         inverted_fragment.cell = full_hierarchy.cell
                         pdbout = self._library_out_template.format(pdbcode, helix_a.index, helix_a.chain, helix_b.index,
                                                                    helix_b.chain, "pdb")
@@ -371,7 +371,7 @@ class SwampLibrary(object):
                         conkit.io.write(
                             self._library_out_template.format(pdbcode, helix_a.index, helix_a.chain, helix_b.index,
                                                               helix_b.chain, "aleigen"), "aleigen", fragment_cmap)
-                        inverted_cmap = invert_contactmap(fragment_cmap)
+                        inverted_cmap = utils.invert_contactmap(fragment_cmap)
                         conkit.io.write(
                             self._library_out_template.format(pdbcode, helix_b.index, helix_b.chain, helix_a.index,
                                                               helix_a.chain, "mapalign"), "mapalign", inverted_cmap)

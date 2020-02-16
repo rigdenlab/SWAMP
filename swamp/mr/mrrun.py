@@ -9,7 +9,7 @@ from swamp.mr import Mr
 from swamp.wrappers import Phaser, wRefmac, Shelxe
 from Bio.Alphabet import generic_protein
 from Bio.SeqUtils import molecular_weight
-from swamp.library.tools import decompress
+from swamp.utils import decompress
 from swamp.parsers import MtzParser
 from swamp.searchmodel import Core, PolyALA
 

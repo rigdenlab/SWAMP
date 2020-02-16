@@ -7,9 +7,7 @@ import pandas as pd
 from pyjob import TaskFactory
 from swamp.library.scan.scanjob import ScanJob
 from swamp.logger import SwampLogger
-from swamp.library.tools.targetsplit import TargetSplit
-from swamp.library.tools.swamplibrary import SwampLibrary
-from swamp.library.tools.pdb_tools import renumber_hierarchy
+from swamp.utils import TargetSplit, SwampLibrary, renumber_hierarchy
 
 
 class ScanTarget(object):

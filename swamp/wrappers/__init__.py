@@ -16,11 +16,11 @@ if 'THIS_IS_READTHEDOCS' not in os.environ and "CCP4" not in os.environ:
     raise RuntimeError("Cannot find CCP4 root directory")
 
 
-def AleigenParser(*args, **kwargs):
+def AlEigen(*args, **kwargs):
     """:py:obj:`~swamp.wrappers.aleigen.Aleigen` instance"""
     from swamp.wrappers.aleigen import AlEigen
 
-    return AleigenParser(*args, **kwargs)
+    return AlEigen(*args, **kwargs)
 
 
 def MapAlign(*args, **kwargs):
