@@ -5,7 +5,7 @@ import conkit.io
 import itertools
 import pandas as pd
 from pyjob import TaskFactory
-from swamp.library.scan.scanjob import ScanJob
+from swamp.scan import ScanJob
 from swamp.logger import SwampLogger
 from swamp.utils import TargetSplit, SwampLibrary, renumber_hierarchy
 

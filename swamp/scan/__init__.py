@@ -22,3 +22,17 @@ if 'THIS_IS_READTHEDOCS' not in os.environ:
         import joblib
     except ImportError:
         raise ImportError('Joblib must be installed before using SWAMP-SCAN')
+
+
+def ScanJob(*args, **kwargs):
+    """:py:obj:`~swamp.scan.scanjob.ScanJob` instance"""
+    from swamp.scan.scanjob import ScanJob
+
+    return ScanJob(*args, **kwargs)
+
+
+def ScanTarget(*args, **kwargs):
+    """:py:obj:`~swamp.scan.scantarget.ScanTarget` instance"""
+    from swamp.scan.scantarget import ScanTarget
+
+    return ScanTarget(*args, **kwargs)

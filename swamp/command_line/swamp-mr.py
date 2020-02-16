@@ -8,7 +8,7 @@ import itertools
 from swamp.logger import SwampLogger
 from swamp.mr import MrJob, MrArray, MrResults
 from swamp.command_line import check_file_exists
-from swamp.library.scan.scantarget import ScanTarget
+from swamp.scan import ScanTarget
 
 
 def parse_arguments():

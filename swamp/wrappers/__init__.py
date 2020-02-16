@@ -17,7 +17,7 @@ if 'THIS_IS_READTHEDOCS' not in os.environ and "CCP4" not in os.environ:
 
 
 def AlEigen(*args, **kwargs):
-    """:py:obj:`~swamp.wrappers.aleigen.Aleigen` instance"""
+    """:py:obj:`~swamp.wrappers.aleigen.AlEigen` instance"""
     from swamp.wrappers.aleigen import AlEigen
 
     return AlEigen(*args, **kwargs)
