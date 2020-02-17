@@ -81,38 +81,41 @@ def main():
     args = parse_arguments()
 
     idx = 0
-    workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
-    while os.path.isdir(workdir):
+    swamp_workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
+    while os.path.isdir(swamp_workdir):
         idx += 0
-        workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
-    os.mkdir(workdir)
+        swamp_workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
+    os.mkdir(swamp_workdir)
+    logfile = os.path.join(swamp_workdir, "swamp_%s.debug" % args.id)
+    swamp_search_dir = os.path.join(swamp_workdir, 'swamp_search')
+    swamp_mr_dir = os.path.join(swamp_workdir, 'swamp_mr')
 
     global logger
     global centroid_dict
     global centroids
 
     logger = SwampLogger('SWAMP-MR')
-    logger.init(logfile=os.path.join(workdir, "swamp_%s.debug" % args.id), use_console=True,
+    logger.init(logfile=logfile, use_console=True,
                 console_level='info', logfile_level='debug')
     logger.info("Invoked with command-line:\n%s\n", " ".join(map(str, ['swamp-mr'] + sys.argv[1:])))
 
     # ------------------ SCAN LIBRARY OF SEARCH MODELS USING CONTACTS ------------------
 
-    my_rank = SearchTarget(os.path.join(workdir, 'swamp_search'), conpred=args.conpred, template_subset=centroids,
-                         alignment_algorithm_name='aleigen', n_contacts_threshold=args.ncontacts_threshold,
-                         nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
-                         logger=logger, platform=args.platform, python_interpreter=args.python_interpreter,
-                         queue_environment=args.environment, queue_name=args.queue)
+    my_rank = SearchTarget(swamp_search_dir, conpred=args.conpred, template_subset=centroids,
+                           alignment_algorithm_name='aleigen', n_contacts_threshold=args.ncontacts_threshold,
+                           nthreads=args.nprocs, target_pdb_benchmark=args.pdb_benchmark, sspred=args.sspred,
+                           logger=logger, platform=args.platform, python_interpreter=args.python_interpreter,
+                           queue_environment=args.environment, queue_name=args.queue)
     logger.info('Using contacts to assess search model quality: matching predicted contacts with observed contacts\n')
     my_rank.search()
     my_rank.rank(consco_threshold=args.consco_threshold, combine_searchmodels=args.combine_searchmodels)
     if args.pdb_benchmark is not None:
-        joblib.dump(my_rank.results, os.path.join(workdir, 'swamp_search', 'swamp-search.pckl'))
+        joblib.dump(my_rank.results, os.path.join(swamp_search_dir, 'swamp-search.pckl'))
 
     # ------------------ CREATE MR TASK ARRAY AND LOAD INDIVIDUAL MR JOBS ------------------
 
     my_array = MrArray(id=args.id, target_mtz=args.mtzfile, max_concurrent_nprocs=args.nprocs, target_fa=args.fastafile,
-                       job_kill_time=args.job_kill_time, workdir=os.path.join(workdir, 'swamp_mr'), logger=logger,
+                       job_kill_time=args.job_kill_time, workdir=swamp_mr_dir, logger=logger,
                        platform=args.platform, phased_mtz=args.mtz_phases, queue_name=args.queue,
                        queue_environment=args.environment)
 
@@ -187,7 +190,7 @@ def main():
     # ------------------ SUBMIT MR TASK ARRAY FOR EXECUTION ------------------
 
     my_array.run()
-    results = MrResults(os.path.join(workdir), logger=logger)
+    results = MrResults(os.path.join(swamp_workdir), logger=logger)
     results.report_results()
 
 

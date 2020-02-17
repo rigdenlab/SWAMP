@@ -83,7 +83,7 @@ Current time: %s\n
     # ------------------ Methods ------------------
 
     def error(self, msg, *args, **kwargs):
-        """Extend :py:func:`logging.logger.error` to include the \
+        """Extend :py:func:`logging.Logger.error` to include the \
         :py:attr:`~swamp.logger.swamplogger.SwampLogger.error_header`, check if \
         :py:attr:`~swamp.logger.swamplogger.SwampLogger.silent` and format the message"""
 
@@ -97,7 +97,7 @@ Current time: %s\n
         self.msg_record.append(self.record(msg=msg, level=logging.ERROR))
 
     def warning(self, msg, *args, **kwargs):
-        """Extend :py:func:`logging.logger.warning` to check if \
+        """Extend :py:func:`logging.Logger.warning` to check if \
         :py:attr:`~swamp.logger.swamplogger.SwampLogger.silent` and format the message"""
         msg = self.msg.format('WARNING', msg)
 
@@ -107,7 +107,7 @@ Current time: %s\n
         self.msg_record.append(self.record(msg=msg, level=logging.WARNING))
 
     def info(self, msg, *args, **kwargs):
-        """Extend :py:func:`logging.logger.info` to check if \
+        """Extend :py:func:`logging.Logger.info` to check if \
         :py:attr:`~swamp.logger.swamplogger.SwampLogger.silent` and  and format the message"""
 
         if isinstance(msg, collections.Iterable) and '****' not in msg and '####' not in msg:
@@ -119,7 +119,7 @@ Current time: %s\n
         self.msg_record.append(self.record(msg=msg, level=logging.INFO))
 
     def debug(self, msg, *args, **kwargs):
-        """Extend :py:func:`logging.logger.debug` to check if \
+        """Extend :py:func:`logging.Logger.debug` to check if \
         :py:attr:`~swamp.logger.swamplogger.SwampLogger.silent` and  and format the message"""
 
         msg = self.msg.format('DEBUG', msg)

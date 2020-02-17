@@ -169,7 +169,7 @@ class MrArray(Mr):
         all_scripts = [tuple(self.scripts[x:x + self.max_array_size]) for x in
                        range(0, len(self.scripts), self.max_array_size)]
 
-        for idx, scripts in enumerate(all_scripts):
+        for idx, scripts in enumerate(all_scripts, 1):
             self.logger.info('Sending task array %s / %s' % (idx, len(all_scripts)))
             with TaskFactory(self.platform, scripts, **self._other_task_info) as task:
                 task.name = 'swamp_%s' % idx

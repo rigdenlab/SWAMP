@@ -49,10 +49,10 @@ class Clustering(ABC):
     def __init__(self, nthreads=1, n_iter=100, logger=None):
         self.error = False
         if logger is None:
-            self._logger = SwampLogger(__name__)
+            self.logger = SwampLogger(__name__)
             self.logger.init(use_console=True, console_level='info')
         else:
-            self._logger = logger
+            self.logger = logger
         self.best_params = None
         self.labels = None
         self.child_threads = None

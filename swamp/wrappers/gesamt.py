@@ -51,7 +51,7 @@ class Gesamt(Wrapper):
         self.mode = mode
         self.pdbin = pdbin
         self.gesamt_archive = gesamt_archive
-        self.pdbout = pdbout
+        self._pdbout = pdbout
         self.nthreads = nthreads
         self.hits_out = hits_out
         self.pdb_archive = pdb_archive
@@ -59,6 +59,15 @@ class Gesamt(Wrapper):
         self.min2 = min2
 
     # ------------------ Properties ------------------
+
+    @property
+    def pdbout(self):
+        """Setter for :py:attr:`~swamp.wrapper.gesamt.Gesamt.pdbout`"""
+        return self._pdbout
+
+    @pdbout.setter
+    def pdbout(self, value):
+        self._pdbout = value
 
     @property
     def wrapper_name(self):
