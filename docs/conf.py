@@ -55,7 +55,7 @@ except ImportError:
 
 # If set, mock the import system to have external dependencies
 autodoc_mock_imports = ['clipper', 'pyrvapi', 'cctbx', 'morda', 'iotbx', 'mmtbx',
-                        'phaser', 'mrbump', 'gemmi', 'Bio']
+                        'phaser', 'mrbump', 'gemmi', 'Bio', 'conkit']
 
 # MOCK_MODULES = ['numpy', 'numpy.ma', 'scipy', 'scipy.stats']
 # for mod_name in MOCK_MODULES:
