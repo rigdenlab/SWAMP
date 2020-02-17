@@ -46,6 +46,7 @@ class TargetSplit(object):
         if self.sspred.error:
             self.logger.warning('Previous errors detected while parsing TM topology prediction!')
             self.error = True
+        self._subtargets_pdb = None
 
     # ------------------ Some general properties ------------------
 
