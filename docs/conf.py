@@ -15,6 +15,7 @@
 import datetime
 import os
 import sys
+import mock
 
 # Make SWAMP believe we are running it as part of CCP4
 os.environ['CCP4'] = "/empty/path"
@@ -58,6 +59,11 @@ autodoc_mock_imports = [
     'clipper', 'pyrvapi', 'cctbx', 'morda', 'iotbx', 'mmtbx', 'parse_molrep', 'parse_refmac', 'phaser', 'mrbump',
     'gemmi'
 ]
+
+MOCK_MODULES = ['numpy', 'numpy.ma', 'scipy', 'scipy.stats']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
