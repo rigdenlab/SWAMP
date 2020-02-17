@@ -99,169 +99,25 @@ class MapAlign(Wrapper):
 
     @property
     def keywords(self):
-        """Keywords used to calculate the alignment"""
+        """Keywords passed through the command line to map_align"""
         return ['-a', self.input_a, '-b', self.input_b, "-sep_cut", str(self.sep_cut), "-gap_e", str(self.gap_e),
                 "-gap_o", str(self.gap_o), '-silent']
 
     @property
     def summary_results(self):
-        """A list with a summary of the obtained figures of merit"""
+        """A list with the figures of merit obtained"""
         return [self.map_a, self.map_b, self.con_sco, self.gap_sco, self.total_sco, self.alignment_length, self.qscore,
                 self.rmsd, self.seq_id, self.n_align]
 
     @property
-    def map_a(self):
-        return self._map_a
-
-    @map_a.setter
-    def map_a(self, value):
-        self._map_a = value
-
-    @property
-    def format_a(self):
-        return self._format_a
-
-    @format_a.setter
-    def format_a(self, value):
-        self._format_a = value
-
-    @property
-    def format_b(self):
-        return self._format_b
-
-    @format_b.setter
-    def format_b(self, value):
-        self._format_b = value
-
-    @property
-    def map_b(self):
-        return self._map_b
-
-    @map_b.setter
-    def map_b(self, value):
-        self._map_b = value
-
-    @property
-    def pdb_a(self):
-        return self._pdb_a
-
-    @pdb_a.setter
-    def pdb_a(self, value):
-        self._pdb_a = value
-
-    @property
-    def pdb_b(self):
-        return self._pdb_b
-
-    @pdb_b.setter
-    def pdb_b(self, value):
-        self._pdb_b = value
-
-    @property
-    def sep_cut(self):
-        return self._sep_cut
-
-    @sep_cut.setter
-    def sep_cut(self, value):
-        self._sep_cut = value
-
-    @property
-    def gap_o(self):
-        return self._gap_o
-
-    @gap_o.setter
-    def gap_o(self, value):
-        self._gap_o = value
-
-    @property
-    def gap_e(self):
-        return self._gap_e
-
-    @gap_e.setter
-    def gap_e(self, value):
-        self._gap_e = value
-
-    @property
-    def rmsd(self):
-        """Property to store rmsd of the structural alignment (only if pdb benchmark is not None)"""
-        return self._rmsd
-
-    @rmsd.setter
-    def rmsd(self, value):
-        self._rmsd = value
-
-    @property
-    def n_align(self):
-        """Property to store no. of aligned residues of the structural alignment (only if pdb benchmark is not None)"""
-        return self._n_align
-
-    @n_align.setter
-    def n_align(self, value):
-        self._n_align = value
-
-    @property
-    def seq_id(self):
-        """Property to store the sequence identity of the structural alignment (only if pdb benchmark is not None)"""
-        return self._seq_id
-
-    @seq_id.setter
-    def seq_id(self, value):
-        self._seq_id = value
-
-    @property
-    def qscore(self):
-        """Property to store qscore of the structural alignment (only if pdb benchmark is not None)"""
-        return self._qscore
-
-    @qscore.setter
-    def qscore(self, value):
-        self._qscore = value
-
-    @property
     def map_a_id(self):
-        """Basename of the map A file without extension"""
+        """Basename of :py:attr:`~swamp.wrappers.mapaling.MapAlign.map_a` file without extension"""
         return os.path.splitext(os.path.basename(self.map_a))[0]
 
     @property
     def map_b_id(self):
-        """Basename of the map B file without extension"""
+        """Basename of :py:attr:`~swamp.wrappers.mapaling.MapAlign.map_b` file without extension"""
         return os.path.splitext(os.path.basename(self.map_b))[0]
-
-    @property
-    def alignment(self):
-        """Property to store  (dictionary with the residue sequence number equivalence across the input maps)"""
-        return self._alignment
-
-    @alignment.setter
-    def alignment(self, value):
-        self._alignment = value
-
-    @property
-    def con_sco(self):
-        """Property to store the contact score obtained with the map alignment"""
-        return self._con_sco
-
-    @con_sco.setter
-    def con_sco(self, value):
-        self._con_sco = value
-
-    @property
-    def gap_sco(self):
-        """Property to store gap score assigned to the map alignment"""
-        return self._gap_sco
-
-    @gap_sco.setter
-    def gap_sco(self, value):
-        self._gap_sco = value
-
-    @property
-    def total_sco(self):
-        """Property to store total score (contact_score - gap_score)"""
-        return self._total_sco
-
-    @total_sco.setter
-    def total_sco(self, value):
-        self._total_sco = value
 
     @property
     def alignment_length(self):
@@ -270,6 +126,7 @@ class MapAlign(Wrapper):
 
     @alignment_length.setter
     def alignment_length(self, value):
+        """Length of the :py:attr:`~swamp.wrappers.mapalign.MapAlign.alignment`"""
         self._alignment_length = value
 
     @property
@@ -280,7 +137,9 @@ class MapAlign(Wrapper):
     # ------------------ Some general methods ------------------
 
     def _check_alignment_input(self):
-        """Check that input maps are in correct format, if not convert them"""
+        """Check that :py:attr:`~swamp.wrappers.mapaling.MapAlign.map_a` and \
+        :py:attr:`~swamp.wrappers.mapaling.MapAlign.map_b` have the \
+        :py:attr:`~swamp.wrappers.mapaling.MapAlign._reference_mapformat` and if not convert them using `conkit.io`"""
 
         if self.format_a != self._reference_mapformat:
             self.make_workdir()
@@ -294,12 +153,9 @@ class MapAlign(Wrapper):
             conkit.io.convert(self.map_b, self.format_b, self.input_b, self._reference_mapformat)
 
     def get_scores(self, logfile=None):
-        """Method to parse the stdout and extract the scores and residue alignment
+        """Method to extract the figures of merit out the stdout
 
-        :param logfile: Not in use
-        :type logfile: None
-        :returns nothing
-        :rtype None
+        :param str logfile: Not in use
         """
 
         parser = MapAlignParser(logger=self.logger, stdout=self.logcontents)
@@ -312,7 +168,8 @@ class MapAlign(Wrapper):
             self.alignment, self.con_sco, self.gap_sco, self.total_sco, self.alignment_length = parser.summary
 
     def benchmark(self):
-        """Perform a structural alignment between the actual structures for benchmarking purposes"""
+        """Use :py:obj:`~swamp.wrappers.gesamt.Gesamt` to perform a structural alignment between the input structures \
+        for benchmarking purposes"""
 
         gesamt = Gesamt.get_optimum_alignment((self.pdb_a, self.pdb_b))[0]
         if gesamt.error:
@@ -327,11 +184,9 @@ class MapAlign(Wrapper):
             self.n_align = gesamt.n_align
 
     def run(self):
-        """Obtain the optimal alignment between both maps
+        """Run the :py:attr:`~swamp.wrappers.mapalign.MapAlign.cmd` and store the stdout
 
-        :returns nothing
-        :rtype None
-        :raises EnvironmentError if the executable binary file of the aligner is not found in the system
+        :raises EnvironmentError: if :py:attr:`~swamp.wrappers.mapaling.MapAlign.source` is not found in the system
         """
 
         if self.source is None:

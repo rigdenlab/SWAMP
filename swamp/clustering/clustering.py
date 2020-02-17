@@ -41,8 +41,8 @@ class Clustering(ABC):
     :ivar dict ensemble_dict: dictionary with the list fragments ids that form each ensemble
     :ivar `threading.Semaphore` semaphore: a `threading.Semaphore` instance to control the execution of threads \
     on :py:func:`~swamp.clustering.clustering.grid_search`
-    :ivar `~swamp.clustering.ParameterSearchResults` gridsearch_results: a \
-    :py:obj:`~swamp.clustering.ParameterSearchResults` instance with the results obtained on \
+    :ivar `~swamp.clustering.clustering.ParameterSearchResults` gridsearch_results: a \
+    :py:obj:`~swamp.clustering.clustering.ParameterSearchResults` instance with the results obtained on \
     :py:func:`~swamp.clustering.clustering.grid_search`
     """
 
@@ -197,7 +197,7 @@ class Clustering(ABC):
         """Get the unique cluster identifier where a given centroid is assigned
 
         :param str frag_id: the id of the centroid of interest
-        :returns the cluster id where the fragment can be found (str)
+        :returns: the cluster id where the fragment can be found (str)
         """
 
         if self.centroid_dict is None:
@@ -277,7 +277,7 @@ class Clustering(ABC):
         as the values
 
         :param tuple labels: the labels assigned to each fragment in the library
-        :param bool inplace: if True, then it sets :py:attr:`~swamp.clustering.clustering.cluster dict` (default True)
+        :param bool inplace: if True, then it sets :py:attr:`~swamp.clustering.clustering.cluster_dict` (default True)
         :returns: a dictionary containing the cluster id as keys and the frag ids as the values (if not `inplace`)
         """
 
@@ -413,7 +413,7 @@ class Clustering(ABC):
 class ParameterSearchResults(object):
     """Class to hold the results from a multi-threaded :py:func:`~swamp.clustering.clustering.grid_search`
 
-    Implements `~threading.Semaphore` methods to regulate thread I/O into a result list
+    Implements :py:obj:`~threading.Semaphore` methods to regulate thread I/O into a result list
 
     :param `~swamp.logger.swamplogger.SwampLogger` logger: logger instance to record thread log messages
     :ivar `threading.lock` lock: lock to control I/O to the result instance

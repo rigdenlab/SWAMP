@@ -7,20 +7,14 @@ from swamp.wrappers.wrapper import Wrapper
 class Mtz2Various(Wrapper):
     """Wrapper around mtz2various
 
-     :param workdir: working directory
-     :type workdir: str, None
-     :param mtzin: mtz file name
-     :type mtzin: str
-     :param hklout: hkl output file name
-     :type hklout: str
-     :param logger: logging interface to be used (default None)
-     :type logger: None, :object:`swamp.logger.swamplogger.SwampLogger`
-     :param silent_start: if True, the logger will not display the start banner (default False)
-     :type silent_start: bool
-     :ivar error: if True an error has occurred along the process
-     :type error: bool
+    :param str workdir: working directory
+    :param str mtzin: mtz file name
+    :param str hklout: hkl output file name
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the wrapper (default None)
+    :param bool silent_start: if True, the logger will not display the start banner (default False)
+    :ivar bool error: if True an error has occurred along the process
 
-    :example
+    :example:
 
     >>> from swamp.wrappers import Mtz2Various
     >>> my_mtz2various = Mtz2Various('<workdir>' '<mtzin>', '<hklout>')
@@ -32,24 +26,8 @@ class Mtz2Various(Wrapper):
 
         super(Mtz2Various, self).__init__(workdir=workdir, logger=logger, silent_start=silent_start)
 
-        self._mtzin = mtzin
-        self._hklout = hklout
-
-    @property
-    def mtzin(self):
-        return self._mtzin
-
-    @mtzin.setter
-    def mtzin(self, value):
-        self._mtzin = value
-
-    @property
-    def hklout(self):
-        return self._hklout
-
-    @hklout.setter
-    def hklout(self, value):
-        self._hklout = value
+        self.mtzin = mtzin
+        self.hklout = hklout
 
     @property
     def keywords(self):
@@ -66,8 +44,15 @@ class Mtz2Various(Wrapper):
             return 'LABIN FP=%s SIGFP=%s FREE=%s' % (mtz_head.f, mtz_head.sigf, mtz_head.free) \
                    + os.linesep + "OUTPUT SHELX" + os.linesep + "FSQUARED" + os.linesep + "END"
 
+
+    @property
+    def summary_results(self):
+        """No figures of merit are obtained with mtz2various"""
+        return None
+
     @property
     def wrapper_name(self):
+        """The name of this wrapper (mtz2various)"""
         return "mtz2various"
 
     @property
@@ -80,7 +65,7 @@ class Mtz2Various(Wrapper):
         pass
 
     def run(self):
-        """Run the mtz2various and store the stdout"""
+        """Run the :py:attr:`~swamp.wrappers.mtz2various.Mtz2Various.cmd` and store the stdout"""
 
         self.logger.info(self.wrapper_header)
         self.logger.debug(" ".join(self.cmd))

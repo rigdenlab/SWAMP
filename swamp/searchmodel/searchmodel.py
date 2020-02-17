@@ -109,8 +109,7 @@ class SearchModel(ABC):
         :param str pdbin: input pdb file name
         :param str directory: directory where the models of the ensemble will be dumped
         :param bool strip_hetatm: if set, the hetatm will be ommited from the output models (default True)
-        :return a tuple with the output file names listed
-        :rtype tuple
+        :returns: a tuple with the output file names listed (tuple)
         """
 
         pdbout_template = os.path.join(directory, 'model_{}.pdb')

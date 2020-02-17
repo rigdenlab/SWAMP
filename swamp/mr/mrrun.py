@@ -127,7 +127,7 @@ class MrRun(Mr):
 
     @property
     def phaser_info(self):
-        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.mrrun.MrRun.phaser`"""
+        """Dictionary to use as **kwargs for :py:obj:`~swamp.wrappers.wphaser.Phaser`"""
 
         return {'early_kill': self.phaser_early_kill,
                 'workdir': os.path.join(self.workdir, "phaser"),
@@ -145,7 +145,7 @@ class MrRun(Mr):
 
     @property
     def refmac_info(self):
-        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.mrrun.MrRun.refmac`"""
+        """Dictionary to use as **kwargs for :py:attr:`~swamp.wrappers.wrefmac.wRefmac`"""
 
         return {'workdir': os.path.join(self.workdir, "refmac"),
                 'pdbin': self.phaser.pdbout,
@@ -156,7 +156,7 @@ class MrRun(Mr):
 
     @property
     def shelxe_info(self):
-        """Dictionary to use as **kwargs for :py:attr:`~swamp.mr.mrrun.MrRun.shelxe`"""
+        """Dictionary to use as **kwargs for :py:attr:`~swamp.wrappers.shelxe.Shelxe`"""
 
         return {'workdir': os.path.join(self.workdir, 'shelxe'),
                 'logger': self.logger,
@@ -346,7 +346,7 @@ class MrRun(Mr):
         """ Method to prepare the search model with a given modification protocol
 
         :param str modification: indicates the modification to be used (default 'polyala')
-        :param dict kwargs: arguments to be passed to :py:obj:`~swamp.searchmodel.prepare`
+        :param dict kwargs: arguments to be passed to :py:obj:`~swamp.searchmodel.searchmodel.SearchModel`
         :raises: ValueError if the modification is not recognised (valid mods: unmod, polyala, core)
         """
 

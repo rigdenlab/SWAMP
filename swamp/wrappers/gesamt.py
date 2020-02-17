@@ -225,7 +225,7 @@ class Gesamt(Wrapper):
         """Method to parse a gesamt .hit output file
 
         :param str fname: file name of the .hit output file
-        :returns df: a dataframe with the results contained in the hit file (`pandas.Dataframe`)
+        :returns: a dataframe with the results contained in the hit file (`pandas.Dataframe`)
         """
 
         df = []
@@ -287,7 +287,7 @@ class Gesamt(Wrapper):
         :type pdbfiles: tuple, list
         :param int nthreads: number of threads to be used when screening all possible arrangements (default 1)
         :param logger: logging interface to be used (default None)
-        :type logger: None, :py:obj:`swamp.logger.swamplogger.SwampLogger`
+        :type logger: None, :py:obj:`~swamp.logger.swamplogger.SwampLogger`
         :returns: the :py:obj:`~swamp.wrappers.gesamt.Gesamt` instance instance for the optimal alignment and a \
          :py:obj:`gemmi.Structure` hierarchy with the aligned structuresas an ensemble (tuple)
         """

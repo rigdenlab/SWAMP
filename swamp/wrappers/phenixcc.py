@@ -8,20 +8,16 @@ from swamp.parsers import PhenixParser
 class PhenixCC(Wrapper):
     """Wrapper around phenix.get_cc_mtz_pdb
 
-     :param workdir: working directory
-     :type workdir: str, None
-     :param mtzin: file name of the mtz with the phase information to calculate correlation coefficient
-     :type mtzin: str
-     :param pdbin: pdb file name to calculate correlation coefficient
-     :type pdbin: str
-     :param logger: logging interface to be used (default None)
-     :type logger: None, :object:`swamp.logger.swamplogger.SwampLogger`
-     :param silent_start: if True, the logger will not display the start banner (default False)
-     :type silent_start: bool
-     :ivar error: if True an error has occurred along the process
-     :type error: bool
+    :param str workdir: working directory
+    :param str mtzin: file name of the mtz with the phase information to calculate correlation coefficient
+    :param str pdbin: pdb file name to calculate correlation coefficient
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the wrapper (default None)
+    :param bool silent_start: if True, the logger will not display the start banner (default False)
+    :ivar bool error: if True an error has occurred along the process
+    :ivar str ovarall_CC: overall correlation coefficient between the phases in the mtz file and the pdb file
+    :ivar str local_CC: local correlation coefficient between the phases in the mtz file and the pdb file
 
-    :example
+    :example:
 
     >>> from swamp.wrappers import PhenixCC
     >>> my_pehnix = PhenixCC('<workdir>', '<pdbin>', '<mtzin>')
@@ -32,13 +28,14 @@ class PhenixCC(Wrapper):
 
         super(PhenixCC, self).__init__(workdir=workdir, logger=logger, silent_start=silent_start)
 
-        self._overall_CC = "NA"
-        self._local_CC = "NA"
-        self._pdbin = pdbin
-        self._mtzin = mtzin
+        self.overall_CC = "NA"
+        self.local_CC = "NA"
+        self.pdbin = pdbin
+        self.mtzin = mtzin
 
     @property
     def wrapper_name(self):
+        """The name of this wrapper (phenix_cc)"""
         return "phenix_cc"
 
     @property
@@ -53,44 +50,11 @@ class PhenixCC(Wrapper):
 
     @property
     def summary_results(self):
+        """A summary with the obtained figures of merit"""
         return "Results: Local CC - %s   Overall CC - %s" % (self.local_CC, self.overall_CC)
 
-    @property
-    def mtzin(self):
-        return self._mtzin
-
-    @mtzin.setter
-    def mtzin(self, value):
-        self._mtzin = value
-
-    @property
-    def pdbin(self):
-        return self._pdbin
-
-    @pdbin.setter
-    def pdbin(self, value):
-        self._pdbin = value
-
-    @property
-    def local_CC(self):
-        """Local correlation coefficient between the mtz file and the pdb file"""
-        return self._local_CC
-
-    @local_CC.setter
-    def local_CC(self, value):
-        self._local_CC = value
-
-    @property
-    def overall_CC(self):
-        """Overall correlation coefficient between the mtz file and the pdb file"""
-        return self._overall_CC
-
-    @overall_CC.setter
-    def overall_CC(self, value):
-        self._overall_CC = value
-
     def _check_error(self):
-        """Check if errors have occurred during execution"""
+        """Check if errors have occurred during execution of :py:attr:`~swamp.wrappers.phenixcc.PhenixCC.cmd`"""
 
         if not os.path.isfile(self.logfile):
             self.logger.error("No phenix output, aborting!")
@@ -107,7 +71,7 @@ class PhenixCC(Wrapper):
             self.logger.warning("Unable to clean files after phenix.get_cc! Current wd : %s" % self.workdir)
 
     def run(self):
-        """Run the phenix.get_cc_mtz_pdb"""
+        """Run :py:attr:`~swamp.wrappers.phenixcc.PhenixCC.cmd` and store the results"""
 
         # Manage workdirs
         self.make_workdir()
@@ -128,11 +92,11 @@ class PhenixCC(Wrapper):
         os.chdir(current_workdir)
 
     def get_scores(self, logfile=None):
-        """Parse the log file and obtain the local and the overall CC values
+        """Use :py:obj:`~swamp.parsers.phenixparser.PhenixParser` to parse the log file and obtain values for \
+        :py:attr:`~swamp.wrappers.phenixcc.PhenixCC.local_CC` and \
+        :py:attr:`~swamp.wrappers.phenixcc.PhenixCC.overall_CC`
 
-        :param logfile: None
-        :returns nothing
-        :rtype None
+        :param logfile: Not in use
         """
 
         parser = PhenixParser(logger=self.logger, stdout=self.logcontents)

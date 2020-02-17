@@ -14,12 +14,17 @@ class SwampLibrary(object):
     of interest in the library.
 
     :param str workdir: the working directory for this instance. Only used if a library will be created.
-    :param logger: logging interface to be used (default None)
-    :ivar :obj:`pandas.DataFrame` rmsd_matrix: square dataframe with the rmsd distance across framgents in the library
-    :ivar :obj:`pandas.DataFrame` qscore_matrix: square dataframe with the similarity across framgents in the library
-    :ivar :obj:`pandas.DataFrame` nalign_matrix: square dataframe with the no. of aligned residues between framgents in the library
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging instance
+    :ivar `pandas.DataFrame` rmsd_matrix: square dataframe with the rmsd distance across framgents in the library
+    :ivar `pandas.DataFrame` qscore_matrix: square dataframe with the similarity across framgents in the library
+    :ivar `pandas.DataFrame` nalign_matrix: square dataframe with the no. of aligned residues between framgents in the \
+    library
+    :ivar str pdb_library: location of the directory with the pdb files contained in the SWAMP library
+    :ivar str pdbtm_svn: location of the pdbtm svn repository
+    :ivar str outdir: an output directory for any operation of the :py:obj:`~swamp.utils.swamplibrary.SwampLibrary` \
+    instance
 
-    :example
+    :example:
 
     >>> from swamp.utils.swamplibrary import SwampLibrary
     >>> my_library = SwampLibrary('<workdir>')
@@ -33,105 +38,50 @@ class SwampLibrary(object):
     """
 
     def __init__(self, workdir, logger=None):
-        self._workdir = workdir
+        self.workdir = workdir
         self._make_workdir()
         if logger is None:
-            self._logger = SwampLogger(__name__)
+            self.logger = SwampLogger(__name__)
             self.logger.init(logfile=None, use_console=True, console_level='info')
         else:
-            self._logger = logger
-        self._qscore_matrix = None
-        self._nalign_matrix = None
-        self._rmsd_matrix = None
+            self.logger = logger
+        self.qscore_matrix = None
+        self.nalign_matrix = None
+        self.rmsd_matrix = None
+        self.pdb_library = None
+        self.pdbtm_svn = None
+        self.outdir = None
 
     # ------------------ Properties ------------------
 
     @property
-    def logger(self):
-        return self._logger
-
-    @logger.setter
-    def logger(self, value):
-        self._logger = value
-
-    @property
-    def qscore_matrix(self):
-        return self._qscore_matrix
-
-    @qscore_matrix.setter
-    def qscore_matrix(self, value):
-        self._qscore_matrix = value
-
-    @property
-    def rmsd_matrix(self):
-        return self._rmsd_matrix
-
-    @rmsd_matrix.setter
-    def rmsd_matrix(self, value):
-        self._rmsd_matrix = value
-
-    @property
-    def nalign_matrix(self):
-        return self._nalign_matrix
-
-    @nalign_matrix.setter
-    def nalign_matrix(self, value):
-        self._nalign_matrix = value
-
-    @property
-    def pdb_library(self):
-        return self._pdb_library
-
-    @pdb_library.setter
-    def pdb_library(self, value):
-        self._pdb_library = value
-
-    @property
-    def pdbtm_svn(self):
-        return self._pdbtm_svn
-
-    @pdbtm_svn.setter
-    def pdbtm_svn(self, value):
-        self._pdbtm_svn = value
-
-    @property
-    def workdir(self):
-        return self._workdir
-
-    @workdir.setter
-    def workdir(self, value):
-        self._workdir = value
-
-    @property
-    def outdir(self):
-        return self._outdir
-
-    @outdir.setter
-    def outdir(self, value):
-        self._outdir = value
-
-    @property
     def pdbfiles_list(self):
+        """A list of file names in :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.pdb_library`"""
         return [os.path.join(self.pdb_library, fname) for fname in os.listdir(self.pdb_library)]
 
     @property
     def _pdbfname_template(self):
+        """A template file name for pdb files"""
         return os.path.join(self.pdb_library, "{}", "pdb{}.ent.gz")
 
     @property
     def _xmlfname_template(self):
+        """A template file name for xml files"""
         return os.path.join(self.pdbtm_svn, "{}", "{}.xml")
 
     @property
     def _fragfile_template(self):
+        """A template file name for fragment pdb files"""
         return os.path.join(self.pdb_library, '{}.pdb')
 
     @property
     def _library_out_template(self):
+        """A template file name for pdb files with helical pairs"""
         return os.path.join(self.workdir, '{}_{}{}_{}{}.{}')
 
     @property
     def _ensemble_pdbout_template(self):
+        """A template pdb file name for ensemble output files"""
         if self.outdir is None:
             return None
         else:
@@ -139,6 +89,7 @@ class SwampLibrary(object):
 
     @property
     def _centroid_template(self):
+        """A centroid pdb file name template"""
         if self.outdir is None:
             return None
         else:
@@ -147,12 +98,11 @@ class SwampLibrary(object):
     # ------------------ Hidden methods ------------------
 
     def _is_valid_entry(self, pdbcode):
-        """Method to check if the required files are present in the pdb and pdbtm libraries for a given pdb code
+        """For a given pdb code, check if there is a PDB and a XML file in the \
+        :py:attr:`~swamp.utils.swamplibrary.pdb_library` and :py:attr:`~swamp.utils.swamplibrary.pdbtm_svn` respectively
 
-        :param pdbcode: the pdb code of interest
-        :type pdbcode: str
-        :returns True if all the files are present
-        :rtype bool
+        :param str pdbcode: the pdb code of interest
+        :returns: True if all the files are present (bool)
         """
 
         if not os.path.isfile(self._pdbfname_template.format(pdbcode[1:3], pdbcode)):
@@ -164,11 +114,9 @@ class SwampLibrary(object):
         return True
 
     def _make_workdir(self):
-        """Method to crete the working directory for the wrapper
+        """Create the :py:attr:`~swamp.utils.swamplibrary.workdir`
 
-        :returns nothing
-        :rtype None
-        :raises ValueError if the workdir is set to None
+        :raises ValueError: if :py:attr:`~swamp.utils.swamplibrary.workdir` is None
         """
 
         if self.workdir is None:
@@ -178,13 +126,13 @@ class SwampLibrary(object):
             os.mkdir(self.workdir)
 
     def _determine_orientation(self, frag_ids):
-        """For a given set of fragment ids, determine the optimal orientation to ensemble them and return the list
+        """For a given set of fragment ids, determine the optimal orientation to ensemble them and return the tuple of \
+        file names
 
         :param frag_ids: a list with the fragment ids of interest
         :type frag_ids: list, tuple
-        :returns best qscore obtained with the optimal structural alignment
-        :rtype float
-        :raises ValueError if there are less than 2 fragments in the input list
+        :returns: a tuple with the file names of the alignment that scored the highest qscore (tuple)
+        :raises ValueError: if there are less than 2 fragments in the input list
         """
 
         if len(frag_ids) < 2:
@@ -206,12 +154,12 @@ class SwampLibrary(object):
     # ------------------ Public methods ------------------
 
     def remove_homologs(self, pdb_ids_to_remove):
-        """Method to remove fragments originating from homolog structures out of the distance dataframes
+        """Remove fragments originating from a set of pdb structures out of \
+        :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.qscore_matrix`, \
+        :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.rmsd_matrix`, \
+        :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.nalign_matrix`
 
-        :argument pdb_ids_to_remove: list with the pdb codes of homolog structures to be removed
-        :type pdb_ids_to_remove: tuple, list
-        :returns no value
-        :rtype None
+        :argument tuple pdb_ids_to_remove: tuple with the pdb codes of the structures to be removed
         """
 
         # Detect the fragments comming from homolog structures (convert everything to lower case)
@@ -229,15 +177,15 @@ class SwampLibrary(object):
         self.nalign_matrix.drop(frag_ids_to_remove, 1, inplace=True)
 
     def create_distance_mtx(self, gesamt_dir):
-        """Method to create the distance matrices for the library.
+        """Create the square distance matrices for the library: \
+        :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.qscore_matrix`, \
+        :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.rmsd_matrix` and \
+        :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.nalign_matrix`
 
-        Requires a the all vs all gesamt search results. The distance matrices contain the optimal structural
-        alignment between every set of fragments present in the lirbary.
+        Requires the :py:func:`~swamp.utils.swamplibrary.SwampLibrary.all_vs_all_gesamt` results. The distance \
+        matrices contain the optimal structural alignment between every set of fragments present in the library.
 
-        :param gesamt_dir: directory containing the .hit files resulting from the all vs all gesamt search results
-        :type gesamt_dir: str
-        :returns nothing
-        :rtype None
+        :param str gesamt_dir: directory containing the .hit files resulting from the all vs all gesamt search results
         """
 
         frag_dict = self._get_frag_id_dict(gesamt_dir)
@@ -292,18 +240,13 @@ class SwampLibrary(object):
         self.nalign_matrix = self.rename_axis(self.nalign_matrix)
         self.qscore_matrix = self.rename_axis(self.qscore_matrix)
 
-    def make_library(self, outdir, pdb_codes):
-        """Method to create the SWAMP library
+    def make_library(self, pdb_codes):
+        """Create the pdb files for each contacting TM helical pair in detected with the information at \
+        :py:attr:`~swamp.utils.swamplibrary.pdb_library` and  :py:attr:`~swamp.utils.swamplibrary.pdbtm_svn`. Files \
+        will be created at :py:attr:`~swamp.utils.swamplibrary.workdir`
 
-        :param outdir: the output directory where the library will be created
-        :type outdir: str
-        :param pdb_codes: a list with the pdbcodes that will be included to the library
-        :returns nothing
-        :rtype None
+        :param list pdb_codes: a list with the pdb codes that will be included to the library
         """
-
-        self.workdir = outdir
-        self._make_workdir()
 
         for idx, entry in enumerate(pdb_codes):
 
@@ -380,16 +323,15 @@ class SwampLibrary(object):
                                                               helix_a.chain, "aleigen"), "aleigen", inverted_cmap)
 
     def all_vs_all_gesamt(self, inputdir, outdir, nthreads=1):
-        """Method to run all vs all gesamt with the components of the library. Required to obtain the distance matrices
+        """For each the members of the library, obtain the distance with all the others. This step is required to \
+        obtain the distance matrices: :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.qscore_matrix`, \
+        :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.rmsd_matrix` and \
+        :py:attr:`~swamp.utils.swamplibrary.SwampLibrary.nalign_matrix`
 
-        :param inputdir: the input directory with the pdb files of the fragments in the library
-        :type inputdir: str
-        :param outdir: the output directory where the .hit files will be created
-        :type outdir: str
-        :param nthreads: number of threads to be used in the gesamt search search (default 1)
-        :type nthreads: int
-        :returns nothing
-        :rtype None
+        :param str inputdir: the input directory with the pdb files created by \
+        :py:func:`~swamp.utils.swamplibrary.SwampLibrary.make_library`
+        :param str outdir: the output directory where the .hit files will be created
+        :param int nthreads: number of threads to be used in the gesamt archive scan (default 1)
         """
 
         # Make the archive
@@ -413,12 +355,10 @@ class SwampLibrary(object):
 
     @staticmethod
     def rename_axis(df):
-        """Method to rename the axis of a dataframe so that the row names are the unique frag_id
+        """Rename the axis of a `pandas.DataFrame` so that the row names correspond with the column names
 
-        :param df: the dataframe to be renamed
-        :type df: :obj:`pandas.DataFrame`
-        :returns renamed dataframe
-        :rtype :obj:`pandas.DataFrame`
+        :param `pandas.DataFrame` df: the dataframe to be renamed
+        :returns: renamed dataframe (`pandas.DataFrame`)
         """
 
         new_rownames = {}
@@ -430,17 +370,15 @@ class SwampLibrary(object):
 
     @staticmethod
     def _get_unique_frag_id(frag_id):
-        """Method to get the unique fragment id for a given fragment.
+        """For a given fragment id (pdb_tmhelix_tmhelix) obtain the unique fragment id (tmhelix fields are sorted)
 
          The unique id corresponds with the pdb code of the structure where the fragment was found, plus the sorted
          indeces of the two TM helices that form the fragment. This fragment id serves as an unique pointer for each
          component of the library.
 
-         :param frag_id: the fragment id of interest
-         :type frag_id: str
-         :returns unique fragment id
-         :rtype str
-         :raises ValueError if the fragment id has more than 3 components
+         :param str frag_id: the fragment id of interest
+         :returns: unique fragment id (str)
+         :raises ValueError: if the fragment id has more than 3 components
          """
 
         frag_id = frag_id.split("_")
@@ -453,13 +391,11 @@ class SwampLibrary(object):
     def _get_reciprocal_id(frag_id):
         """Method to get the reciprocal fragment id.
 
-        A reciprocal fragment is is corresponds with the same fragment id, but the order at which the TM helices appear
+        A reciprocal fragment corresponds with the same fragment id, but the order at which the TM helices appear
         at the sequence the fragment has been inverted.
 
-        :param frag_id: fragment id of interest
-        :type frag_id: str
-        :returns reciprocal id where the helical order is inverted
-        :rtype str
+        :param str frag_id: fragment id of interest
+        :returns: reciprocal id where the helical order is inverted (str)
         """
 
         frag_id = frag_id.split("_")
@@ -470,14 +406,12 @@ class SwampLibrary(object):
 
     @staticmethod
     def _get_frag_id_dict(gesamt_dir):
-        """Method to get all the frag_ids in a given gesamt search dir.
+        """In a directory full of gesamt .hit files, parse all the fragment ids and their hit files into a dictionary
 
         It will compute both orientations into a dictionary where the key is the unique frag id
 
-        :param gesamt_dir: directory where the .hit files are located
-        :type gesamt_dir: str
-        :returns a dictionary with the unique fragment id as key and the hit filename as values
-        :rtype dict
+        :param str gesamt_dir: directory where the .hit files are located
+        :returns: a dictionary with the unique fragment id as key and a list with the hit filenames as values
         """
 
         result = {}
@@ -497,12 +431,10 @@ class SwampLibrary(object):
 
     @staticmethod
     def parse_nr_listfile(fname):
-        """Method to parse the nr_list and get the PDB_ID and Chain_ID as a nested list
+        """Method to parse a file with pdb structures listed as PDB:CHAIN into a nested list
 
-        :param fname: file name of the non redundant list of pdb codes
-        :type fname: str
-        :returns nested list where each element contains the non-redundant pdb code and chain name
-        :rtype list
+        :param str fname: file name with the list to be parsed
+        :returns: a nested list where each element contains the non-redundant pdb code and chain name (list)
         """
 
         nr_pdbIDsChains = []

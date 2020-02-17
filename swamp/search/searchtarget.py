@@ -35,14 +35,14 @@ class SearchTarget(object):
     :param str python_interpreter: python interpreter to be used for task execution (default '$CCP4/bin/ccp4-python')
     :ivar str shell_interpreter: shell interpreter to be used for task execution (default '/bin/bash')
     :ivar bool error: True if errors have occurred at some point in the pipeline
-    :ivar :py:obj:`~swamp.utils.targetsplit.TargetSplit` target: contains information about the target and subtargets
+    :ivar `~swamp.utils.targetsplit.TargetSplit` target: contains information about the target and subtargets
     :ivar dict con_precision_dict: a dictionary with the contact precission for each given subtarget prediction
     :ivar dict search_pickle_dict: a dictionary with the :py:attr:`~swamp.search.searchjob.SearchJob.pickle_fname` \
      created by each :py:obj:`~swamp.search.searchjob.SearchJob` instance in this search
     :ivar list results: a nested list with the results obtained in the search againts the library
     :ivar list scripts: a list with the instances of :py:obj:`pyjob.Script` that will be executed to complete the search
-    :ivar :py:obj:`pandas.DataFrame` ranked_searchmodels: a dataframe with the search models ranked by the CMO \
-    obtained in the search
+    :ivar `pandas.DataFrame` ranked_searchmodels: a dataframe with the search models ranked by the CMO obtained in the \
+    search
 
     :example:
 
@@ -283,7 +283,7 @@ class SearchTarget(object):
         """Recover the results from all the :py:attr:`~swamp.search.searchjob.SearchJob.pickle_fname` indicated in \
         :py:attr:`~swamp.search.searchtarget.SearchTargert.search_pickle_dict`
 
-        :returns a list with the results loaded from the pickle files at \
+        :returns: a list with the results loaded from the pickle files at \
         :py:attr:`~swamp.search.searchtarget.SearchTargert.search_pickle_dict`
         """
 

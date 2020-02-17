@@ -52,12 +52,12 @@ class TargetSplit(object):
     @property
     def _possible_helical_pairs(self):
         """List of all possible TM helical pair combinations as indicated in \
-        :py:attr:`swamp.utils.targetsplit.TargetSplit.sspred`"""
+        :py:attr:`~swamp.utils.targetsplit.TargetSplit.sspred`"""
         return list(itertools.combinations(self.sspred.tmhelices.id, 2))
 
     @property
     def ranked_subtargets(self):
-        """A list of the :py:attr:`swamp.utils.targetsplit.TargetSplit.subtargets` sorted according to the number of \
+        """A list of the :py:attr:`~swamp.utils.targetsplit.TargetSplit.subtargets` sorted according to the number of \
         interhelical contacts"""
 
         if self.subtargets is None:
@@ -79,8 +79,8 @@ class TargetSplit(object):
     @property
     def subtargets_pdb(self):
         """List containing the :py:obj:`gemmi.Structure` hierarchies of the \
-        :py:attr:`swamp.utils.targetsplit.TargetSplit.subtargets`. Not None only if \
-        :py:attr:`swamp.utils.targetsplit.TargetSplit.pdb_benchmark` is not None"""
+        :py:attr:`~swamp.utils.targetsplit.TargetSplit.subtargets`. Not None only if \
+        :py:attr:`~swamp.utils.targetsplit.TargetSplit.pdb_benchmark` is not None"""
 
         if self.pdb_benchmark is None or self.subtargets is None:
             return None

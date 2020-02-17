@@ -14,16 +14,11 @@ class Wrapper(ABC):
 
     :param workdir: working directory
     :type workdir: str, None
-    :param silent_start: if True, the logger will not display the start banner (default False)
-    :type silent_start: bool
-    :param logger: logging interface to be used (default None)
-    :type logger: None, :object:`swamp.logger.swamplogger.SwampLogger`
-    :ivar error: if True an error has occurred along the process
-    :type error: bool
-    ivar logcontents: stores the contents of the log file or stdout
-    :type logcontents: str
-    :ivar logfile: file name where the logcontents should be written
-    type logfile: str
+    :param bool silent_start: if True, the logger will not display the start banner (default False)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the wrapper (default None)
+    :ivar bool error: if True an error has occurred along the process
+    :ivar str logcontents: stores the contents of the log file or stdout
+    :ivar str logfile: file name where the logcontents should be written
     """
 
     def __init__(self, workdir=None, logger=None, silent_start=False):

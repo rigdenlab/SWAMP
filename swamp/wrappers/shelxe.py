@@ -10,40 +10,29 @@ from swamp.wrappers.mtz2various import Mtz2Various
 class Shelxe(Wrapper):
     """Wrapper around shelxe
 
-     :param workdir: working directory
-     :type workdir: str, None
-     :param mtzin: target structure mtz file name
-     :type mtzin: str
-     :param pdbin: pdb file name with the refined search model
-     :type pdbin: str
-     :param solvent: estimated solvent content for the crystal (default 0.45)
-     :type solvent: str
-     :param autotracing_ncyc: number of autotracing cycles to run
-     :type autotracing_ncyc: str
-     :param density_modif_ncyc: number of density modification cycles to run
-     :type density_modif_ncyc: str
-     :param use_f: if True use F labels in the mtz file
-     :type use_f: bool
-     :param prune_residues: if True set -o option (default True)
-     :type prune_residues: bool
-     :param apply_ncs: sets parameter -n (default True)
-     :type apply_ncs: bool
-     :param init_time: parameter to set -t (default True)
-     :type init_time: str
-     :param nreflections: number of reflections in the mtz file (default 40000)
-     :type nreflections: int
-     :param alphahelix: if True sets the -t parameter (default True)
-     :type alphahelix: bool
-     :param resolution: resolution of the data in the mtz file (default 2.0)
-     :type resolution: float
-     :param silent_start: if True, the logger will not display the start banner (default False)
-     :type silent_start: bool
-     :param logger: logging interface to be used (default None)
-     :type logger: None, :object:`swamp.logger.swamplogger.SwampLogger`
-     :ivar error: if True an error has occurred along the process
-     :type error: bool
+    :param str workdir: working directory
+    :param str mtzin: target structure mtz file name
+    :param str pdbin: pdb file name with the refined search model
+    :param str solvent: estimated solvent content for the crystal (default 0.45)
+    :param str autotracing_ncyc: number of autotracing cycles to run
+    :param str density_modif_ncyc: number of density modification cycles to run
+    :param bool bool use_f: if True use F labels in the mtz file
+    :param bool prune_residues: if True set -o option (default True)
+    :param bool apply_ncs: sets parameter -n (default True)
+    :param str init_time: parameter to set -t (default True)
+    :param int nreflections: number of reflections in the mtz file (default 40000)
+    :param bool alphahelix: if True sets the -t parameter (default True)
+    :param float resolution: resolution of the data in the mtz file (default 2.0)
+    :param bool silent_start: if True, the logger will not display the start banner (default False)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the wrapper (default None)
+    :ivar bool error: if True an error has occurred along the process
+    :ivar str cc_eobs_ecalc: the correlation coeff. between Eobs and Ecalc
+    :ivar str cc: correlation coeff. obtained with the best tracing cycle
+    :ivar str acl: average chain length obtained with the best tracing cycle
+    :ivar str average_cc_delta: the average delta of correlation coeff. between tracing cycles
+    :ivar str solution: 'YES' if correlation coeff > 25 otherwise 'NO'
 
-    :examples
+    :examples:
 
     >>> from swamp.wrappers import Shelxe
     >>> my_shelxe = Shelxe('<workdir>', '<mtzin>', '<pdbin>')
@@ -58,30 +47,32 @@ class Shelxe(Wrapper):
 
         super(Shelxe, self).__init__(workdir=workdir, logger=logger, silent_start=silent_start)
 
-        self._cc_eobs_ecalc = "NA"
-        self._cc = "NA"
-        self._acl = "NA"
-        self._average_cc_delta = "NA"
-        self._solution = "NO"
-        self._pdbin = pdbin
-        self._solvent = solvent
-        self._autotracing_ncyc = autotracing_ncyc
-        self._density_modif_ncyc = density_modif_ncyc
-        self._prune_residues = prune_residues
-        self._apply_ncs = apply_ncs
-        self._init_time = init_time
-        self._nreflections = nreflections
-        self._use_f = use_f
-        self._resolution = resolution
-        self._alphahelix = alphahelix
-        self._mtzin = mtzin
+        self.cc_eobs_ecalc = "NA"
+        self.cc = "NA"
+        self.acl = "NA"
+        self.average_cc_delta = "NA"
+        self.solution = "NO"
+        self.pdbin = pdbin
+        self.solvent = solvent
+        self.autotracing_ncyc = autotracing_ncyc
+        self.density_modif_ncyc = density_modif_ncyc
+        self.prune_residues = prune_residues
+        self.apply_ncs = apply_ncs
+        self.init_time = init_time
+        self.nreflections = nreflections
+        self.use_f = use_f
+        self.resolution = resolution
+        self.alphahelix = alphahelix
+        self.mtzin = mtzin
 
     @property
     def wrapper_name(self):
+        """The name of this wrapper (shelxe)"""
         return "shelxe"
 
     @property
     def cmd(self):
+        """Command to be executed on the shell"""
         return ["shelxe", os.path.basename(self.input_pda)] + [x for x in self.keywords.split()]
 
     @property
@@ -104,165 +95,30 @@ class Shelxe(Wrapper):
         return keywrds
 
     @property
-    def autotracing_ncyc(self):
-        return self._autotracing_ncyc
-
-    @autotracing_ncyc.setter
-    def autotracing_ncyc(self, value):
-        self._autotracing_ncyc = value
-
-    @property
-    def density_modif_ncyc(self):
-        return self._density_modif_ncyc
-
-    @density_modif_ncyc.setter
-    def density_modif_ncyc(self, value):
-        self._density_modif_ncyc = value
-
-    @property
-    def prune_residues(self):
-        return self._prune_residues
-
-    @prune_residues.setter
-    def prune_residues(self, value):
-        self._prune_residues = value
-
-    @property
-    def apply_ncs(self):
-        return self._apply_ncs
-
-    @apply_ncs.setter
-    def apply_ncs(self, value):
-        self._apply_ncs = value
-
-    @property
-    def nreflections(self):
-        return self._nreflections
-
-    @nreflections.setter
-    def nreflections(self, value):
-        self._nreflections = value
-
-    @property
-    def alphahelix(self):
-        return self._alphahelix
-
-    @alphahelix.setter
-    def alphahelix(self, value):
-        self._alphahelix = value
-
-    @property
-    def use_f(self):
-        return self._use_f
-
-    @use_f.setter
-    def use_f(self, value):
-        self._use_f = value
-
-    @property
-    def resolution(self):
-        return self._resolution
-
-    @resolution.setter
-    def resolution(self, value):
-        self._resolution = value
-
-    @property
-    def pdbin(self):
-        return self._pdbin
-
-    @pdbin.setter
-    def pdbin(self, value):
-        self._pdbin = value
-
-    @property
-    def init_time(self):
-        return self._init_time
-
-    @init_time.setter
-    def init_time(self, value):
-        self._init_time = value
-
-    @property
-    def solvent(self):
-        return self._solvent
-
-    @solvent.setter
-    def solvent(self, value):
-        self._solvent = value
-
-    @property
-    def cc_eobs_ecalc(self):
-        return self._cc_eobs_ecalc
-
-    @cc_eobs_ecalc.setter
-    def cc_eobs_ecalc(self, value):
-        self._cc_eobs_ecalc = value
-
-    @property
-    def cc(self):
-        return self._cc
-
-    @cc.setter
-    def cc(self, value):
-        self._cc = value
-
-    @property
-    def acl(self):
-        return self._acl
-
-    @acl.setter
-    def acl(self, value):
-        self._acl = value
-
-    @property
-    def mtzin(self):
-        return self._mtzin
-
-    @mtzin.setter
-    def mtzin(self, value):
-        self._mtzin = value
-
-    @property
-    def solution(self):
-        return self._solution
-
-    @solution.setter
-    def solution(self, value):
-        self._solution = value
-
-    @property
-    def average_cc_delta(self):
-        return self._average_cc_delta
-
-    @average_cc_delta.setter
-    def average_cc_delta(self, value):
-        self._average_cc_delta = value
-
-    @property
     def input_pda(self):
+        """The input .pda file name for shelxe"""
         return os.path.join(self.workdir, "shelxe-input.pda")
 
     @property
     def input_hkl(self):
+        """The input .hkl file name for shelxe"""
         return os.path.join(self.workdir, "shelxe-input.hkl")
 
     @property
     def output_pdb(self):
+        """The output .pdb file name created by shelxe"""
         return os.path.join(self.workdir, "shelxe-input.pdb")
 
     @property
     def summary_results(self):
-        """String with a summary of the figures of merit obtained"""
+        """String representation of a summary of the figures of merit obtained"""
         return "Shelxe results: CC - %s   ACL - %s   SOLUTION - %s\n" % (self.cc, self.acl, self.solution)
 
     def get_scores(self, logfile=None):
-        """Extract the figures of merit from the logfile and the pdb output file
+        """Extract the figures of merit from the logfile and the pdb output file using \
+        :py:obj:`~swamp.parsers.shelxeparser.ShelxeParser`
 
-        :param logfile: Not in use (default None)
-        :type logfile: None
-        :returns nothing
-        :rtype None
+        :param None logfile: Not in use (default None)
         """
 
         parser = ShelxeParser(fname=self.output_pdb, stdout=self.logcontents, logger=self.logger)
@@ -270,7 +126,7 @@ class Shelxe(Wrapper):
         self.cc, self.acl, self.cc_eobs_ecalc, self.average_cc_delta, self.solution = parser.summary
 
     def run(self):
-        """Run shelxe on the shell"""
+        """Run :py:attr:`~swamp.wrappers.shelxe.Shelxe.cmd` and store the results"""
 
         if not self.silent_start:
             self.logger.info(self.wrapper_header)

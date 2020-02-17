@@ -1,9 +1,9 @@
 import os
 import shutil
 import collections
-from swamp.searchmodel import PolyALA
 from swamp.wrappers.wrapper import Wrapper
 from swamp.wrappers.wrefmac import wRefmac
+from swamp.searchmodel.polyala import PolyALA
 from swamp.parsers import MtzParser, PhaserParser
 from phaser import InputMR_DAT, runMR_DAT, InputMR_AUTO, runMR_AUTO
 
@@ -13,46 +13,40 @@ class Phaser(Wrapper):
 
     Class with methods to execute phaser and datas tructures to contain the obtained results
 
-     :param workdir: working directory
-     :type workdir: str, None
-     :param mtzfile: target structure mtz file name
-     :type mtzfile: str
-     :param mw: molecular weigth of the target structure
-     :type mw: int
-     :param nchains_asu: number of chains found in the assymetric unit (default 1)
-     :type nchains_asu: int
-     :param sgalternative: parameter to be passed to phaser as SGAL_SELE (default 'NONE')
-     :type sgalternative: str
-     :param early_kill: if True will send signal to abort the run if the figures of merit are to low (default True)
-     :type early_kill: bool
-     :param timeout: set a limit kill time for phaser execution (default 360)
-     :type timeout: int
-     :param threads: number of threads to be used with phasern(default 1)
-     :type threads: int
-     :param packcutoff: parameter to be passed to phaser as setPACK_CUTO (default None)
-     :type packcutoff: float, None
-     :param peaks_rotcutoff: parameter to be passed to phaser as setPEAK_ROTA_CUTO (default None)
-     :type peaks_rotcutoff: float, None
-     :param phased_mtz: target's mtz filename containing phases (default: None)
-     :type phased_mtz: str
-     :param silent_start: if True, the logger will not display the start banner (default False)
-     :type silent_start: bool
-     :param logger: logging interface to be used (default None)
-     :type logger: None, :object:`swamp.logger.swamplogger.SwampLogger`
-     :ivar LLG: LLG of the placed search model
-     :type LLG: str
-     :ivar TFZ: TFZ of the placed search model
-     :type TFZ: str
-     :ivar RFZ: RFZ of the placed search model
-     :type RFZ: str
-     :ivar VRMS: VRMS calculated for the placed search model
-     :type VRMS: str
-     :ivar eLLG: eLLG calculated for the search model
-     :type eLLG: str
-     :ivar error: if True an error has occurred along the process
-     :type error: bool
+    :param str workdir: working directory
+    :param srt mtzfile: target structure mtz file name
+    :param int mw: molecular weigth of the target structure
+    :param int nchains_asu: number of chains found in the assymetric unit (default 1)
+    :param str sgalternative: parameter to be passed to phaser as \
+    :py:func:`phaser.InputMR_AUTO.SGAL_SELE` (default 'NONE')
+    :param bool early_kill: if True will send signal to abort the run if the figures of merit are to low (default True)
+    :param int timeout: set a limit kill time for phaser execution (default 360)
+    :param int threads: number of threads to be used with phaser (default 1)
+    :param packcutoff: parameter to be passed to phaser as :py:func:`phaser.InputMR_AUTO.setPACK_CUTO` (default None)
+    :type packcutoff: float, None
+    :param peaks_rotcutoff: parameter to be passed to phaser as :py:func:`phaser.InputMR_AUTO.setPEAK_ROTA_CUTO`\
+     (default None)
+    :type peaks_rotcutoff: float, None
+    :param str phased_mtz: target's mtz filename containing phases (default: None)
+    :param bool silent_start: if True, the logger will not display the start banner (default False)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the wrapper (default None)
+    :ivar str LLG: LLG of the placed search model
+    :ivar str TFZ: TFZ of the placed search model
+    :ivar str RFZ: RFZ of the placed search model
+    :ivar str VRMS: VRMS calculated for the placed search model
+    :ivar str eLLG: eLLG calculated for the search model
+    :ivar bool error: if True an error has occurred along the process
+    :ivar bool abort_suggested: if True the figures of merit are low and it is suggested to abort \
+    :py:obj:`~swamp.mr.mrrun.MrRun`
+    :ivar str ovarall_CC: overall correlation coefficient between phases at \
+    :py:attr:`~swamp.wrappers.wphaser.Phaser.phased_mtz` and the placed search model
+    :ivar str local_CC: local correlation coefficient between phases at \
+    :py:attr:`~swamp.wrappers.wphaser.Phaser.phased_mtz` and the placed search model
+    :ivar tuple solution: a named tuple with information about an already existing solution
+    :ivar list searchmodel_ids_list: a list with the search model identifiers
+    :ivar dict searchmodel_dict: a dictionary with the search model information
 
-     :examples
+    :example:
 
     >>> from swamp.wrappers import Phaser
     >>> my_phaser = Phaser('<workdir>', '<mtzfile>', <mw>)
@@ -66,32 +60,31 @@ class Phaser(Wrapper):
 
         super(Phaser, self).__init__(logger=logger, workdir=workdir, silent_start=silent_start)
 
-        self._failure = None
-        self._abort_suggested = False
-        self._RFZ = "NA"
-        self._TFZ = "NA"
-        self._LLG = "NA"
-        self._eLLG = "NA"
-        self._VRMS = "NA"
-        self._local_CC = "NA"
-        self._overall_CC = "NA"
-        self._phased_mtz = phased_mtz
-        self._input_mr_dat = None
-        self._input_mr_auto = None
-        self._run_mr_auto = None
-        self._run_mr_dat = None
-        self._early_kill = early_kill
-        self._threads = threads
-        self._timeout = timeout
-        self._solution = None
-        self._mtzfile = mtzfile
-        self._sgalternative = sgalternative
-        self._nchains_asu = nchains_asu
-        self._mw = mw
-        self._packcutoff = packcutoff
-        self._peaks_rotcutoff = peaks_rotcutoff
-        self._searchmodel_dict = {}
-        self._searchmodel_ids_list = []
+        self.abort_suggested = False
+        self.RFZ = "NA"
+        self.TFZ = "NA"
+        self.LLG = "NA"
+        self.eLLG = "NA"
+        self.VRMS = "NA"
+        self.local_CC = "NA"
+        self.overall_CC = "NA"
+        self.phased_mtz = phased_mtz
+        self.input_mr_dat = None
+        self.input_mr_auto = None
+        self.run_mr_auto = None
+        self.run_mr_dat = None
+        self.early_kill = early_kill
+        self.threads = threads
+        self.timeout = timeout
+        self.solution = None
+        self.mtzfile = mtzfile
+        self.sgalternative = sgalternative
+        self.nchains_asu = nchains_asu
+        self.mw = mw
+        self.packcutoff = packcutoff
+        self.peaks_rotcutoff = peaks_rotcutoff
+        self.searchmodel_dict = {}
+        self.searchmodel_ids_list = []
 
     def __getstate__(self):
         d = dict(self.__dict__)
@@ -108,253 +101,58 @@ class Phaser(Wrapper):
 
     @property
     def keywords(self):
+        """No keywords passed to phaser through stdin"""
         return None
 
     @property
     def cmd(self):
+        """No command run through the shell to execute phaser"""
         return None
 
     @property
     def wrapper_name(self):
+        """The name of this wrapper (phaser)"""
         return "phaser"
 
     @property
     def logfile(self):
+        """Log file name with the logging contents of phaser"""
         return os.path.join(self.workdir, 'phaser_PDB_{}_out.log')
 
     @property
     def summary_results(self):
+        """A string representation of a summary of the figures of merit"""
         return "Phaser results: LLG - %s   TFZ - %s   Local CC - %s   Overall CC - %s" % (
             self.LLG, self.TFZ, self.local_CC, self.overall_CC)
 
     @property
     def pdbout_tmp(self):
+        """A temporary pdb output file name template for placed search models"""
         return os.path.join(self.workdir, 'phaser_PDB_{}_out.pdb')
 
     @property
-    def mtzfile(self):
-        return self._mtzfile
-
-    @mtzfile.setter
-    def mtzfile(self, value):
-        self._mtzfile = value
-
-    @property
-    def packcutoff(self):
-        return self._packcutoff
-
-    @packcutoff.setter
-    def packcutoff(self, value):
-        self._packcutoff = value
-
-    @property
-    def peaks_rotcutoff(self):
-        return self._peaks_rotcutoff
-
-    @peaks_rotcutoff.setter
-    def peaks_rotcutoff(self, value):
-        self._peaks_rotcutoff = value
-
-    @property
-    def mw(self):
-        return self._mw
-
-    @mw.setter
-    def mw(self, value):
-        self._mw = value
-
-    @property
-    def sgalternative(self):
-        return self._sgalternative
-
-    @sgalternative.setter
-    def sgalternative(self, value):
-        self._sgalternative = value
-
-    @property
-    def nchains_asu(self):
-        return self._nchains_asu
-
-    @nchains_asu.setter
-    def nchains_asu(self, value):
-        self._nchains_asu = value
-
-    @property
     def refined_solutions_dir(self):
+        """A directory where placed search models will be refined"""
         return os.path.join(self.workdir, 'refined_solutions')
 
     @property
     def refmac_pdbout(self):
+        """A pdb output file name template for refined search models"""
         return os.path.join(self.refined_solutions_dir, 'refined_PDB_{}_out.pdb')
 
     @property
     def refmac_logfile(self):
+        """A log file name template for placed search models"""
         return os.path.join(self.refined_solutions_dir, 'refined_PDB_{}_out.log')
 
     @property
-    def phased_mtz(self):
-        return self._phased_mtz
-
-    @phased_mtz.setter
-    def phased_mtz(self, value):
-        self._phased_mtz = value
-
-    @property
-    def threads(self):
-        return self._threads
-
-    @threads.setter
-    def threads(self, value):
-        self._threads = value
-
-    @property
-    def timeout(self):
-        return self._timeout
-
-    @timeout.setter
-    def timeout(self, value):
-        self._timeout = value
-
-    @property
-    def early_kill(self):
-        return self._early_kill
-
-    @early_kill.setter
-    def early_kill(self, value):
-        self._early_kill = value
-
-    @property
-    def input_mr_dat(self):
-        return self._input_mr_dat
-
-    @input_mr_dat.setter
-    def input_mr_dat(self, value):
-        self._input_mr_dat = value
-
-    @property
-    def input_mr_auto(self):
-        return self._input_mr_auto
-
-    @input_mr_auto.setter
-    def input_mr_auto(self, value):
-        self._input_mr_auto = value
-
-    @property
-    def run_mr_auto(self):
-        return self._run_mr_auto
-
-    @run_mr_auto.setter
-    def run_mr_auto(self, value):
-        self._run_mr_auto = value
-
-    @property
-    def run_mr_dat(self):
-        return self._run_mr_dat
-
-    @run_mr_dat.setter
-    def run_mr_dat(self, value):
-        self._run_mr_dat = value
-
-    @property
-    def solution(self):
-        return self._solution
-
-    @solution.setter
-    def solution(self, value):
-        self._solution = value
-
-    @property
     def root(self):
+        """Root file name to be used with phaser"""
         return "%s_phaser" % os.path.basename(self.mtzfile[:-4])
 
     @property
-    def abort_suggested(self):
-        """True if the figures of merit are low and the search model is likely to be incorrectly placed"""
-        return self._abort_suggested
-
-    @abort_suggested.setter
-    def abort_suggested(self, value):
-        self._abort_suggested = value
-
-    @property
-    def RFZ(self):
-        return self._RFZ
-
-    @RFZ.setter
-    def RFZ(self, value):
-        self._RFZ = value
-
-    @property
-    def TFZ(self):
-        return self._TFZ
-
-    @TFZ.setter
-    def TFZ(self, value):
-        self._TFZ = value
-
-    @property
-    def LLG(self):
-        return self._LLG
-
-    @LLG.setter
-    def LLG(self, value):
-        self._LLG = value
-
-    @property
-    def eLLG(self):
-        return self._eLLG
-
-    @eLLG.setter
-    def eLLG(self, value):
-        self._eLLG = value
-
-    @property
-    def VRMS(self):
-        return self._VRMS
-
-    @VRMS.setter
-    def VRMS(self, value):
-        self._VRMS = value
-
-    @property
-    def local_CC(self):
-        """local CC obtained with this phaser run (not None only if pdb benchmark file is provided)"""
-        return self._local_CC
-
-    @local_CC.setter
-    def local_CC(self, value):
-        self._local_CC = value
-
-    @property
-    def overall_CC(self):
-        """overall CC obtained with this phaser run (not None only if pdb benchmark file is provided)"""
-        return self._overall_CC
-
-    @overall_CC.setter
-    def overall_CC(self, value):
-        self._overall_CC = value
-
-    @property
-    def searchmodel_dict(self):
-        """Dictionary of search models to be used in the run, keys correspond with their unique id"""
-        return self._searchmodel_dict
-
-    @searchmodel_dict.setter
-    def searchmodel_dict(self, value):
-        self._searchmodel_dict = value
-
-    @property
-    def searchmodel_ids_list(self):
-        """List of search models to be used in the phaser run"""
-        return self._searchmodel_ids_list
-
-    @searchmodel_ids_list.setter
-    def searchmodel_ids_list(self, value):
-        self._searchmodel_ids_list = value
-
-    @property
     def top_searchmodel(self):
-        """First search model of the list"""
+        """First search model at :py:attr:`~swamp.wrappers.wphaser.Phaser.searchmodel_ids_list`"""
         if len(self.searchmodel_ids_list) == 0:
             return None
         else:
@@ -375,16 +173,10 @@ class Phaser(Wrapper):
     def register_solution(self, pdbfile, ermsd=None, ident=None, sol_fname=None):
         """Add information for an already existing solution
 
-        :param pdbfile: the pdb file name with the existing solution
-        :type pdbfile: str
-        :param ermsd: the eRMSD used to obtain this particular solution
-        :type ermsd: float
-        :param ident: the identity used to obtain this particular solution
-        :type ident: float
-        :param sol_fname: the .sol file for this solution
-        :type sol_fname: str
-        :returns nothing
-        :rtype None
+        :param str pdbfile: the pdb file name with the existing solution
+        :param float ermsd: the eRMSD used to obtain this particular solution
+        :param float ident: the identity used to obtain this particular solution
+        :param str sol_fname: the .sol file for this solution
         """
 
         self.solution = self.solution_infotemplate(pdbfile=pdbfile, ermsd=ermsd, ident=ident, sol_fname=sol_fname)
@@ -392,18 +184,11 @@ class Phaser(Wrapper):
     def add_searchmodel(self, pdbfile, id, ermsd=0.1, nsearch=1, disable_check=True):
         """Add a search model to the phaser run
 
-        :param pdbfile: the pdb file name with the search model
-        :type pdbfile: str
-        :param id: unique identifier for this search model
-        :type id: str, int
-        :param ermsd: the eRMSD to be used with this search model
-        :type ermsd: float
-        :param nsearch: number of copies to be searched
-        :type nsearch: int
-        :param disable_check: argument passed to :object:`Phaser.InputMR_AUTO.setENSE_DISA_CHEC()`
-        :type disable_check: bool
-        :returns nothing
-        :rtype None
+        :param str pdbfile: the pdb file name with the search model
+        :param str id: unique identifier for this search model
+        :param float ermsd: the eRMSD to be used with this search model
+        :param int nsearch: number of copies to be searched
+        :param bool disable_check: argument passed to :py:obj:`phaser.InputMR_AUTO.setENSE_DISA_CHEC()`
         """
 
         if not os.path.isfile(pdbfile):
@@ -421,12 +206,9 @@ class Phaser(Wrapper):
                                                                   disable_check=disable_check)
 
     def load_mr_dat(self, mute=True):
-        """Load the input data for the MR run into :object:`Phaser.InputMR_DAT()`
+        """Load the input data for the MR run into :py:obj:`phaser.InputMR_DAT()`
 
-        :param mute: argument passed to :object:`Phaser.InputMR_DAT.setMUTE()`
-        :type mute: bool
-        :returns nothing
-        :rtype None
+        :param bool mute: argument passed to :py:obj:`phaser.InputMR_DAT.setMUTE()`
         """
 
         self.input_mr_dat = InputMR_DAT()
@@ -464,16 +246,11 @@ class Phaser(Wrapper):
     def run_auto_mr(self, searchmodel_id, mute=True, xyzout=True, keywrds=True):
         """Make a method to run phaser AutoMR mode using :object:`Phaser.runMR_AUTO()`
 
-        :param searchmodel_id: key in the searchmodel_dict attribute that corresponds with the search model to be placed
-        :type searchmodel_id: str, int
-        :param mute: argument passed to :object:`Phaser.InputMR_AUTO.setMUTE()`
-        :type mute: bool
-        :param xyzout: argument passed to :object:`Phaser.InputMR_AUTO.setXYZO()`
-        :type xyzout: bool
-        :param keywrds: argument passed to :object:`Phaser.InputMR_AUTO.setKEYW()`
-        :type keywrds: bool
-        :returns nothing
-        :rtype None
+        :param str searchmodel_id: key in the :py:attr:`~swamp.wrappers.wphaser.Phaser.searchmodel_dict` that \
+        corresponds with the search model to be placed
+        :param bool mute: argument passed to :py:obj:`phaser.InputMR_AUTO.setMUTE()`
+        :param bool xyzout: argument passed to :py:obj:`phaser.InputMR_AUTO.setXYZO()`
+        :param bool keywrds: argument passed to :py:obj:`phaser.InputMR_AUTO.setKEYW()`
         """
 
         if searchmodel_id not in self.searchmodel_dict.keys():
@@ -578,12 +355,11 @@ class Phaser(Wrapper):
         os.chdir(tmp_dir)
 
     def get_scores(self, logfile=None):
-        """ Get the figures of merit obtained with phaser
+        """Get the figures of merit obtained with phaser using a :py:obj:`~swamp.parsers.phaserparser.PhaserParser` \
+        instance
 
         :param logfile: log's file name where the figures of merit can be found (default None)
         :type logfile: None, str
-        :returns nothing
-        :rtype None
         """
 
         parser = PhaserParser(fname=logfile, stdout=self.logcontents, logger=self.logger)
@@ -603,12 +379,10 @@ class Phaser(Wrapper):
                 self.abort_suggested = False
 
     def refine_solution(self, searchmodel_id):
-        """Refine the solution for a given searchmodel using refmac5
+        """Refine the placed search model using :py:obj:`~swamp.wrappers.wrefmac.wRefmac`
 
-        :param searchmodel_id: key in the searchmodel_dict attribute that corresponds with the search model to be placed
-        :type searchmodel_id: str, int
-        :returns nothing
-        :rtype None
+        :param str searchmodel_id: key in the :py:attr:`~swamp.wrappers.wphaser.Phaser.searchmodel_dict` that \
+        corresponds with the search model to be refined
         """
 
         self.logger.info('Refining solution')
@@ -630,10 +404,8 @@ class Phaser(Wrapper):
     def _check_error(self):
         """Check for errors in the :object:`Phaser.runMR_AUTO()` object
 
-        Sets the error attribute to True is an error is found after running MR auto
-
-        :returns nothing
-        :rtype None
+        Sets the :py:attr:`~swamp.wrappers.wphaser.Phaser.error` to True is an error is found after \
+        :py:func:`~swamp.wrappers.wphaser.Phaser.run_auto_mr`
         """
 
         if not self.run_mr_auto.Success():
@@ -657,12 +429,9 @@ class Phaser(Wrapper):
 
     @staticmethod
     def remove_side_chains(pdbfile):
-        """Method to remove the side chains of a given pdb file
+        """Method to remove the side chains of a given pdb file using :py:obj:`~swamp.searchmodel.polyala.PolyALA`
 
-        :param pdbfile: filename of the pdb file to be modified
-        :type pdbfile: str
-        :returns no value
-        :rtype None
+        :param str pdbfile: filename of the pdb file to be modified
         """
 
         tmp_file = os.path.join(os.path.dirname(pdbfile), "phaser_out_polyALA.pdb")
@@ -673,12 +442,11 @@ class Phaser(Wrapper):
 
     @staticmethod
     def check_intensities(input_mtz):
-        """Determine if a mtz file contains intensities (preferred over amplitudes)
+        """Determine if a mtz file contains intensities columns (preferred over amplitudes) using \
+        :py:obj:`~swamp.parsers.mtzparser.MtzParser`
 
-        :param input_mtz: mtz file name of interest
-        :type input_mtz: str
-        :returns True if intensity labels are found in the mtz file
-        :rtype bool
+        :param str input_mtz: mtz file name of interest
+        :returns True if intensity labels are found in the mtz file (bool)
         """
 
         mtz_head = MtzParser(input_mtz)
