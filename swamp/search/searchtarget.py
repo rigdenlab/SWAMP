@@ -12,29 +12,40 @@ from swamp.utils import TargetSplit, renumber_hierarchy
 
 
 class SearchTarget(object):
-    """Class to search the library and rank search models according to their CMO with a given target.
+    """Class to search the SWAMP library and rank search models according to their CMO with a given target.
 
-    Using CMO alignment tools determine the best fragments in the library to be used as search models. The target
-    will be split into several subtargets (one for each helical pair with enough interhelical contact information,
-    and several search jobs will take place (one for each subtarget).
+    Using CMO alignment tools determine the best fragments in the library to be used as search models for a given \
+    target. First, the target will be split into several subtargets (one for each helical pair with enough \
+    interhelical contact information, and several :py:obj:`~swamp.search.searchjob.SearchJob` instances will be \
+    executed.
 
-    :param str workdir: working directory where the search tasks will be executed
+    :param str workdir: working directory for the :py:obj:`~swamp.search.searchjob.SearchJob` instances
     :param str conpred: contact prediction file of the target
-    :param str sspred: secondary structure prediction file of the target (must be topcons file)
-    :param str conformat: format of the contact prediction file for the target
-    :param str nthreads: number of parallel threads to use for CMO calculations (default: 1)
-    :param list template_subset: set of templates to be used rather than the full fragment library (deafult: None)
-    :param str target_pdb_benchmark: target's pdb file for benchmark purposes (default: None)
+    :param str sspred: secondary structure prediction file of the target (must be topcons format file)
+    :param str conformat: format of the contact prediction file provided for the target (default: 'psicov')
+    :param str nthreads: number of parallel threads to use in the library search (default: 1)
+    :param tuple template_subset: set of templates to be used instead of the full fragment library (deafult: None)
+    :param str target_pdb_benchmark: provide a target's pdb file for benchmark purposes (default: None)
     :param str alignment_algorithm_name: algorithm used for CMO calculation (default: 'mapalign')
-    :param `swamp.logger.swamplogger.SwampLogger` logger: logging interface for the search (default: None)
-    :param int n_contacts_threshold: min. no. of interhelical contacts to include a subtarget in the search (default: 28)
-    :param str platform: queueing system used in the HPC where the array will be executed (default 'sge')
-    :param str queue_name: name of the HPC qeue where the tasks should be sent (default None)
-    :param str queue_environment: name of the HPC queue environment where the tasks should be sent (default None)
-    :ivar str shell_interpreter: location of the shell interpreter to be used for task execution (default '/bin/bash')
-    :ivar bool error: True if errors have occurred at some point on the pipeline
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the search (default None)
+    :param int n_contacts_threshold: min. no. of interhelical cont. to include a subtarget in the search (default: 28)
+    :param str platform: scheduler system where the array will be executed (default 'sge')
+    :param str queue_name: name of the scheduler queue where the tasks should be sent (default None)
+    :param str queue_environment: name of the scheduler environment where the tasks should be sent (default None)
+    :param str python_interpreter: python interpreter to be used for task execution (default '$CCP4/bin/ccp4-python')
+    :ivar str shell_interpreter: shell interpreter to be used for task execution (default '/bin/bash')
+    :ivar bool error: True if errors have occurred at some point in the pipeline
+    :ivar :py:obj:`~swamp.utils.targetsplit.TargetSplit` target: contains information about the target and subtargets
+    :ivar dict con_precision_dict: a dictionary with the contact precission for each given subtarget prediction
+    :ivar dict search_pickle_dict: a dictionary with the :py:attr:`~swamp.search.searchjob.SearchJob.pickle_fname` \
+     created by each :py:obj:`~swamp.search.searchjob.SearchJob` instance in this search
+    :ivar list results: a nested list with the results obtained in the search againts the library
+    :ivar list scripts: a list with the instances of :py:obj:`pyjob.Script` that will be executed to complete the search
+    :ivar :py:obj:`pandas.DataFrame` ranked_searchmodels: a dataframe with the search models ranked by the CMO \
+    obtained in the search
 
     :example:
+
     >>> from swamp.search import SearchTarget
     >>> my_rank = SearchTarget('<workdir>', '<conpred>', '<sspred>')
     >>> my_rank.search()
@@ -45,35 +56,36 @@ class SearchTarget(object):
                  target_pdb_benchmark=None, alignment_algorithm_name='mapalign', n_contacts_threshold=28,
                  python_interpreter=os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python'),
                  platform='sge', queue_name=None, queue_environment=None):
-        self._workdir = workdir
-        self._conpred = conpred
-        self._sspred = sspred
-        self._conformat = conformat
-        self._nthreads = nthreads
-        self._target_pdb_benchmark = target_pdb_benchmark
-        self._alignment_algorithm_name = alignment_algorithm_name
-        self._template_subset = template_subset
-        self._n_contacts_threshold = n_contacts_threshold
-        self._platform = platform
-        self._queue_name = queue_name
-        self._queue_environment = queue_environment
-        self._shell_interpreter = '/bin/bash'
-        self._python_interpreter = python_interpreter
-        self._con_precision_dict = None
-        self._search_pickle_dict = None
-        self._scripts = None
-        self._results = None
+        self.workdir = workdir
+        self.conpred = conpred
+        self.sspred = sspred
+        self.conformat = conformat
+        self.nthreads = nthreads
+        self.target_pdb_benchmark = target_pdb_benchmark
+        self.alignment_algorithm_name = alignment_algorithm_name
+        self.template_subset = template_subset
+        self.n_contacts_threshold = n_contacts_threshold
+        self.platform = platform
+        self.queue_name = queue_name
+        self.queue_environment = queue_environment
+        self.python_interpreter = python_interpreter
+        self.shell_interpreter = '/bin/bash'
+        self.con_precision_dict = None
+        self.search_pickle_dict = None
+        self.scripts = None
+        self.results = None
+        self.ranked_searchmodels = None
         self._make_workdir()
 
         if logger is None:
-            self._logger = SwampLogger(__name__)
+            self.logger = SwampLogger(__name__)
             self.logger.init(logfile=os.path.join(self.workdir, "swamp_rank.log"), use_console=True,
                              console_level='info',
                              logfile_level='debug')
         else:
-            self._logger = logger
-        self._target = TargetSplit(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred, logger=self.logger,
-                                   conformat=self.conformat, pdb_benchmark=self.target_pdb_benchmark)
+            self.logger = logger
+        self.target = TargetSplit(workdir=self.workdir, conpred=self.conpred, sspred=self.sspred, logger=self.logger,
+                                  conformat=self.conformat, pdb_benchmark=self.target_pdb_benchmark)
 
         if self.target_pdb_benchmark is not None and not os.path.isdir(swamp.FRAG_PDB_DB):
             self.logger.warning('PDB benchmark was requested but %s PDB library was not found!' % swamp.FRAG_PDB_DB)
@@ -90,7 +102,7 @@ class SearchTarget(object):
 
     @property
     def search_header(self):
-        """Abstract property to store the wrapper header for the logger"""
+        """Header displayed when initiating :py:obj:`~swamp.logger.swamplogger.SwampLogger`"""
 
         return """**********************************************************************
 *****************            SWAMP SEARCH            *****************
@@ -99,187 +111,20 @@ class SearchTarget(object):
 """
 
     @property
-    def ranked_searchmodels(self):
-        """Property to store ranked combinations of searchmodels"""
-        return self._ranked_searchmodels
-
-    @ranked_searchmodels.setter
-    def ranked_searchmodels(self, value):
-        self._ranked_searchmodels = value
-
-    @property
-    def n_contacts_threshold(self):
-        return self._n_contacts_threshold
-
-    @n_contacts_threshold.setter
-    def n_contacts_threshold(self, value):
-        self._n_contacts_threshold = value
-
-    @property
-    def queue_environment(self):
-        return self._queue_environment
-
-    @queue_environment.setter
-    def queue_environment(self, value):
-        self._queue_environment = value
-
-    @property
-    def queue_name(self):
-        return self._queue_name
-
-    @queue_name.setter
-    def queue_name(self, value):
-        self._queue_name = value
-
-    @property
-    def shell_interpreter(self):
-        return self._shell_interpreter
-
-    @shell_interpreter.setter
-    def shell_interpreter(self, value):
-        self._shell_interpreter = value
-
-    @property
-    def python_interpreter(self):
-        return self._python_interpreter
-
-    @python_interpreter.setter
-    def python_interpreter(self, value):
-        self._python_interpreter = value
-
-    @property
-    def platform(self):
-        return self._platform
-
-    @platform.setter
-    def platform(self, value):
-        self._platform = value
-
-    @property
-    def scripts(self):
-        return self._scripts
-
-    @scripts.setter
-    def scripts(self, value):
-        self._scripts = value
-
-    @property
-    def logger(self):
-        """Property to store the logger interface :obj:`~swamp.logger.swamplogger.SwampLogger`"""
-        return self._logger
-
-    @logger.setter
-    def logger(self, value):
-        self._logger = value
-
-    @property
-    def con_precision_dict(self):
-        """Property to store the precision of the target's predicted contacts (only used when pdb_benchmark is set)"""
-        return self._con_precision_dict
-
-    @con_precision_dict.setter
-    def con_precision_dict(self, value):
-        self._con_precision_dict = value
-
-    @property
-    def target(self):
-        """Target splitter :obj:`~swamp.search.targetsplit.SplitTarget`"""
-        return self._target
-
-    @target.setter
-    def target(self, value):
-        self._target = value
-
-    @property
-    def template_subset(self):
-        return self._template_subset
-
-    @template_subset.setter
-    def template_subset(self, value):
-        self._template_subset = value
-
-    @property
-    def alignment_algorithm_name(self):
-        return self._alignment_algorithm_name
-
-    @alignment_algorithm_name.setter
-    def alignment_algorithm_name(self, value):
-        self._alignment_algorithm_name = value
-
-    @property
-    def nthreads(self):
-        return self._nthreads
-
-    @nthreads.setter
-    def nthreads(self, value):
-        self._nthreads = value
-
-    @property
-    def conformat(self):
-        return self._conformat
-
-    @conformat.setter
-    def conformat(self, value):
-        self._conformat = value
-
-    @property
-    def sspred(self):
-        return self._sspred
-
-    @sspred.setter
-    def sspred(self, value):
-        self._sspred = value
-
-    @property
-    def conpred(self):
-        return self._conpred
-
-    @conpred.setter
-    def conpred(self, value):
-        self._conpred = value
-
-    @property
-    def results(self):
-        return self._results
-
-    @results.setter
-    def results(self, value):
-        self._results = value
-
-    @property
-    def target_pdb_benchmark(self):
-        return self._target_pdb_benchmark
-
-    @target_pdb_benchmark.setter
-    def target_pdb_benchmark(self, value):
-        self._target_pdb_benchmark = value
-
-    @property
-    def workdir(self):
-        return self._workdir
-
-    @workdir.setter
-    def workdir(self, value):
-        self._workdir = value
-
-    @property
-    def search_pickle_dict(self):
-        return self._search_pickle_dict
-
-    @search_pickle_dict.setter
-    def search_pickle_dict(self, value):
-        self._search_pickle_dict = value
-
-    @property
     def _tmp_cmap(self):
+        """A temporary file name to contain the contact predicionts of each subtarget at \
+        :py:attr:`swamp.utils.targetsplit.TargetSplit.ranked_subtargets`"""
         return os.path.join(self.workdir, "tmp_cmap_{}.map")
 
     @property
     def _search_workdir(self):
+        """The workind girectory for each :py:obj:`~swamp.search.searchjob.SearchJob` instance in this search"""
         return os.path.join(self.workdir, "search_{}")
 
     @property
     def _tmp_pdb(self):
+        """A temporary file name to contain the pdb file each subtarget at \
+        :py:attr:`swamp.utils.targetsplit.TargetSplit.ranked_subtargets`"""
         if self.target_pdb_benchmark is not None:
             return os.path.join(self.workdir, 'tmp_strct_{}.pdb')
         else:
@@ -287,7 +132,7 @@ class SearchTarget(object):
 
     @property
     def template_library(self):
-        """Location of the template library to be used during the CMO search"""
+        """Location of the template library to be used with the :py:obj:`~swamp.search.searchjob.SearchJob` instances"""
 
         if self.alignment_algorithm_name == 'aleigen':
             return swamp.FRAG_ALEIGEN_DB
@@ -298,7 +143,8 @@ class SearchTarget(object):
 
     @property
     def library_format(self):
-        """Dictionary specifyinh the template library format"""
+        """Dictionary specifying the template library format to be used in each \
+        :py:obj:`~swamp.search.searchjob.SearchJob` instance"""
 
         if self.alignment_algorithm_name == 'aleigen':
             return 'aleigen'
@@ -309,7 +155,7 @@ class SearchTarget(object):
 
     @property
     def _other_task_info(self):
-        """Dictionary with extra arguments for :py:obj:pyjob.TaskFactory"""
+        """Dictionary with the extra **kwags passed to :py:obj:`pyjob.TaskFactory`"""
 
         info = {'directory': self.workdir, 'shell': self.shell_interpreter, 'name': 'swamp_search'}
 
@@ -326,7 +172,7 @@ class SearchTarget(object):
 
     @property
     def _column_reference(self):
-        """A list of fields of the result table for each of the CMO algorithms"""
+        """A list of column names for :py:attr:`~swamp.search.searchtarget.SearchTarget.results`"""
 
         if self.alignment_algorithm_name == 'aleigen':
             return ["SUBTRGT_RANK", "SUBTRGT_ID", "N_CON_MAP_A", "MAP_A", "MAP_B", "CON_SCO", "C1", "C2", "CMO",
@@ -340,14 +186,16 @@ class SearchTarget(object):
     # ------------------ Hidden methods ------------------
 
     def _make_workdir(self):
-        """Create the working directory"""
+        """Create the :py:attr:`~swamp.search.searchtarget.SearchTarget.workdir`"""
 
         if not os.path.isdir(self.workdir):
             os.mkdir(self.workdir)
 
     def _create_scripts(self):
-        """Create a list with all the :obj:`pyjob.Script` instances that need to be executed. There is one instance
-        for each of the subtargets that pass the no. interhelical contact threshoold"""
+        """Populate the :py:attr:`~swamp.search.searchtarget.SearchTarget.scripts` list with all the \
+        :py:obj:`pyjob.Script` instances that need to be executed. There is one instance for each of the subtargets \
+        at :py:attr:`swamp.utils.targetsplit.TargetSplit.ranked_subtargets` that passes the selected \
+        :py:attr:`~swamp.search.searchtarget.SearchTarget.n_contacts_threshold` threshold"""
 
         self.scripts = []
         self.con_precision_dict = {}
@@ -382,12 +230,10 @@ class SearchTarget(object):
         self.logger.info('%s subtargets will be used in the search. Creating task now.' % len(self.search_pickle_dict))
 
     def _search_info(self, idx):
-        """Create a dictionary with the arguments for the library search
+        """Create **kwargs passed to a :py:obj:`~swamp.search.searchjob.SearchJob` instance
 
-        :param idx: the index of the search job
-        :type idx: int
-        :returns dictionary wuth the arguments to use for the library search
-        :rtype dict
+        :param int idx: the index of the search job, used as :py:attr:`~swamp.search.searchjob.SearchJob.id`
+        :returns: dictionary with the **kwargs to be passed into :py:obj:`~swamp.search.searchjob.SearchJob` instance
         """
 
         info = {'workdir': self._search_workdir.format(idx), 'pdb_library': swamp.FRAG_PDB_DB,
@@ -402,13 +248,10 @@ class SearchTarget(object):
         return info
 
     def _make_dataframe(self, results, **kwargs):
-        """Convert the results list into a :obj:`pd.Dataframe`
+        """Convert the :py:attr:`~swamp.search.searchtarget.SearchTarget.results` into a :py:obj:`pandas.Dataframe`
 
-        :param results: Nested list with the results of each of the CMO scans
-        :type results: list
-        :param kwargs: Passed to :obj:`~swamp.search.fragrank._get_best_alignment`
-        :return: no value
-        :rtype: None
+        :param list results: Nested list with the results of each of the CMO scans
+        :param kwargs: arguments are passed to :py:func:`~swamp.search.seachtarget.SearchTarget._get_best_alignment`
         """
 
         self.results = pd.DataFrame(results)
@@ -417,13 +260,11 @@ class SearchTarget(object):
         self._get_best_alignment(**kwargs)
 
     def _get_best_alignment(self, select_by=("CENTROID_ID", "SUBTRGT_ID")):
-        """Fill the results with the optimal CMO alignment between helical pairs. This methof considers inverted
-         fragments and takes highest CMO score)
+        """Update the :py:attr:`~swamp.search.searchtarget.SearchTarget.results` dataframe to include only the results \
+        with the optimal CMO alignment between helical pairs. This method considers inverted fragments and takes \
+        highest CMO score to determine the optimal alignment
 
-         :param select_by: indicate the field by which the optimal alignment will be determined
-         :type select_by: list, tuple
-         :returns nothing
-         :rtype None
+         :param list select_by: indicate the figure of merit by which the alignments will be grouped
          """
 
         if self.results is None:
@@ -439,10 +280,11 @@ class SearchTarget(object):
     # ------------------ Some general methods ------------------
 
     def recover_results(self):
-        """Recover the results from all the :obj:`swamp.search.searchjob` in the :obj:`pyjob.TaskFactory`
+        """Recover the results from all the :py:attr:`~swamp.search.searchjob.SearchJob.pickle_fname` indicated in \
+        :py:attr:`~swamp.search.searchtarget.SearchTargert.search_pickle_dict`
 
-        :returns results: a list with the results obtained for the contact map alignment across all subtargets
-        :rtype list
+        :returns a list with the results loaded from the pickle files at \
+        :py:attr:`~swamp.search.searchtarget.SearchTargert.search_pickle_dict`
         """
 
         results = []
@@ -461,10 +303,11 @@ class SearchTarget(object):
         return results
 
     def search(self):
-        """Search the library and compute the CMO between the observed contacts and the predicted contacts of the target.
+        """Search the library by calculating the CMO between the observed contacts and the  query predicted contacts
 
-        This method will run a :obj:`` instance that contains one search job for each of the subtargets that met the
-        no. contacts threshold.
+        This method will run a :py:obj:`~swamp.search.searchjob.SearchJob` instance for each subtarget \
+        at :py:attr:`swamp.utils.targetsplit.TargetSplit.ranked_subtargets` that passes the selected \
+        :py:attr:`~swamp.search.searchtarget.SearchTarget.n_contacts_threshold` threshold
         """
 
         self.logger.info(self.search_header)
@@ -487,14 +330,12 @@ class SearchTarget(object):
         self._make_dataframe(results)
 
     def rank(self, consco_threshold=0.75, combine_searchmodels=False):
-        """Get fragments groupings ranked by their combined scores. Takes in consideration same combination of fragments
-         may appear more than once with fragments in different subtargets (then the combined_consco is the maximum
-         possible)
+        """ Get the top search models as indicated by the results of the search. This method can also try to combine \
+        multiple search models by adding their CMOs. Takes in consideration same combination of fragments may appear \
+        more than once with fragments in matching subtargets.
 
-         :param consco_threshold: contact score threshold to consider a CMO alignment valid (default 0.75)
-         :type consco_threshold: float
-         :param combine_searchmodels: if True combine search models matching different subtargets (default False)
-         :type combine_searchmodels: bool
+         :param float consco_threshold: CMO threshold to consider an alignment valid (default 0.75)
+         :param bool combine_searchmodels: if True combine search models matching different subtargets (default False)
          """
 
         if self.results is None:

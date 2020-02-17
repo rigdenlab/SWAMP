@@ -12,61 +12,51 @@ ABC = abc.ABCMeta('ABC', (object,), {})
 
 
 class SearchJob(ABC):
-    """Class that implements methods to search a library of templates using contact map alignment utils
+    """Class that implements methods to search a library of templates using contact map alignment tools
     
-    The class is used to search a single subtarget against the SWAMP library. The CMO between the observed contacts
-    for each member of the library and the predicted contacts of the subtarget is computed.
+    The class is used to search a single query against the SWAMP library of templates. The CMO between the \
+    observed contacts for each member of the library and the predicted contacts of the query is computed.
     
-    :param id: the id given to the MrRun and identifying this job
-    :type id: str, int
-    :param workdir: working directory where the search will be executed and temporary files will be created
-    :type workdir: str
-    :param query: file name of the query contact file
-    :type query: str
-    :param template_library: the directory containing all the templates to be used in the search
-    :type template_library: str
-    :param con_format: format of the contact prediction of the query (default 'psicov')
-    :type con_format: str
-    :param library_format: format of the contact maps contained in the library of templates
-    :type library_format: str
-    :param query_pdb_benchmark: file name of the pdb structure to be used for benchmarking (default None)
-    :type query_pdb_benchmark: None, str
-    :param pdb_library: directory with the pdb files of the templates used for benchmarking (default None)
-    :type pdb_library: str
-    :param template_subset: a subset of templates to be used instead of the full library (default None)
-    :type template_subset: list, tuple, None
-    :param logger: logging interface to be used on the search (default None)
-    :type logger: None, :obj:`swamp.logger.swamplogger.SwampLogger`
-    :param algorithm: Indicate the alignment algorithm to be used in the search (default: 'mapalign')
-    :type algorithm: str
+    :param str id: the id given to the MrRun and identifying this :py:obj:`~swamp.search.searchjob.SearchJob` instance
+    :param str workdir: working directory where the search will be executed and temporary files will be created
+    :param str query: file name of the query contact file
+    :param str template_library: the directory containing all the templates to be used in the search
+    :param str con_format: format of the contact prediction of the query (default 'psicov')
+    :param str library_format: format of the contact maps contained in the library of templates
+    :param str query_pdb_benchmark: file name of the pdb structure to be used for benchmarking (default None)
+    :param str pdb_library: directory with the pdb files of the templates used for benchmarking (default None)
+    :param tuple template_subset: a subset of templates to be used instead of the full library (default None)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the search (default None)
+    :param str algorithm: Indicate the alignment algorithm to be used in the search (default: 'mapalign')
+    :ivar list results: a nested list with the results obtained in the search againts the library
     """
 
     def __init__(self, id, workdir, query, template_library, con_format="psicov", library_format="pdb", logger=None,
                  query_pdb_benchmark=None, pdb_library=None, template_subset=None, algorithm='mapalign',
                  python_interpreter=os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python')):
 
-        self._id = id
-        self._query = query
-        self._workdir = workdir
+        self.id = id
+        self.query = query
+        self.workdir = workdir
         self._make_workdir()
-        self._template_library = template_library
-        self._con_format = con_format
-        self._library_format = library_format
-        self._results = []
-        self._query_pdb_benchmark = query_pdb_benchmark
-        self._pdb_library = pdb_library
-        self._template_subset = template_subset
-        self._algorithm = algorithm
-        self._python_interpreter = python_interpreter
+        self.template_library = template_library
+        self.con_format = con_format
+        self.library_format = library_format
+        self.results = []
+        self.query_pdb_benchmark = query_pdb_benchmark
+        self.pdb_library = pdb_library
+        self.template_subset = template_subset
+        self.algorithm = algorithm
+        self.python_interpreter = python_interpreter
         if algorithm == 'aleigen':
             self._compute_eigenvector()
 
         if logger is None:
-            self._logger = SwampLogger(__name__)
+            self.logger = SwampLogger(__name__)
             self.logger.init(logfile=None, use_console=True, console_level='debug')
             self.logger.info(self.search_header)
         else:
-            self._logger = logger
+            self.logger = logger
 
         if self.query_pdb_benchmark is not None:
             if self.pdb_library is None:
@@ -80,7 +70,7 @@ class SearchJob(ABC):
 
     @property
     def search_header(self):
-        """Wrapper header for the logger"""
+        """Header displayed when initiating :py:obj:`~swamp.logger.swamplogger.SwampLogger`"""
 
         return """**********************************************************************
 ********************        SWAMP - SCANJOB         ******************
@@ -89,112 +79,9 @@ class SearchJob(ABC):
 """
 
     @property
-    def logger(self):
-        return self._logger
-
-    @logger.setter
-    def logger(self, value):
-        self._logger = value
-
-    @property
-    def id(self):
-        return self._id
-
-    @id.setter
-    def id(self, value):
-        self._id = value
-
-    @property
-    def algorithm(self):
-        return self._algorithm
-
-    @algorithm.setter
-    def algorithm(self, value):
-        self._algorithm = value
-
-    @property
-    def template_subset(self):
-        return self._template_subset
-
-    @template_subset.setter
-    def template_subset(self, value):
-        self._template_subset = value
-
-    @property
-    def pdb_library(self):
-        return self._pdb_library
-
-    @pdb_library.setter
-    def pdb_library(self, value):
-        self._pdb_library = value
-
-    @property
-    def query_pdb_benchmark(self):
-        return self._query_pdb_benchmark
-
-    @query_pdb_benchmark.setter
-    def query_pdb_benchmark(self, value):
-        self._query_pdb_benchmark = value
-
-    @property
-    def library_format(self):
-        return self._library_format
-
-    @library_format.setter
-    def library_format(self, value):
-        self._library_format = value
-
-    @property
-    def python_interpreter(self):
-        return self._python_interpreter
-
-    @python_interpreter.setter
-    def python_interpreter(self, value):
-        self._python_interpreter = value
-
-    @property
-    def results(self):
-        return self._results
-
-    @results.setter
-    def results(self, value):
-        self._results = value
-
-    @property
-    def workdir(self):
-        return self._workdir
-
-    @workdir.setter
-    def workdir(self, value):
-        self._workdir = value
-
-    @property
-    def con_format(self):
-        return self._con_format
-
-    @con_format.setter
-    def con_format(self, value):
-        self._con_format = value
-
-    @property
-    def template_library(self):
-        return self._template_library
-
-    @template_library.setter
-    def template_library(self, value):
-        self._template_library = value
-
-    @property
-    def query(self):
-        return self._query
-
-    @query.setter
-    def query(self, value):
-        self._query = value
-
-    @property
     def template_list(self):
-        """List of templates to be used in the search (considers the subset selection, if any)"""
+        """The list of templates to be used in the search (considers \
+        :py:attr:`~swamp.search.searchjob.SearchJob.template_subset`)"""
 
         if self.template_subset is None:
             return [os.path.join(self.template_library, filename) for filename in os.listdir(self.template_library)]
@@ -205,12 +92,12 @@ class SearchJob(ABC):
 
     @property
     def pickle_fname(self):
-        """A pickle where the results of the search will be stored"""
+        """A pickle file where the :py:attr:`~swamp.search.searchjob.SearchJob.results` will be stored"""
         return os.path.join(self.workdir, 'search_%s_results.pckl' % self.id)
 
     @property
     def _python_script(self):
-        """Python script to create and execute the corresponding :obj:`swamp.search.searchjob` instance"""
+        """Python script to create and execute an identical :py:obj:`~swamp.search.searchjob.SearchJob` instance"""
 
         script = 'cd {}\n{} << EOF\nfrom swamp.search import SearchJob\n'.format(self.workdir,
                                                                                                    self.python_interpreter)
@@ -233,7 +120,7 @@ class SearchJob(ABC):
 
     @property
     def script(self):
-        """Instance of :object:`pyjob.Script` that corresponds with the job to be executed"""
+        """Instance of :py:obj:`pyjob.Script` that will be executed to complete the search"""
 
         script = Script(directory=self.workdir, prefix='searchjob_%s' % self.id, stem='', suffix='.sh')
         script.append(self._python_script)
@@ -241,10 +128,8 @@ class SearchJob(ABC):
 
     @property
     def _alignment_wrapper(self):
-        """Location of the template library to be used during the CMO search
+        """Pointer to the appropiate :py:obj:`~swamp.wrappers.wrapper.Wrapper` to be used in this search
 
-        :returns nothing
-        :rtype None
         :raises ValueError if the algorithm is not recognised (valid algorithms: 'aleigen', 'mapalign')
         """
 
@@ -257,17 +142,18 @@ class SearchJob(ABC):
 
     @property
     def eigen_template(self):
-        """Eigen vector file name template"""
+        """A template for eigen vector file names"""
         return os.path.join(swamp.FRAG_EIGEN_DB, "{}.eigenvct")
 
     @property
     def tmp_eigen_query(self):
-        """A temporary file name to contain the eigen vectors of the query"""
+        """A temporary file name to contain the eigen vectors of :py:attr:`~swamp.search.searchjob.SearchJob.query`"""
         return os.path.join(self.workdir, 'tmp_query.eigenvct')
 
     @property
     def joblist(self):
-        """A list where each job corresponds with the alignment between the query and a member of the template list"""
+        """A list of :py:obj:`~swamp.wrappers.wrapper.Wrapper` instances corresponding with the alignment between the \
+        query and each member of the :py:attr:`~swamp.search.searchjob.SearchJob.template_list`"""
 
         joblist = []
 
@@ -280,13 +166,12 @@ class SearchJob(ABC):
     # ------------------ Protected methods ------------------
 
     def _get_alignment_info(self, template):
-        """Create a dictionary with the arguments necessary for the contact map alignment
+        """Create a dictionary with the **kwargs necessary to initialise a \
+        :py:obj:`~swamp.wrappers.wrapper.Wrapper` instance
 
-        :param template: the template contact map file name
-        :type template: str
-        :returns a dictionary with the arguments to execute a given alignment
-        :rtype dict
-        :raises ValueError if the algorithm is not recognised (valid algorithms: 'aleigen', 'mapalign')
+        :param str template: the template contact map file name
+        :returns: a dictionary with the arguments pass to :py:obj:`~swamp.wrappers.wrapper.Wrapper` (dict)
+        :raises ValueError: if the algorithm is not recognised (valid algorithms: 'aleigen', 'mapalign')
         """
 
         if self.algorithm == 'mapalign':
@@ -319,26 +204,24 @@ class SearchJob(ABC):
             raise ValueError("Unrecognised alignment tool! %s" % self.algorithm)
 
     def _make_workdir(self):
-        """Method to crete the workdir for the wrapper"""
+        """Method to crete the :py:attr:`~swamp.search.searchjob.SearchJob.workdir`"""
 
         if not os.path.isdir(self.workdir):
             os.makedirs(self.workdir)
 
     def _pdbfile_template(self, mapfile):
-        """Get the pdb file name for a given map file"""
+        """Get the pdb file name for a given map file name"""
         return os.path.join(self.pdb_library, "%s.pdb" % os.path.basename(mapfile).split(".")[0])
 
     def _job_dir_template(self, template):
-        """Get the job directory for a given template"""
+        """Get the job directory for a given template name"""
         return os.path.join(self.workdir, os.path.basename(os.path.basename(template).split(".")[0]))
 
     def _in_subset(self, fname):
-        """Check if a given fragment file is in the user specified subset
+        """Check if a given fragment file name is in the :py:attr:`~swamp.search.searchjob.SearchJob.template_subset`
 
-        :param fname: file name of the fragment of interest
-        :type fname: str
-        :returns True if the fragment is in the subset
-        :rtype bool
+        :param str fname: file name of the fragment of interest
+        :returns: True if the fragment is in :py:attr:`~swamp.search.searchjob.SearchJob.template_subset` (bool)
         """
 
         frag_id = os.path.basename(fname).split('.')[0]
@@ -348,17 +231,18 @@ class SearchJob(ABC):
             return False
 
     def _compute_eigenvector(self):
-        """Method to create eigen vectors for the input file"""
+        """Create eigen vectors for :py:attr:`~swamp.search.searchjob.SearchJob.query`"""
         AlEigen.create_eigen_vectors(self.query, map_format=self.con_format, vector_output=self.tmp_eigen_query)
 
     # ------------------ Some general methods ------------------
 
     def store_pickle(self):
-        """Store the list of obtained results into a pickle file"""
+        """Store :py:attr:`~swamp.search.searchjob.SearchJob.results` into \
+        :py:attr:`~swamp.search.searchjob.SearchJob.pickle_fname`"""
         joblib.dump(self.results, self.pickle_fname)
 
     def run(self):
-        """Use the query to search against the templates using the indicated algorithm"""
+        """Run each independent job contained at :py:attr:`~swamp.search.searchjob.SearchJob.joblist`"""
 
         self.logger.info("Searching template library")
 

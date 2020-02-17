@@ -1,6 +1,7 @@
 """This is SWAMP: Solving Structures With Alpha Membrane Pairs
 
-This module implements classes and methods to search the SWAMP library using contact information
+This module implements classes and methods to search the SWAMP library using contact information. The contact maximum \
+overlap (CMO)will be calculated between the predicted contacts and the observed contacts.
 """
 
 __author__ = "Filomeno Sanchez Rodriguez"
