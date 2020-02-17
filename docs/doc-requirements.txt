@@ -8,5 +8,4 @@ prettytable
 dill
 joblib
 sklearn
-scikit
 statistics
