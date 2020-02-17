@@ -9,7 +9,7 @@ class PolyALA(SearchModel):
 
     Extends :py:obj:`~swamp.searchmodel.searchmodel.SearchModel`
 
-    :examples
+    :example:
 
     >>> from swamp.searchmodel.polyala import PolyALA
     >>> my_polyala = PolyALA('<workdir>', '<pdbin>', '<pdbout>')

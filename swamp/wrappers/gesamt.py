@@ -12,30 +12,30 @@ from swamp.utils import ThreadResults, invert_hiearchy, get_tempfile
 class Gesamt(Wrapper):
     """Wrapper around gesamt
 
-    :param workdir: working directory
+    This class can be used to perform structural alignments using gesamt and parse the obtained results.
+
+    :param str workdir: working directory :py:obj:`~swamp.wrappers.gesamt.Gesamt` instance
     :type workdir: str, None
-    :param mode: specify the type of task to be done with gesamt
-    :type mode: str
+    :param str mode: specify the type of task to be done with gesamt
     :param pdbin: input pdb file name. If an iterable is given, assumes multiple structure alignment
     :type pdbin: str, tuple, list
     :param gesamt_archive: location of the gesamt archive to be scanned (default None)
     :type gesamt_archive: str, None
     :param pdbout: output pdb file name (default None)
     :type pdbout: str, None
-    :param nthreads: number of threads to be used by gesamt (default 1)
-    :type nthreads: int
+    :param int nthreads: number of threads to be used by gesamt (default 1)
     :param hits_out: file name of the .hits output file (default None)
     :type hits_out: str, None
-    :param min1: argument to be passed to gesamt as -min1 (default 0.1)
-    :type min1: float
-    :param min2: argument to be passed to gesamt as -min2 (default 0.1)
-    :type min2: float
+    :param float min1: argument to be passed to gesamt as -min1 (default 0.1)
+    :param float min2: argument to be passed to gesamt as -min2 (default 0.1)
     :param pdb_archive: location of the pdb archive to be used in gesamt (default None)
     :type pdb_archive: str, None
-    :param logger: logging interface for the wrapper
-    :type logger: :object:`swamp.logger.swamplogger.SwampLogger`
-    :ivar error: if True an error has occurred along the process
-    :type error: bool
+    :param `swamp.logger.swamplogger.SwampLogger` logger: logging interface for the wrapper
+    :ivar bool error: if True an error has occurred along the process
+    :ivar float qscore: qscore as reported by gesamt
+    :ivar float rmsd: the obtained rmsd as reported by gesamt
+    :ivar float seq_id: sequence identity between the input structures
+    :ivar int n_align: number of aligned residues
     """
 
     def __init__(self, workdir, mode, pdbin, gesamt_archive=None, pdbout=None, nthreads=1, hits_out=None, min1=0.1,
@@ -43,138 +43,31 @@ class Gesamt(Wrapper):
 
         super(Gesamt, self).__init__(workdir=workdir, logger=logger)
 
-        self._summary_results = None
-        self._qscore = None
-        self._rmsd = None
-        self._seq_id = None
-        self._n_align = None
-        self._mode = mode
-        self._pdbin = pdbin
-        self._gesamt_archive = gesamt_archive
-        self._pdbout = pdbout
-        self._nthreads = nthreads
-        self._hits_out = hits_out
-        self._pdb_archive = pdb_archive
-        self._min1 = min1
-        self._min2 = min2
+        self.summary_results = None
+        self.qscore = None
+        self.rmsd = None
+        self.seq_id = None
+        self.n_align = None
+        self.mode = mode
+        self.pdbin = pdbin
+        self.gesamt_archive = gesamt_archive
+        self.pdbout = pdbout
+        self.nthreads = nthreads
+        self.hits_out = hits_out
+        self.pdb_archive = pdb_archive
+        self.min1 = min1
+        self.min2 = min2
 
     # ------------------ Properties ------------------
 
     @property
     def wrapper_name(self):
+        """The name of this wrapper (gesamt)"""
         return "gesamt"
 
     @property
-    def pdbin(self):
-        return self._pdbin
-
-    @pdbin.setter
-    def pdbin(self, value):
-        self._pdbin = value
-
-    @property
-    def min2(self):
-        return self._min2
-
-    @min2.setter
-    def min2(self, value):
-        self._min2 = value
-
-    @property
-    def hits_out(self):
-        return self._hits_out
-
-    @hits_out.setter
-    def hits_out(self, value):
-        self._hits_out = value
-
-    @property
-    def min1(self):
-        return self._min1
-
-    @min1.setter
-    def min1(self, value):
-        self._min1 = value
-
-    @property
-    def nthreads(self):
-        return self._nthreads
-
-    @nthreads.setter
-    def nthreads(self, value):
-        self._nthreads = value
-
-    @property
-    def pdbout(self):
-        return self._pdbout
-
-    @pdbout.setter
-    def pdbout(self, value):
-        self._pdbout = value
-
-    @property
-    def gesamt_archive(self):
-        return self._gesamt_archive
-
-    @gesamt_archive.setter
-    def gesamt_archive(self, value):
-        self._gesamt_archive = value
-
-    @property
-    def pdb_archive(self):
-        return self._pdb_archive
-
-    @pdb_archive.setter
-    def pdb_archive(self, value):
-        self._pdb_archive = value
-
-    @property
-    def mode(self):
-        return self._mode
-
-    @mode.setter
-    def mode(self, value):
-        self._mode = value
-
-    @property
-    def qscore(self):
-        """Qscore obtained through the structural alignment"""
-        return self._qscore
-
-    @qscore.setter
-    def qscore(self, value):
-        self._qscore = value
-
-    @property
-    def n_align(self):
-        """Number of aligned residues as obtained through the structural alignment"""
-        return self._n_align
-
-    @n_align.setter
-    def n_align(self, value):
-        self._n_align = value
-
-    @property
-    def seq_id(self):
-        """Sequence identity as obtained through the structural alignment"""
-        return self._seq_id
-
-    @seq_id.setter
-    def seq_id(self, value):
-        self._seq_id = value
-
-    @property
-    def rmsd(self):
-        """RMSD obtained through the structural alignment"""
-        return self._rmsd
-
-    @rmsd.setter
-    def rmsd(self, value):
-        self._rmsd = value
-
-    @property
     def summary_results(self):
-        """A summary of the results obtained through the structural alignment"""
+        """A summary of the figures of merit obtained through the structural alignment"""
         return self._summary_results
 
     @summary_results.setter
@@ -188,7 +81,7 @@ class Gesamt(Wrapper):
 
     @property
     def _SRC_GESAMT(self):
-        """Location of the executable binary gesatm file"""
+        """Location of the executable binary gesamt file"""
         return os.path.join(os.environ['CCP4'], 'bin', 'gesamt')
 
     @property
@@ -241,12 +134,9 @@ class Gesamt(Wrapper):
     # ------------------ General methods ------------------
 
     def get_scores(self, logfile=None):
-        """Method to extract the scores and figures of merit out of the stdout
+        """Method to extract the scores and figures of merit out of the stdout and log file
 
-        :param logfile: No in use
-        :type logfile: None
-        :returns nothing
-        :rtype None
+        :param logfile: Not in use
         """
 
         if self.mode == "search-archive":
@@ -255,11 +145,9 @@ class Gesamt(Wrapper):
             self.qscore, self.rmsd, self.seq_id, self.n_align = self.parse_stdout(self.logcontents, len(self.pdbin))
 
     def run(self):
-        """Run gesamt and parse the results
+        """Run :py:attr:`~swamp.wrappers.gesamt.Gesamt.cmd` and parse the results
 
-        :raises TypeError: command line command is malformed, shouldn't occur please report if this happens
-        :returns nothing
-        :rtype None
+        :raises TypeError: command line command is malformed, please report if this occurs
         """
 
         if self.mode == 'make-archive' and not os.path.isfile(self.gesamt_archive):
@@ -300,12 +188,9 @@ class Gesamt(Wrapper):
     def parse_stdout(stdout, n_models):
         """Method to retrieve qscore, rmsd, sequence identity and no. of aligned residues from gesamt stdout
 
-        :param stdout: gesamt stdout for a given command
-        :type stdout: str
-        :param n_models: number of models that were used in the structural alignment
-        :type n_models: int
-        :returns qscore, rmsd, sequence identity and no. of aligned residues
-        :rtype tuple
+        :param str stdout: gesamt stdout to be parsed
+        :param int n_models: number of models that were used in the structural alignment to generate the provided stdout
+        :returns: qscore, rmsd, sequence identity and no. of aligned residues (tuple)
         """
 
         if n_models == 2:
@@ -339,10 +224,8 @@ class Gesamt(Wrapper):
     def parse_hitfile(fname):
         """Method to parse a gesamt .hit output file
 
-        :param fname: file name of the .hit output file
-        :type fname: str
-        :returns df: a dataframe with the results contained in the hit file
-        :rtype :object:`pandas.DataFrame`
+        :param str fname: file name of the .hit output file
+        :returns df: a dataframe with the results contained in the hit file (`pandas.Dataframe`)
         """
 
         df = []
@@ -357,12 +240,10 @@ class Gesamt(Wrapper):
 
     @staticmethod
     def get_pairwise_qscores(stdout):
-        """Method to get the pairwise qscores of a given alignmnet between several structures in an ensemble
+        """Method to get the pairwise qscores of a given alignmnet between several models in an ensemble
 
-        :param stdout: gesamt stdout for the command
-        :type stdout: str
-        :returns: qscores_dict: a dictionary with the pairwise qscores for each of the structures in the alignment
-        :rtype dict
+        :param str stdout: gesamt stdout for the command
+        :returns: qscores_dict: a dictionary with the pairwise qscores for each of the models in the alignment (dict)
         """
 
         qscores_dict = {}
@@ -404,23 +285,19 @@ class Gesamt(Wrapper):
 
         :param pdbfiles: the set of pdb files to be aligned
         :type pdbfiles: tuple, list
-        :param nthreads: number of threads to be used when screening all possible arrangements (default 1)
-        :type nthreads: int
+        :param int nthreads: number of threads to be used when screening all possible arrangements (default 1)
         :param logger: logging interface to be used (default None)
-        :type logger: None, :object:`swamp.logger.swamplogger.SwampLogger`
-        :returns the gesamt instance for the optimal alignment and a pdb hierarchy with the aligned structures ensembled
-        :rtype tuple
+        :type logger: None, :py:obj:`swamp.logger.swamplogger.SwampLogger`
+        :returns: the :py:obj:`~swamp.wrappers.gesamt.Gesamt` instance instance for the optimal alignment and a \
+         :py:obj:`gemmi.Structure` hierarchy with the aligned structuresas an ensemble (tuple)
         """
 
         def _align(idx, combination, logger):
-            """Align the specified combination of pdbfiles. It uses a semaphore for multiple thread coordination.
+            """Create a :py:obj:`~swamp.wrappers.gesamt.Gesamt` instance and align the specified combination of pdb \
+            files. It uses a :py:obj:`threading.semaphore` for multiple thread coordination.
 
-            :param idx: index of the combination to be aligned (used as identifier)
-            :type idx: int
-            :param combination: the combination of files to be aligned
-            :type combination: tuple
-            :returns nothing
-            :rtype None
+            :param int idx: index of the combination to be aligned (used as identifier)
+            :param tuple combination: the combination of files to be aligned
             """
 
             semaphore.acquire()

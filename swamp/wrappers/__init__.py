@@ -1,6 +1,6 @@
-"""This is SWAMP: Solving Structures With Alpha Membrane Pairs
+"""SWAMP: Solving Structures With Alpha Membrane Pairs
 
-This module implements wrapper classes around programs used within SWAMP mr module.
+This module implements wrapper classes around programs used within SWAMP.
 """
 
 __author__ = "Filomeno Sanchez Rodriguez"

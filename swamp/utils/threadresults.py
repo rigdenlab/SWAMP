@@ -5,11 +5,11 @@ import logging
 class ThreadResults(object):
     """Class to hold the results from a multi-threaded process
 
-       Implements semaphore methods to regulate thread I/O into the result list
+       Implements `threading.semaphore` to regulate thread I/O into a result list
 
-       :param :obj:`swamp.logger.swamplogger` logger: logger instance to record log messages
-       :ivar :obj:`threading.lock` lock: lock to control I/O to the result instance
-       :ivar :obj:`pandas.DataFrame` value: dataframe with the results of the grid search
+       :param `~swamp.logger.swamplogger.SwampLogger` logger: logger instance to record log messages
+       :ivar `threading.lock` lock: lock to control I/O to the result instance
+       :ivar `pandas.DataFrame` value: dataframe with the results of the grid search
        """
 
     def __init__(self, logger=None):
@@ -21,6 +21,11 @@ class ThreadResults(object):
             self.logger = logging.getLogger(__name__)
 
     def register(self, new_results):
+        """Register a set of new results into :py:attr:`swamp.utils.threadresults.ThreadResults.value`
+
+        :param list new_results: the new results to be registered
+        """
+
         self.logger.debug('Waiting for lock')
         self.lock.acquire()
         self.logger.debug('Acquired lock')

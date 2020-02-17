@@ -10,7 +10,7 @@ class Core(SearchModel):
 
     Extends :py:obj:`~swamp.searchmodel.searchmodel.SearchModel`
 
-    :examples
+    :example:
 
     >>> from swamp.searchmodel.core import Core
     >>> my_core = Core('<workdir>', '<pdbin>', '<pdbout>')

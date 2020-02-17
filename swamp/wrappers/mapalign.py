@@ -11,32 +11,28 @@ from swamp.parsers import MapAlignParser
 class MapAlign(Wrapper):
     """Wrapper around map_align
 
-    :param workdir: working directory
-    :type workdir: str
-    :param map_a: file name of the map A to be used in the alignment
-    :type map_a: str
-    :param pdb_a: file name of the pdb A to be used for benchmarking of the alignment
-    :type pdb_a: str
-    :param format_a: contact prediction file format of map A (default 'mapalign')
-    :type format_a: str
-    :param map_b: file name of the map B to be used in the alignment
-    :type map_b: str
-    :param pdb_b: file name of the pdb B to be used for benchmarking of the alignment
-    :type pdb_b: str
-    :param format_b: contact prediction file format of map B (default 'mapalign')
-    :type format_b: str
-    :param gap_o: gap opening penalty (default -1)
-    :type gap_o: int
-    :param gap_e: gap extension penalty (default -0.01)
-    :type gap_e: float
-    :param sep_cut: separation cutoff to compute contacts (default 0)
-    :type sep_cut: int
-    :param logger: logging interface for the wrapper (default None)
-    :type logger: None, :obj:`swamp.logger.swamplogger.SwampLogger`
-    :ivar error: if True an error has occurred along the process
-    :type error: bool
+    :param str workdir: working directory
+    :param str map_a: file name of the map A to be used in the alignment
+    :param str pdb_a: file name of the pdb A to be used for benchmarking of the alignment
+    :param str format_a: contact prediction file format of map A (default 'mapalign')
+    :param str map_b: file name of the map B to be used in the alignment
+    :param str pdb_b: file name of the pdb B to be used for benchmarking of the alignment
+    :param str format_b: contact prediction file format of map B (default 'mapalign')
+    :param int gap_o: gap opening penalty (default -1)
+    :param float gap_e: gap extension penalty (default -0.01)
+    :param int sep_cut: separation cutoff to compute contacts (default 0)
+    :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the wrapper (default None)
+    :ivar bool error: if True an error has occurred along the process
+    :ivar str con_sco: the contact score obtained after alignment of the input maps
+    :ivar str gap_sco: the gap score obtained in the alignment
+    :ivar str total_sco: the gap score obtained after alignment of the input maps
+    :ivar int alignment_length: the length of the alignment obtained between the two input maps
+    :ivar float qscore: qscore as reported by :py:obj:`~swamp.wrappers.gesamt.Gesamt`
+    :ivar float rmsd: the obtained rmsd as reported by :py:obj:`~swamp.wrappers.gesamt.Gesamt`
+    :ivar float seq_id: seq identity between the input structures obtained with :py:obj:`~swamp.wrappers.gesamt.Gesamt`
+    :ivar int n_align: number of aligned residues with :py:obj:`~swamp.wrappers.gesamt.Gesamt`
 
-    :examples
+    :example:
 
     >>> from swamp.wrappers import MapAlign
     >>> mapalign = MapAlign('<workdir>', '<map_a>', '<map_b>')
@@ -49,34 +45,35 @@ class MapAlign(Wrapper):
 
         super(MapAlign, self).__init__(workdir=workdir, logger=logger)
 
-        self._alignment = None
-        self._con_sco = None
-        self._gap_sco = None
-        self._total_sco = None
-        self._alignment_length = None
-        self._sep_cut = sep_cut
-        self._gap_e = gap_e
-        self._gap_o = gap_o
-        self._qscore = np.nan
-        self._rmsd = np.nan
-        self._seq_id = np.nan
-        self._n_align = np.nan
-        self._pdb_a = pdb_a
-        self._format_a = format_a
-        self._format_b = format_b
-        self._map_a = map_a
-        self._map_b = map_b
-        self._pdb_b = pdb_b
+        self.alignment = None
+        self.con_sco = None
+        self.gap_sco = None
+        self.total_sco = None
+        self.alignment_length = None
+        self.sep_cut = sep_cut
+        self.gap_e = gap_e
+        self.gap_o = gap_o
+        self.qscore = np.nan
+        self.rmsd = np.nan
+        self.seq_id = np.nan
+        self.n_align = np.nan
+        self.pdb_a = pdb_a
+        self.format_a = format_a
+        self.format_b = format_b
+        self.map_a = map_a
+        self.map_b = map_b
+        self.pdb_b = pdb_b
 
     # ------------------ Some properties ------------------
 
     @property
     def wrapper_name(self):
+        """The name of this wrapper (aleigen)"""
         return "mapalign"
 
     @property
     def source(self):
-        """Location of the executable file of al-eigen"""
+        """Location of the executable file of mapalign"""
         return swamp.SRC_MAPALIGN
 
     @property
@@ -108,7 +105,7 @@ class MapAlign(Wrapper):
 
     @property
     def summary_results(self):
-        """List with the figures of merit of the alignment"""
+        """A list with a summary of the obtained figures of merit"""
         return [self.map_a, self.map_b, self.con_sco, self.gap_sco, self.total_sco, self.alignment_length, self.qscore,
                 self.rmsd, self.seq_id, self.n_align]
 
