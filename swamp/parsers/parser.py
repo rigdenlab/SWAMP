@@ -25,9 +25,9 @@ class Parser(ABC):
         self.inputfile_contents = None
         self.check_input()
         if logger is None:
-            self._logger = logging.getLogger(__name__)
+            self.logger = logging.getLogger(__name__)
         else:
-            self._logger = logger
+            self.logger = logger
 
     # ------------------ Abstract methods and properties ------------------
 
@@ -50,3 +50,4 @@ class Parser(ABC):
         if self.fname is not None and not os.path.isfile(self.fname):
             self.error = True
             self.logger.error('Cannot find input file, please make sure it exists: %s' % self.fname)
+

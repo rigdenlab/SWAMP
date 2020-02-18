@@ -57,8 +57,9 @@ class MtzParser(Parser):
 
     @property
     def summary(self):
-        """Abstract property to store a summary of the parsed figures of merit (not in use)"""
-        return None
+        """Tuple with all the parsed label names"""
+        return (self.f, self.sigf, self.i, self.sigi, self.free, self.f_plus, self.sigf_plus, self.i_plus,
+                self.sigi_plus, self.f_minus, self.sigf_minus, self.i_minus, self.sigi_minus)
 
     def parse(self):
         """Parse the input mtz file and retrieve the column names of the labels as described
@@ -72,3 +73,8 @@ class MtzParser(Parser):
             matches = list(filter(label.value.match, self.all_labels))
             if any(matches):
                 self.__setattr__(label.name, matches[0].encode('utf-8'))
+
+        if not any([label for label in self.summary if label is not None]):
+            self.logger.error('Cannot find any column names at %s' % self.fname)
+            self.error = True
+

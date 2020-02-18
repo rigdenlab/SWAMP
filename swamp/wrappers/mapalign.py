@@ -120,16 +120,6 @@ class MapAlign(Wrapper):
         return os.path.splitext(os.path.basename(self.map_b))[0]
 
     @property
-    def alignment_length(self):
-        """Property to store contact map alignment length"""
-        return self._alignment_length
-
-    @alignment_length.setter
-    def alignment_length(self, value):
-        """Length of the :py:attr:`~swamp.wrappers.mapalign.MapAlign.alignment`"""
-        self._alignment_length = value
-
-    @property
     def _reference_mapformat(self):
         """The reference contact map format to be used with the aligner"""
         return 'mapalign'
@@ -207,3 +197,4 @@ class MapAlign(Wrapper):
             self.benchmark()
 
         self._cleanup_files()
+

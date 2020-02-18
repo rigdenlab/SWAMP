@@ -30,9 +30,17 @@ class AleigenParser(Parser):
         super(AleigenParser, self).__init__(stdout=stdout, fname=None, logger=logger)
 
     @property
+    def alignment_length(self):
+        """Length of the :py:attr:`~swamp.parsers.aleigenparser.AlEigenParser.alignment`"""
+        if self.alignment is None:
+            return None
+        else:
+            return len(self.alignment.keys())
+
+    @property
     def summary(self):
         """A summary of the figures of  merit"""
-        return self.alignment, self.con_sco, self.cmo, self.c1, self.c2
+        return self.alignment, self.alignment_length, self.con_sco, self.cmo, self.c1, self.c2
 
     def parse(self):
         """Extract the figures of merit out of :py:attr:`~swamp.parsers.parser.stdout`"""
@@ -47,3 +55,4 @@ class AleigenParser(Parser):
             elif len(line) == 2:
                 # residue_b => residue_a
                 self.alignment[int(line[1])] = int(line[0])
+

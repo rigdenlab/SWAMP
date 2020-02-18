@@ -88,10 +88,10 @@ class Phaser(Wrapper):
 
     def __getstate__(self):
         d = dict(self.__dict__)
-        del d['_input_mr_dat']
-        del d['_input_mr_auto']
-        del d['_run_mr_auto']
-        del d['_run_mr_dat']
+        del d['input_mr_dat']
+        del d['input_mr_auto']
+        del d['run_mr_auto']
+        del d['run_mr_dat']
         return d
 
     def __setstate__(self, d):
@@ -455,3 +455,4 @@ class Phaser(Wrapper):
             return True
         else:
             return False
+

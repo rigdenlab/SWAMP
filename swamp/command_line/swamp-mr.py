@@ -83,7 +83,7 @@ def main():
     idx = 0
     swamp_workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
     while os.path.isdir(swamp_workdir):
-        idx += 0
+        idx += 1
         swamp_workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
     os.mkdir(swamp_workdir)
     logfile = os.path.join(swamp_workdir, "swamp_%s.debug" % args.id)

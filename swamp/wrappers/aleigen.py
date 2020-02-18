@@ -67,14 +67,6 @@ class AlEigen(MapAlign):
         return 'aleigen'
 
     @property
-    def alignment_length(self):
-        """Length of the :py:attr:`~swamp.wrappers.aleigen.AlEigen.alignment`"""
-        if self.alignment is None:
-            return None
-        else:
-            return len(self.alignment.keys())
-
-    @property
     def keywords(self):
         """Keywords passed through the command line to aleigen"""
 
@@ -114,7 +106,7 @@ class AlEigen(MapAlign):
             self.error = True
             self.logger.warning('Previous errors while parsing aleigen output detected!')
         else:
-            self.alignment, self.con_sco, self.cmo, self.c1, self.c2 = parser.summary
+            self.alignment, self.alignment_length, self.con_sco, self.cmo, self.c1, self.c2 = parser.summary
 
     @staticmethod
     def create_eigen_vectors(cmap, vector_output, map_format='aleigen'):
@@ -141,3 +133,4 @@ class AlEigen(MapAlign):
 
         if tmpfile is not None:
             os.remove(tmpfile)
+

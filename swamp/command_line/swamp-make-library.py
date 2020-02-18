@@ -73,7 +73,7 @@ def main():
     idx = 0
     workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
     while os.path.isdir(workdir):
-        idx += 0
+        idx += 1
         workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
     os.mkdir(workdir)
 
