@@ -5,14 +5,16 @@ swamp-mr options
 
 .. code-block:: text
 
-    usage: swamp-mr    [-h] [-nprocs [NPROCS]] [-pdb_benchmark [FILENAME]]
-                       [-platform [PLATFORM]] [-mtz_phases [FILENAME]]
-                       [-job_kill_time [JOB_KILL_TIME]]
-                       [-ncontacts_threshold [NCONTACTS_THRESHOLD]]
-                       [-consco_threshold [CONSCO_THRESHOLD]]
-                       [-python_interpreter [PYTHON_INTERPRETER]]
-                       [-combine_searchmodels] [-use_centroids]
-                       id workdir mtzfile fastafile conpred sspred
+usage: swamp-mr    [-h] [-nprocs [NPROCS]] [-pdb_benchmark [PDB_BENCHMARK]]
+                   [-platform [PLATFORM]] [-environment [ENVIRONMENT]]
+                   [-queue [QUEUE]] [-mtz_phases [MTZ_PHASES]]
+                   [-job_kill_time [JOB_KILL_TIME]]
+                   [-ncontacts_threshold [NCONTACTS_THRESHOLD]]
+                   [-consco_threshold [CONSCO_THRESHOLD]]
+                   [-python_interpreter [PYTHON_INTERPRETER]]
+                   [-combine_searchmodels] [-use_centroids] [-use_cores]
+                   id workdir mtzfile fastafile conpred sspred
+
 
 
 positional arguments:
@@ -66,5 +68,5 @@ optional arguments:
       -use_centroids        Ensemble centroids used as search models as well
                             (only supported if not combining search models)
 
-      -use_centroids        Core ensembles used as search models as well
+      -use_cores            Core ensembles used as search models as well
                             (only supported if not combining search models)

@@ -151,6 +151,6 @@ class Shelxe(Wrapper):
 
         # Get the scores
         self.get_scores()
-        self.logger.info(self.result_summary)
+        self.logger.info(self.summary_results)
 
         os.chdir(tmp_dir)

@@ -3,6 +3,7 @@ import dill
 from prettytable import PrettyTable
 from argparse import ArgumentParser
 from swamp.logger import SwampLogger
+from swamp.command_line import check_path_exists
 
 
 class MrResults(object):
@@ -53,10 +54,11 @@ Recovering results now...
         return ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE", "RFMC_RFACT",
                 "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED", "SOLUTION"]
 
-    def report_results(self, top=50):
+    def report_results(self, top=50, sort_by='SHXE_CC'):
         """Print in the stdout a table with the indicated top :py:attr:`~swamp.mr.mrresults.MrResults.results`
 
         :param int top: top number of results to display
+        :param str sort_by: the column name to use for sorting the table
         """
 
         table = PrettyTable(self._result_table_fields)
@@ -66,7 +68,7 @@ Recovering results now...
             else:
                 self.logger.warning('Results out of bounds! %s' % ', '.join(result))
 
-        table.sortby = 'SHXE_CC'
+        table.sortby = sort_by
         table.reversesort = True
 
         self.logger.info('Results retrieved. Showing top %s scoring results:\n\n%s' % (top, table.get_string()))
@@ -130,8 +132,10 @@ Recovering results now...
 if __name__ == "__main__":
     # User input
     parser = ArgumentParser()
-    parser.add_argument(dest="swamp_workdir")
+    parser.add_argument("swamp_workdir", type=check_path_exists,
+                        help="The workding directory where SWAMP results can be extracted")
     parser.add_argument("-top_results", type=int, nargs="?", default=50, help='Number of top results to display')
+    parser.add_argument("-sort_by", type=str, nargs="?", default='SHXE_CC', help='Field to use for sorting results')
     args = parser.parse_args()
 
     # Recover and display results

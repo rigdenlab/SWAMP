@@ -8,7 +8,7 @@ import itertools
 from swamp.logger import SwampLogger
 from swamp.search import SearchTarget
 from swamp.mr import MrJob, MrArray, MrResults
-from swamp.command_line import check_file_exists
+from swamp.command_line import check_path_exists
 
 
 def parse_arguments():
@@ -18,12 +18,12 @@ def parse_arguments():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("id", type=str, help='Unique identifier for this MR subroutine')
     parser.add_argument("workdir", type=str, help='Working directory to perform MR')
-    parser.add_argument("mtzfile", type=check_file_exists, help='MTZ file with the reflection data')
-    parser.add_argument("fastafile", type=check_file_exists, help="FASTA file with the sequence of the structure")
-    parser.add_argument("conpred", type=check_file_exists, help="Residue contact prediction for the target structure")
-    parser.add_argument("sspred", type=check_file_exists, help="Secondary structure prediction for the target protein")
+    parser.add_argument("mtzfile", type=check_path_exists, help='MTZ file with the reflection data')
+    parser.add_argument("fastafile", type=check_path_exists, help="FASTA file with the sequence of the structure")
+    parser.add_argument("conpred", type=check_path_exists, help="Residue contact prediction for the target structure")
+    parser.add_argument("sspred", type=check_path_exists, help="Secondary structure prediction for the target protein")
     parser.add_argument("-nprocs", type=int, nargs="?", default=1, help="Number of parallel processors to use")
-    parser.add_argument("-pdb_benchmark", type=check_file_exists, nargs="?", default=None,
+    parser.add_argument("-pdb_benchmark", type=check_path_exists, nargs="?", default=None,
                         help="PDB file with the solve structure (for benchmarking)")
     parser.add_argument("-platform", type=str, nargs="?", default='sge',
                         help="Platform to execute MR runs (default sge)")
@@ -31,7 +31,7 @@ def parse_arguments():
                         help="Select a environment for execution of HPC tasks (default None)")
     parser.add_argument("-queue", type=str, nargs="?", default=None,
                         help="Queue name to send jobs in the HPC (default None)")
-    parser.add_argument("-mtz_phases", type=check_file_exists, nargs="?", default=None,
+    parser.add_argument("-mtz_phases", type=check_path_exists, nargs="?", default=None,
                         help="MTZ file with phase information (for benchmarking)")
     parser.add_argument("-job_kill_time", type=int, nargs="?", default=4320, help='Maximum runtime of each MR run')
     parser.add_argument("-ncontacts_threshold", type=int, nargs="?", default=28,

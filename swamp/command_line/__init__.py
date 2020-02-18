@@ -16,14 +16,13 @@ if 'THIS_IS_READTHEDOCS' not in os.environ and "CCP4" not in os.environ:
     raise RuntimeError("Cannot find CCP4 root directory")
 
 
-def check_file_exists(input_path):
-    """Check if a given path corresponds with an existing file
+def check_path_exists(input_path):
+    """Check if a given path exists
 
     :param input_path: location of the file to be tested
     :type input_path: str, None
-    :returns the absolute path of the file if it exists, None if the input is None
-    :rtype str, None
-    :raises IOError if the file doesn't exist
+    :returns: the absolute path of the file if it exists, None if the input is None
+    :raises IOError: if the file doesn't exist
     """
 
     if input_path is None:

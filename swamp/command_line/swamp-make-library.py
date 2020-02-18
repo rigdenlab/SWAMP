@@ -9,7 +9,7 @@ import pandas as pd
 from swamp.utils import compress, SwampLibrary
 from swamp.searchmodel import Core
 from swamp.logger import SwampLogger
-from swamp.command_line import check_file_exists
+from swamp.command_line import check_path_exists
 from swamp.clustering import Optics
 
 
@@ -20,7 +20,7 @@ def parse_arguments():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("workdir", type=str, help='Working directory to perform ensemble clustering')
     parser.add_argument("-nprocs", type=int, nargs="?", default=1, help='Number of processors to use')
-    parser.add_argument("-homologs", type=check_file_exists, nargs="?", default=None,
+    parser.add_argument("-homologs", type=check_path_exists, nargs="?", default=None,
                         help='A file with the list of homolog structures to exclude')
     parser.add_argument("-overwrite_library", action='store_true',
                         help='If set, overwrite the SWAMP library with the new ensembles')
