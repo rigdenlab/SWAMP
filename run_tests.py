@@ -8,7 +8,6 @@ from __future__ import print_function
 import glob
 import logging
 import os
-import contextlib
 import sys
 from unittest import TestLoader, TextTestRunner, TestSuite
 
@@ -57,15 +56,11 @@ class SWAMPUnittestFramework(object):
         return suite
 
 
-@contextlib.contextmanager
-def mock_import_path():
-    """Patch CCP4 to ignore shipped SIMBAD."""
-    org_path = sys.path
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    yield
-    sys.path = org_path
-
 if __name__ == "__main__":
+
+    # Mock CCP4 directories
+    os.environ['CCP4'] = "/empty/path"
+    os.environ['CCP4_SCR'] = "/empty/path"
+
     test = SWAMPUnittestFramework()
-    with mock_import_path():
-        test.run()
+    test.run()
