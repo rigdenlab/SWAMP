@@ -18,7 +18,7 @@ class PdbtmXmlParser(Parser):
     """
 
     def __init__(self, fname, logger=None):
-        self._ss2_annotation = None
+        self.ss2_annotation = None
         super(PdbtmXmlParser, self).__init__(fname, logger=logger)
 
     @property

@@ -94,6 +94,20 @@ def get_tempfile():
     return os.path.join(os.environ['CCP4_SCR'], '%s.pdb' % temp_name)
 
 
+def create_tempfile(content, mode="w"):
+    """Create a temporary file with a given set of contents
+
+    :param str content: content to dump into the temporary file
+    :param str mode: mode to open the file handler (default: 'w')
+    :returns: the path to the temporary file name (str)
+    """
+
+    fname = get_tempfile()
+    with open(fname, mode) as fhandle:
+        fhandle.write(content)
+    return fname
+
+
 def invert_contactmap(cmap):
     """Method to invert a contact map
 
