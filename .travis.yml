@@ -4,6 +4,7 @@ python:
 
 install:
   - sudo apt-get update
+  - pip install pybind11
   - pip install -r requirements.txt
 
 script: python ./run_tests.py
