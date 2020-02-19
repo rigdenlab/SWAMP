@@ -1,3 +1,7 @@
+.. image:: docs/_static/logo_swamp_clipart.svg
+   :width: 100%
+   :align: center
+
 **********************************************************************
 Solving structures With Alpha helical Membrane Pairs
 **********************************************************************
@@ -30,8 +34,8 @@ Depiction of SWAMP flowchart:
 
 
 
-.. image:: https://raw.githubusercontent.com/rigdenlab/SWAMP/master/docs/_static/flowchart.png
-   :width: 100%
+.. image:: docs/_static/flowchart.png
+   :width: 50%
    :align: center
 
 Do you want to know more?
