@@ -28,8 +28,12 @@ class SWAMPUnittestFramework(object):
             sys.stderr.write(msg)
             sys.exit(1)
         logging.disable(logging.CRITICAL)
-        TextTestRunner(verbosity=verbosity, buffer=buffer).run(tests)
+        result = TextTestRunner(verbosity=verbosity, buffer=buffer).run(tests)
         logging.disable(logging.NOTSET)
+        if result.wasSuccessful():
+            exit(0)
+        else:
+            exit(1)
 
     def find_tests(self, directory, pattern="test*.py"):
         """Load a unittest test suite"""
