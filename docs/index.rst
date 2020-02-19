@@ -1,7 +1,7 @@
 ..
 
 .. include:: ../README.rst
-   :start-line: 4
+   :start-line: 12
    :end-before: Depiction of SWAMP flowchart
 
 Depiction of SWAMP flowchart:
