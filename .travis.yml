@@ -12,4 +12,4 @@ install:
 script: python ./run_tests.py
 
 after_success:
-  - codecov
+  - codecov --file .coveragerc
