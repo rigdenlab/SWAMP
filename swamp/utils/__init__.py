@@ -360,7 +360,7 @@ def merge_into_ensemble(hierarchies):
     new_hierarchy = gemmi.Structure()
 
     for hierarchy in hierarchies:
-        new_model = gemmi.Model(len(new_hierarchy) + 1)
+        new_model = gemmi.Model(str(len(new_hierarchy) + 1))
         new_model.add_chain(hierarchy[0][0])
         new_hierarchy.add_model(new_model)
 
