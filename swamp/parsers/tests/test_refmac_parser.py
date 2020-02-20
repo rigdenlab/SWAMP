@@ -4,7 +4,17 @@ from swamp.parsers.refmacparser import RefmacParser
 
 class RefmacParserTestCase(unittest.TestCase):
 
+
+
     def test_1(self):
+        stdout_contents = """<B><FONT COLOR="#FF0000"><!--SUMMARY_BEGIN-->"""
+        parser = RefmacParser(stdout=stdout_contents)
+        parser.parse()
+        self.assertTrue(parser.error)
+        self.assertEqual(parser.rfactor, 'NA')
+
+
+    def test_2(self):
         stdout_contents = """<B><FONT COLOR="#FF0000"><!--SUMMARY_BEGIN-->
 <html> <!-- CCP4 HTML LOGFILE -->
 <hr>

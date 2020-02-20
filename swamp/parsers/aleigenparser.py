@@ -21,7 +21,7 @@ class AleigenParser(Parser):
 
     def __init__(self, stdout, logger=None):
 
-        self.alignment = {}
+        self.alignment = None
         self.con_sco = None
         self.c1 = None
         self.c2 = None
@@ -45,6 +45,7 @@ class AleigenParser(Parser):
     def parse(self):
         """Extract the figures of merit out of :py:attr:`~swamp.parsers.parser.stdout`"""
 
+        self.alignment = {}
         for line in self.stdout.split("\n"):
             line = line.split()
             if len(line) == 4 and line[0] != "Score":

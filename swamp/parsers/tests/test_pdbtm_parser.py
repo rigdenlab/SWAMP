@@ -8,6 +8,13 @@ from swamp.parsers.pdbtmxmlparser import PdbtmXmlParser
 class PdbtmParserTestCase(unittest.TestCase):
 
     def test_1(self):
+        fname = '/empty/path'
+        parser = PdbtmXmlParser(fname)
+        parser.parse()
+        self.assertTrue(parser.error)
+        self.assertIsNone(parser.ss2_annotation)
+
+    def test_2(self):
         file_contents = """<?xml version="1.0" encoding="iso-8859-1"?>
 <pdbtm xmlns="http://pdbtm.enzim.hu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pdbtm.enzim.hu/data/pdbtm.xsd pdbtm.xsd" ID="6e7p" TMP="yes">
   <COPYRIGHT>
@@ -486,7 +493,7 @@ class PdbtmParserTestCase(unittest.TestCase):
                                        559, 560, 561, 562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572, 573, 574,
                                        575, 576, 577, 578, 579, 580])
         ]
-
+        self.assertIsNone(parser.summary)
         self.assertListEqual(ss2_annot, parser.ss2_annotation)
 
 

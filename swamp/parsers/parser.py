@@ -23,11 +23,11 @@ class Parser(ABC):
         self.error = False
         self.stdout = stdout
         self.inputfile_contents = None
-        self.check_input()
         if logger is None:
             self.logger = logging.getLogger(__name__)
         else:
             self.logger = logger
+        self.check_input()
 
     # ------------------ Abstract methods and properties ------------------
 

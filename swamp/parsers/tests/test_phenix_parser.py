@@ -10,6 +10,20 @@ class PhenixParserTestCase(unittest.TestCase):
 # Get correlation between atoms in a PDB file and map 
 # offsetting the PDB file by allowed origin shifts
 
+"""
+        parser = PhenixParser(stdout=stdout_contents)
+        parser.parse()
+        self.assertTrue(parser.error)
+        self.assertEqual('NA', parser.local_CC)
+
+
+
+    def test_2(self):
+        stdout_contents = """#                       get_cc_mtz_pdb
+#
+# Get correlation between atoms in a PDB file and map 
+# offsetting the PDB file by allowed origin shifts
+
 # Type phenix.doc for help
 Values of all params:
 get_cc_mtz_pdb {

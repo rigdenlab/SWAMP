@@ -7,7 +7,11 @@ from swamp.parsers.topconsparser import TopconsParser
 class TopconsParserTestCase(unittest.TestCase):
 
     def test_1(self):
+        parser = TopconsParser('/empty/path')
+        parser.parse()
+        self.assertIsNone(parser.tmhelices)
 
+    def test_2(self):
         file_contents = """##############################################################################
 TOPCONS2 result file
 Generated from http://topcons.cbr.su.se at 2020-02-11 10:51:12 UTC
@@ -41,8 +45,7 @@ Predicted TOPCONS reliability (left column=sequence position; right column=relia
         with self.assertRaises(ValueError):
             parser.parse()
 
-    def test_2(self):
-
+    def test_3(self):
         file_contents = """##############################################################################
 TOPCONS2 result file
 Generated from http://topcons.cbr.su.se at 2020-02-11 10:51:12 UTC
@@ -170,6 +173,7 @@ Predicted TOPCONS reliability (left column=sequence position; right column=relia
         parser = TopconsParser(fname)
         parser.parse()
 
+        self.assertIsNone(parser.summary)
         self.assertListEqual(tmhelices_start, parser.tmhelices.start.tolist())
         self.assertListEqual(tmhelices_stop, parser.tmhelices.stop.tolist())
         self.assertListEqual(tmhelices_id, parser.tmhelices.id.tolist())

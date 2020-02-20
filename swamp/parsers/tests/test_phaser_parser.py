@@ -8,8 +8,54 @@ class PhaserParserTestCase(unittest.TestCase):
 
     def test_1(self):
         file_contents = """REMARK TITLE [no title set]
+REMARK ENSEMBLE PDB_1 EULER  49.90  83.52 180.06 FRAC -0.288 -0.526 -0.158
+CRYST1   73.330   73.330  163.520  90.00  90.00  90.00 P 41 2 2      8
+SCALE1      0.013637 -0.000000 -0.000000        0.00000
+SCALE2      0.000000  0.013637 -0.000000        0.00000
+SCALE3      0.000000  0.000000  0.006115        0.00000
+ATOM      1  N   ALA A   1      14.378 -30.428 -13.824  1.00 61.34           N
+ATOM    210  CB  ALA A  42       2.780 -38.569 -12.366  1.00 77.20           C
+END
+"""
+
+        stdout_contents = """******************************************************************************************
+*** Phaser Module: PREPROCESSOR                                                  2.8.3 ***
+******************************************************************************************
+
+COMPOSITION BY ASU
+COMPOSITION PROTEIN MW 34738.3 NUM 1
+ELLG HIRES ON
+ENSEMBLE PDB_1 PDB &
+"/data1/filo/results/SWAMP_benchmarking/SWAMP_0/swamp_mr/search_461/run_1/searchmodels/searchmodel_1_polyala.pdb" RMS &
+0.1 
+ENSEMBLE PDB_1 DISABLE CHECK ON
+HKLIN "/data1/filo/results/SWAMP_benchmarking/3zux.mtz"
+JOBS 1
+KEYWORDS ON
+LABIN F = FP SIGF = SIGFP
+MUTE ON
+ROOT "3zux_phaser"
+SEARCH ENSEMBLE PDB_1 
+SGALT BASE  P 4w 2c
+SGALT SELECT LIST
+SGALT TEST P 41 2 2
+XYZOUT ON
+KILL TIME 1440
+
+CPU Time: 0 days 0 hrs 0 mins 0.76 secs (      0.76 secs)
+Finished: Mon Feb 17 02:38:52 2020
+"""
+        fname = create_tempfile(content=file_contents)
+        self.addCleanup(os.remove, fname)
+        parser = PhaserParser(stdout=stdout_contents, fname=fname)
+        parser.parse()
+        self.assertEqual('NA', parser.LLG)
+        self.assertTrue(parser.error)
+
+    def test_2(self):
+        file_contents = """REMARK TITLE [no title set]
 REMARK Log-Likelihood Gain:   70.197
-REMARK  RFZ=3.0 TFZ=5.6 PAK=0 LLG=70 TFZ==6.0 LLG=70 TFZ==5.9 PAK=0 LLG=70 TFZ==5.9
+REMARK  RFZ=3.0 TFZ=5.6 PAK=0 LLG=70 TFZ==6.0 LLG=70 TFZ==5.9 PAK=0 LLG=70 RFZ==3.5 TFZ==5.9
 REMARK ENSEMBLE PDB_1 EULER  49.90  83.52 180.06 FRAC -0.288 -0.526 -0.158
 CRYST1   73.330   73.330  163.520  90.00  90.00  90.00 P 41 2 2      8
 SCALE1      0.013637 -0.000000 -0.000000        0.00000
@@ -119,10 +165,10 @@ MONOMERIC ELLG
         self.assertEqual('70.197', parser.LLG)
         self.assertEqual('5.29275', parser.eLLG)
         self.assertEqual('5.9', parser.TFZ)
-        self.assertEqual('3.0', parser.RFZ)
+        self.assertEqual('3.5', parser.RFZ)
         self.assertEqual('-0.3997', parser.VRMS)
 
-        self.assertTupleEqual(('70.197', '5.9', '3.0', '5.29275', '-0.3997'), parser.summary)
+        self.assertTupleEqual(('70.197', '5.9', '3.5', '5.29275', '-0.3997'), parser.summary)
 
 
 if __name__ == '__main__':

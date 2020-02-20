@@ -18,8 +18,8 @@ class PhenixParser(Parser):
 
     def __init__(self, stdout, logger=None):
 
-        self._overall_CC = "NA"
-        self._local_CC = "NA"
+        self.overall_CC = "NA"
+        self.local_CC = "NA"
 
         super(PhenixParser, self).__init__(stdout=stdout, fname=None, logger=logger)
 

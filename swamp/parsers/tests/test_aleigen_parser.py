@@ -61,6 +61,7 @@ class AlEigenParserTestCase(unittest.TestCase):
 """
 
         parser = AleigenParser(stdout=stdout_contents)
+        self.assertIsNone(parser.alignment_length)
         parser.parse()
 
         alignment = {0: 11, 1: 12, 2: 15, 3: 16, 4: 18, 5: 19, 6: 20, 7: 21, 8: 22, 9: 23, 10: 24, 11: 25, 12: 26,
