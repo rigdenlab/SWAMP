@@ -6,5 +6,10 @@ install:
   - sudo apt-get update
   - pip install pybind11
   - pip install -r requirements.txt
+  - pip install pytest-cov pytest
+  - pip install codecov
 
 script: python ./run_tests.py
+
+after_success:
+  - codecov
