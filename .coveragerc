@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = swamp
+source = SWAMP
 
 [report]
 exclude_lines =
