@@ -6,7 +6,7 @@ from conkit.core import ContactMap, Contact
 
 class UtilsTestCase(unittest.TestCase):
 
-    def test_contactmap_operations(self):
+    def test_1(self):
         contact_map = ContactMap("test")
         contact_map.add(Contact(1, 4, 1.0))
         contact_map.add(Contact(2, 4, 1.0))
@@ -16,7 +16,7 @@ class UtilsTestCase(unittest.TestCase):
         inverted = invert_contactmap(contact_map)
         self.assertListEqual([x.id for x in inverted], [(8, 5), (7, 5), (4, 1), (6, 3)])
 
-    def test_gemmi_hierarchy_operations(self):
+    def test_2(self):
         pdb_content = """CRYST1   73.330   73.330  163.520  90.00  90.00  90.00 P 41 2 2      8          
 ATOM    760  N   VAL A 100      17.668  61.385  96.142  1.00 36.12           N  
 ANISOU  760  N   VAL A 100     4189   5832   3703    370    -20     96       N  

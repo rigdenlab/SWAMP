@@ -118,9 +118,10 @@ def invert_contactmap(cmap):
 
     inverted_cmap = ContactMap('inverted')
 
+    highest_residue_number = max([max(contact.id) for contact in cmap])
     for contact in cmap:
-        new_contact = Contact(cmap.highest_residue_number + 1 - contact.res1_seq,
-                              cmap.highest_residue_number + 1 - contact.res2_seq,
+        new_contact = Contact(highest_residue_number + 1 - contact.res1_seq,
+                              highest_residue_number + 1 - contact.res2_seq,
                               contact.raw_score)
         inverted_cmap.add(new_contact)
 
