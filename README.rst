@@ -2,6 +2,10 @@
    :width: 100%
    :align: center
 
+**********************************************************************
+Solving structures With Alpha helical Membrane Pairs
+**********************************************************************
+
 .. image:: https://readthedocs.org/projects/swamp/badge/?version=latest
    :target: http://swamp.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
@@ -9,10 +13,6 @@
 .. image:: https://travis-ci.com/rigdenlab/SWAMP.svg?branch=master
    :target: https://travis-ci.com/rigdenlab/SWAMP
    :alt: CI Status
-
-**********************************************************************
-Solving structures With Alpha helical Membrane Pairs
-**********************************************************************
 
 About SWAMP
 +++++++++++

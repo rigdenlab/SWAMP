@@ -59,8 +59,10 @@ class SWAMPUnittestFramework(object):
 if __name__ == "__main__":
 
     # Mock CCP4 directories
-    os.environ['CCP4'] = "/empty/path"
-    os.environ['CCP4_SCR'] = "/empty/path"
+
+    os.environ['CCP4'] = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+    os.environ['CCP4_SCR'] = os.path.abspath(os.path.join(os.path.dirname(__file__), "CCP4_SCR"))
+    os.mkdir(os.environ['CCP4_SCR'])
 
     test = SWAMPUnittestFramework()
     test.run()
