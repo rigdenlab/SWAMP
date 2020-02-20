@@ -151,6 +151,16 @@ class Phaser(Wrapper):
         return "%s_phaser" % os.path.basename(self.mtzfile[:-4])
 
     @property
+    def top_PDBfile(self):
+        """PDB file name corresponding with the top solution"""
+        return "%s.1.pdb" % os.path.basename(self.root)
+
+    @property
+    def top_MTZfile(self):
+        """MTZ file name corresponding with the top solution"""
+        return "%s.1.mtz" % os.path.basename(self.root)
+
+    @property
     def top_searchmodel(self):
         """First search model at :py:attr:`~swamp.wrappers.wphaser.Phaser.searchmodel_ids_list`"""
         if len(self.searchmodel_ids_list) == 0:
@@ -305,7 +315,7 @@ class Phaser(Wrapper):
         # Check for errors
         self._check_error()
         if not self.error:
-            shutil.move(self.run_mr_auto.getTopPdbFile(), self.pdbout_tmp.format(searchmodel_id))
+            shutil.move(self.top_PDBfile, self.pdbout_tmp.format(searchmodel_id))
             shutil.copyfile(self.pdbout_tmp.format(searchmodel_id), self.pdbout)
             self.get_scores(self.pdbout_tmp.format(searchmodel_id))
             self.logger.info(self.summary_results)
@@ -409,23 +419,26 @@ class Phaser(Wrapper):
         """
 
         if not self.run_mr_auto.Success():
-            self.logger.warning("Phaser did not register success!")
-            self.error = True
+            if self.run_mr_auto.ErrorName() == 'KILL-TIME ELAPSED':
+                self.logger.warning("Phaser exceeded the kill-time! (%s min)" % self.timeout)
+            else:
+                self.logger.warning("Phaser did not register success!")
+                self.error = True
+                return
 
-        elif not self.run_mr_auto.foundSolutions():
+        if not self.run_mr_auto.foundSolutions():
             self.logger.warning("Phaser did not find a solution!")
             self.error = True
+            return
 
-        elif not os.path.isfile(self.run_mr_auto.getTopPdbFile()):
+        if not os.path.isfile(self.top_PDBfile):
             self.logger.warning("Phaser did not produce a pdb output file!")
             self.error = True
+            return
 
-        elif not os.path.isfile(self.run_mr_auto.getTopMtzFile()):
-            self.logger.warning("Phaser did not produce a mtz file!")
-
-        elif self.run_mr_auto.Failure():
-            self.logger.error("Phaser registered failure!")
-            self.error = True
+        if not os.path.isfile(self.top_MTZfile):
+            self.logger.warning("Phaser did not produce a mtz output file!")
+            return
 
     @staticmethod
     def remove_side_chains(pdbfile):
@@ -455,4 +468,3 @@ class Phaser(Wrapper):
             return True
         else:
             return False
-

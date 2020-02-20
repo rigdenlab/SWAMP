@@ -53,7 +53,7 @@ class MrRun(Mr):
 
     def __init__(self, id, workdir, target_fa, target_mtz, phased_mtz=None, threads=1, phaser_sgalternative="NONE",
                  phaser_early_kill=True, silent=False, save_disk_space=False, logger=None, phaser_packcutoff=None,
-                 phaser_timeout=1440, extend_solution=True, quiet_start=False, phaser_peaks_rotcutoff=None):
+                 phaser_timeout=1800, extend_solution=True, quiet_start=False, phaser_peaks_rotcutoff=None):
 
         super(MrRun, self).__init__(id, target_fa, target_mtz, workdir, phased_mtz=phased_mtz, logger=logger,
                                     silent=silent)
@@ -325,7 +325,7 @@ class MrRun(Mr):
                         'phased_mtz': self.phased_mtz,
                         'phaser_sgalternative': self.phaser_sgalternative,
                         'phaser_packcutoff': 40.0,
-                        'phaser_timeout': 1440,
+                        'phaser_timeout': 1800,
                         'silent': False,
                         'phaser_early_kill': True,
                         'logger': self.logger,
