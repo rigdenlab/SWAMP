@@ -329,7 +329,10 @@ def extract_hierarchy_seqnumber(hierarchy, seq_numbers, chain_id='A'):
     """
 
     header = hierarchy.make_pdb_headers().split('\n')
-    missing_res = get_missing_residues(header)[chain_id]
+    try:
+        missing_res = get_missing_residues(header)[chain_id]
+    except KeyError:
+        missing_res = []
     new_hierarchy = gemmi.Structure()
     new_model = gemmi.Model("1")
     new_chain = gemmi.Chain(chain_id)

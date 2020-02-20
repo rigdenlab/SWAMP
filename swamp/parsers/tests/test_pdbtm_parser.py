@@ -5,7 +5,7 @@ from swamp.utils import create_tempfile
 from swamp.parsers.pdbtmxmlparser import PdbtmXmlParser
 
 
-class MyTestCase(unittest.TestCase):
+class PdbtmParserTestCase(unittest.TestCase):
 
     def test_1(self):
         file_contents = """<?xml version="1.0" encoding="iso-8859-1"?>

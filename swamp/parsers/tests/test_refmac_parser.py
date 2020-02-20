@@ -2,7 +2,7 @@ import unittest
 from swamp.parsers.refmacparser import RefmacParser
 
 
-class MyTestCase(unittest.TestCase):
+class RefmacParserTestCase(unittest.TestCase):
 
     def test_1(self):
         stdout_contents = """<B><FONT COLOR="#FF0000"><!--SUMMARY_BEGIN-->

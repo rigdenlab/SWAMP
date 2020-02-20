@@ -4,7 +4,7 @@ from swamp.utils import create_tempfile
 from swamp.parsers.phaserparser import PhaserParser
 
 
-class MyTestCase(unittest.TestCase):
+class PhaserParserTestCase(unittest.TestCase):
 
     def test_1(self):
         file_contents = """REMARK TITLE [no title set]

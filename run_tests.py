@@ -12,7 +12,7 @@ import sys
 from unittest import TestLoader, TextTestRunner, TestSuite
 
 SWAMP_DIR = os.path.join(os.path.dirname(__file__), "swamp")
-PACKAGES = ["parsers"]
+PACKAGES = ["parsers", "utils"]
 
 
 class SWAMPUnittestFramework(object):
@@ -59,10 +59,12 @@ class SWAMPUnittestFramework(object):
 if __name__ == "__main__":
 
     # Mock CCP4 directories
-
-    os.environ['CCP4'] = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-    os.environ['CCP4_SCR'] = os.path.abspath(os.path.join(os.path.dirname(__file__), "CCP4_SCR"))
-    os.mkdir(os.environ['CCP4_SCR'])
+    ccp4_root = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+    ccp4_scr = os.path.abspath(os.path.join(os.path.dirname(__file__), "CCP4_SCR"))
+    os.environ['CCP4'] = ccp4_root
+    os.environ['CCP4_SCR'] = ccp4_scr
+    if not os.path.isdir(ccp4_scr):
+        os.mkdir(ccp4_scr)
 
     test = SWAMPUnittestFramework()
     test.run()

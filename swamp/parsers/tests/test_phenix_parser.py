@@ -2,7 +2,7 @@ import unittest
 from swamp.parsers.phenixparser import PhenixParser
 
 
-class MyTestCase(unittest.TestCase):
+class PhenixParserTestCase(unittest.TestCase):
 
     def test_1(self):
         stdout_contents = """#                       get_cc_mtz_pdb

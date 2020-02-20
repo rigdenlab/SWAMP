@@ -4,7 +4,7 @@ from swamp.utils import create_tempfile
 from swamp.parsers.topconsparser import TopconsParser
 
 
-class MyTestCase(unittest.TestCase):
+class TopconsParserTestCase(unittest.TestCase):
 
     def test_1(self):
 

@@ -4,7 +4,7 @@ from swamp.utils import create_tempfile
 from swamp.parsers.shelxeparser import ShelxeParser
 
 
-class MyTestCase(unittest.TestCase):
+class ShelxeParserTestCase(unittest.TestCase):
 
     def test_1(self):
         stdout_contents = """++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -2,7 +2,7 @@ import unittest
 from swamp.parsers.aleigenparser import AleigenParser
 
 
-class MyTestCase(unittest.TestCase):
+class AlEigenParserTestCase(unittest.TestCase):
 
     def test_1(self):
         stdout_contents = """Score    C1    C2    CMO

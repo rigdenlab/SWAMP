@@ -2,7 +2,7 @@ import unittest
 from swamp.parsers.mapalignparser import MapAlignParser
 
 
-class MyTestCase(unittest.TestCase):
+class MapAlignParserTestCase(unittest.TestCase):
 
     def test_1(self):
         stdout_contents = """OPT -------------------------------------------------------------------
