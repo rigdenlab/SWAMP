@@ -105,8 +105,9 @@ class Shelxe(Wrapper):
         return os.path.join(self.workdir, "shelxe-input.hkl")
 
     @property
-    def output_pdb(self):
-        """The output .pdb file name created by shelxe"""
+    def pdbout(self):
+        """Override :py:attr:`~swamp.wrappers.wrapper.Wrapper.pdbout` so that it corresponds with the real output .pdb \
+        file name created by shelxe"""
         return os.path.join(self.workdir, "shelxe-input.pdb")
 
     @property
@@ -121,7 +122,7 @@ class Shelxe(Wrapper):
         :param None logfile: Not in use (default None)
         """
 
-        parser = ShelxeParser(fname=self.output_pdb, stdout=self.logcontents, logger=self.logger)
+        parser = ShelxeParser(fname=self.pdbout, stdout=self.logcontents, logger=self.logger)
         parser.parse()
         self.cc, self.acl, self.cc_eobs_ecalc, self.average_cc_delta, self.solution = parser.summary
 
