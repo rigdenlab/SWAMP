@@ -4,12 +4,9 @@ python:
 
 install:
   - sudo apt-get update
-  - pip install pybind11
-  - pip install -r requirements.txt
-  - pip install codecov
 
 script:
-  - coverage run run_tests.py
+  - coverage run setup.py --tests
 
 after_success:
   - codecov

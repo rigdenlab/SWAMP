@@ -1,18 +1,33 @@
 #!/usr/bin/env ccp4-python
 
-"""Script with the framework for SWAMP unittesting
-Credits to Felix Simkovic for SIMBAD/scripts/run_tests.py
-"""
+"""Script to setup necessary dependencies for SWAMP and manage unit testing"""
 
 from __future__ import print_function
+import argparse
 import glob
 import logging
 import os
 import sys
+import subprocess
 from unittest import TestLoader, TextTestRunner, TestSuite
 
 SWAMP_DIR = os.path.join(os.path.dirname(__file__), "swamp")
-PACKAGES = ["parsers", "utils"]
+REQUIREMENTS = os.path.join(os.path.dirname(__file__), "requirements.txt")
+PACKAGES = ["parsers", "utils", "wrappers"]
+
+
+def parse_arguments():
+    """Parse command line arguments"""
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description='SWAMP-SETUP: Setup necessary dependencies'
+                                                 ' for SWAMP and manage unit testing')
+    parser.add_argument("--tests", action='store_true',
+                        help='If set, run SWAMP unit testing')
+
+    args = parser.parse_args()
+
+    return args
 
 
 class SWAMPUnittestFramework(object):
@@ -58,13 +73,20 @@ class SWAMPUnittestFramework(object):
 
 if __name__ == "__main__":
 
-    # Mock CCP4 directories
-    ccp4_root = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-    ccp4_scr = os.path.abspath(os.path.join(os.path.dirname(__file__), "CCP4_SCR"))
-    os.environ['CCP4'] = ccp4_root
-    os.environ['CCP4_SCR'] = ccp4_scr
-    if not os.path.isdir(ccp4_scr):
-        os.mkdir(ccp4_scr)
+    args = parse_arguments()
 
-    test = SWAMPUnittestFramework()
-    test.run()
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pybind11'], stdout=open(os.devnull, 'wb'))
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', REQUIREMENTS], stdout=open(os.devnull, 'wb'))
+
+    if args.tests:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'codecov'], stdout=open(os.devnull, 'wb'))
+        # Mock CCP4 directories for Travis CI
+        ccp4_root = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+        ccp4_scr = os.path.abspath(os.path.join(os.path.dirname(__file__), "CCP4_SCR"))
+        os.environ['CCP4'] = ccp4_root
+        os.environ['CCP4_SCR'] = ccp4_scr
+        if not os.path.isdir(ccp4_scr):
+            os.mkdir(ccp4_scr)
+
+        test = SWAMPUnittestFramework()
+        test.run()
