@@ -10,6 +10,7 @@ import os
 import sys
 import subprocess
 from unittest import TestLoader, TextTestRunner, TestSuite
+import warnings
 
 SWAMP_DIR = os.path.join(os.path.dirname(__file__), "swamp")
 REQUIREMENTS = os.path.join(os.path.dirname(__file__), "requirements.txt")
@@ -89,3 +90,8 @@ if __name__ == "__main__":
 
         test = SWAMPUnittestFramework()
         test.run()
+
+    else:
+        if 'CCP4' not in os.environ:
+            warnings.warn('SWAMP needs a CCP4 isntallation but $CCP4 cannot be found in the environment. '
+                          'Make sure you install CCP4 before using SWAMP!')

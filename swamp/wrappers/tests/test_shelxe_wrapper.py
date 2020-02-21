@@ -277,9 +277,9 @@ class MockShelxe(Shelxe):
 class MyTestCase(unittest.TestCase):
 
     def test_1(self):
-        shelxe = MockShelxe(mtzin='/empty/path/fname.mtz', pdbin='/empty/path/fname.pdb',
-                            workdir='/empty/path/workdir', solvent='0.6', autotracing_ncyc='40', density_modif_ncyc=2,
-                            nreflections=30000, init_time='7', resolution=1)
+        shelxe = MockShelxe(mtzin='/empty/path/fname.mtz', pdbin='/empty/path/fname.pdb', density_modif_ncyc='2',
+                            workdir='/empty/path/workdir', solvent='0.6', autotracing_ncyc='40', resolution=1,
+                            nreflections=30000, init_time='7')
         self.assertListEqual(shelxe.cmd, ["shelxe", 'shelxe-input.pda', '-s0.6', '-a40', '-m2', '-t7', '-l3.0',
                                           '-n', '-q', '-f', '-e1.0', '-o'])
         shelxe.run()
@@ -290,7 +290,6 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual("NO", shelxe.solution)
         self.assertEqual(3.0599999999999987, shelxe.average_cc_delta)
         self.assertEqual('13.93', shelxe.cc_eobs_ecalc)
-        self.assertTupleEqual(('20.64', '13.0', '13.93', 3.0599999999999987, 'NO'), shelxe.summary)
         self.assertEqual("Shelxe results: CC - 20.64   ACL - 13.0   SOLUTION - NO\n", shelxe.summary_results)
 
 
