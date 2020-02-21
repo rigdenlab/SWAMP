@@ -4,6 +4,7 @@ python:
 
 install:
   - sudo apt-get update
+  - pip install codecov
 
 script:
   - coverage run setup.py --tests

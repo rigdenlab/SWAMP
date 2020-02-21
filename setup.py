@@ -79,7 +79,6 @@ if __name__ == "__main__":
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', REQUIREMENTS], stdout=open(os.devnull, 'wb'))
 
     if args.tests:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'codecov'], stdout=open(os.devnull, 'wb'))
         # Mock CCP4 directories for Travis CI
         ccp4_root = os.path.abspath(os.path.join(os.path.dirname(__file__)))
         ccp4_scr = os.path.abspath(os.path.join(os.path.dirname(__file__), "CCP4_SCR"))
