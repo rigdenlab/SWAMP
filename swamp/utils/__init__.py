@@ -84,6 +84,19 @@ def decompress(fname, out=None):
     return out
 
 
+def touch(fname, content='', mode='w'):
+    """Create a file with the specified contents
+
+    :param str fname: file name to be created
+    :param str content: content to write into the file (default '')
+    :param str mode: mode to open the file handler (default: 'w')
+    """
+
+    with open(fname, mode) as fhandle:
+        fhandle.write(content)
+    fhandle.close()
+
+
 def get_tempfile():
     """Method to get a temporary file name
 
@@ -103,8 +116,7 @@ def create_tempfile(content, mode="w"):
     """
 
     fname = get_tempfile()
-    with open(fname, mode) as fhandle:
-        fhandle.write(content)
+    touch(fname, content, mode)
     return fname
 
 
