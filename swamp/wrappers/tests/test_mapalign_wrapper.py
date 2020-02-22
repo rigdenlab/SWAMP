@@ -1,5 +1,5 @@
-import os
 import unittest
+import numpy as np
 from swamp.wrappers.mapalign import MapAlign
 
 
@@ -55,9 +55,10 @@ class MapAlignWrapperTestCase(unittest.TestCase):
                      55: 43, 56: 44, 57: 45, 58: 46, 60: 47, 61: 48, 62: 49, 63: 50, 64: 51, 65: 52, 150: 68, 155: 73,
                      151: 69, 154: 72, 157: 75, 113: 53, 114: 54, 115: 55, 2420: 19, 117: 57, 118: 58, 119: 59, 148: 66,
                      149: 67}
+        mapalign.run()
         self.assertDictEqual(alignment, mapalign.alignment)
         self.assertListEqual(['/empty/path/map_a.psicov', '/empty/path/map_b.psicov', 44.5272, -4.38, 40.1472,
-                              len(alignment), 'NA', 'NA', 'NA', 'NA'], mapalign.summary_results)
+                              74, np.nan, np.nan, np.nan, np.nan], mapalign.summary_results)
 
 
 if __name__ == '__main__':

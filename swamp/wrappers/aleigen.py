@@ -41,7 +41,7 @@ class AlEigen(MapAlign):
     def __init__(self, workdir, map_a, map_b, format_a='aleigen', format_b='aleigen', get_matrix=False, pdb_a=None,
                  pdb_b=None, n_eigen="10", logger=None, eigenvectors=None):
 
-        if swamp.SRC_ALEIGEN is None:
+        if self.source is None:
             raise EnvironmentError("Couldn't find aleigen binary!")
 
         super(AlEigen, self).__init__(workdir=workdir, pdb_a=pdb_a, pdb_b=pdb_b, logger=logger, map_a=map_a,
