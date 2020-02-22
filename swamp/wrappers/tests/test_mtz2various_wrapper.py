@@ -1,9 +1,8 @@
-import os
 import unittest
 from swamp.wrappers.mtz2various import Mtz2Various
 
 
-class MyTestCase(unittest.TestCase):
+class Mtz2VariousWrapperTestCase(unittest.TestCase):
 
     def test_1(self):
         mtz2various = Mtz2Various(mtzin='/empty/path/fname.mtz', hklout='/empty/path/fname.hkl', workdir='/empty/path')

@@ -3,6 +3,7 @@ import swamp
 import conkit.io
 import numpy as np
 from pyjob import cexec
+from swamp.utils import get_tempfile
 from swamp.parsers import AleigenParser
 from swamp.wrappers.mapalign import MapAlign
 
@@ -121,7 +122,7 @@ class AlEigen(MapAlign):
             raise EnvironmentError("Cannot find weigenvect binary executable!")
 
         if map_format != 'aleigen':
-            tmpfile = AlEigen.get_tempfile()
+            tmpfile = get_tempfile()
             conkit.io.convert(fname_in=cmap, format_in=map_format, fname_out=tmpfile, format_out='aleigen')
             cmd = [swamp.SRC_WEIGENVECT, tmpfile]
         else:

@@ -5,7 +5,7 @@ from swamp.utils import get_tempfile, touch
 
 
 class MockPhenixCC(PhenixCC):
-    """A class to mock :py:obj:`~swmap.wrappres.phenixcc.PhenixCC` for testing purposes"""
+    """A class to mock :py:obj:`~swmap.wrappers.phenixcc.PhenixCC` for testing purposes"""
 
     @property
     def logfile(self):
@@ -17,13 +17,13 @@ class MockPhenixCC(PhenixCC):
         self._logfile = value
 
     def make_workdir(self):
-        """Override :py:func:`~swmap.wrappres.phenixcc.PhenixCC.make_workdir` so that it does not create \
-        :py:attr:`~swmap.wrappres.phenixcc.PhenixCC.workdir`"""
+        """Override :py:func:`~swmap.wrappers.phenixcc.PhenixCC.make_workdir` so that it does not create \
+        :py:attr:`~swmap.wrappers.phenixcc.PhenixCC.workdir`"""
         pass
 
     def run(self):
-        """Override :py:func:`~swmap.wrappres.phenixcc.PhenixCC.run` so that it does not execute \
-        :py:attr:`~swmap.wrappres.phenixcc.PhenixCC.cmd`"""
+        """Override :py:func:`~swmap.wrappers.phenixcc.PhenixCC.run` so that it does not execute \
+        :py:attr:`~swmap.wrappers.phenixcc.PhenixCC.cmd`"""
 
         self.logcontents = """#                       get_cc_mtz_pdb
 #
@@ -88,7 +88,7 @@ Cryst. D66:213-221."""
         self.get_scores()
 
 
-class MyTestCase(unittest.TestCase):
+class PhenixCCWrapperTestCase(unittest.TestCase):
 
     def test_1(self):
         phenix = MockPhenixCC(mtzin='/empty/path/fname.mtz', pdbin='/empty/path/fname.pdb',

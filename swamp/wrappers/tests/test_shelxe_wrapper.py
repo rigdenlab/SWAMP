@@ -5,7 +5,7 @@ from swamp.wrappers.shelxe import Shelxe
 
 
 class MockShelxe(Shelxe):
-    """A class to mock :py:obj:`~swmap.wrappres.shelxe.Shelxe` for testing purposes"""
+    """A class to mock :py:obj:`~swmap.wrappers.shelxe.Shelxe` for testing purposes"""
 
     @property
     def pdbout(self):
@@ -17,13 +17,13 @@ class MockShelxe(Shelxe):
         self._pdbout = value
 
     def make_workdir(self):
-        """Override :py:func:`~swmap.wrappres.shelxe.Shelxe.make_workdir` so that it does not create \
-        :py:attr:`~swmap.wrappres.shelxe.Shelxe.workdir`"""
+        """Override :py:func:`~swmap.wrappers.shelxe.Shelxe.make_workdir` so that it does not create \
+        :py:attr:`~swmap.wrappers.shelxe.Shelxe.workdir`"""
         pass
 
     def run(self):
-        """Override :py:func:`~swmap.wrappres.shelxe.Shelxe.run` so that it does not execute \
-        :py:attr:`~swmap.wrappres.shelxe.Shelxe.cmd`"""
+        """Override :py:func:`~swmap.wrappers.shelxe.Shelxe.run` so that it does not execute \
+        :py:attr:`~swmap.wrappers.shelxe.Shelxe.cmd`"""
 
         self.logcontents = """++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
              +  SHELXE  -  PHASING AND DENSITY MODIFICATION  -  Version 2019/1  +
@@ -274,7 +274,7 @@ class MockShelxe(Shelxe):
         self.get_scores()
 
 
-class MyTestCase(unittest.TestCase):
+class ShelxeWrapperTestCase(unittest.TestCase):
 
     def test_1(self):
         shelxe = MockShelxe(mtzin='/empty/path/fname.mtz', pdbin='/empty/path/fname.pdb', density_modif_ncyc='2',

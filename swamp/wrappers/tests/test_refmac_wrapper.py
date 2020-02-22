@@ -4,16 +4,16 @@ from swamp.wrappers.wrefmac import wRefmac
 
 
 class MockRefmac(wRefmac):
-    """A class to mock :py:obj:`~swmap.wrappres.wrefmac.wRefmac` for testing purposes"""
+    """A class to mock :py:obj:`~swmap.wrappers.wrefmac.wRefmac` for testing purposes"""
 
     def make_workdir(self):
-        """Override :py:func:`~swmap.wrappres.wrefmac.wRefmac.make_workdir` so that it does not create \
-        :py:attr:`~swmap.wrappres.wrefmac.wRefmac.workdir`"""
+        """Override :py:func:`~swmap.wrappers.wrefmac.wRefmac.make_workdir` so that it does not create \
+        :py:attr:`~swmap.wrappers.wrefmac.wRefmac.workdir`"""
         pass
 
     def run(self):
-        """Override :py:func:`~swmap.wrappres.wrefmac.wRefmac.run` so that it does not execute \
-        :py:attr:`~swmap.wrappres.wrefmac.wRefmac.cmd`"""
+        """Override :py:func:`~swmap.wrappers.wrefmac.wRefmac.run` so that it does not execute \
+        :py:attr:`~swmap.wrappers.wrefmac.wRefmac.cmd`"""
 
         self.logcontents = """<B><FONT COLOR="#FF0000"><!--SUMMARY_BEGIN-->
 <html> <!-- CCP4 HTML LOGFILE -->
@@ -169,7 +169,7 @@ Times: User:     390.4s System:    1.1s Elapsed:     6:32
         self.get_scores()
 
 
-class MyTestCase(unittest.TestCase):
+class RefmacWrapperTestCase(unittest.TestCase):
 
     def test_1(self):
         refmac = MockRefmac(mtzin='/empty/path/fname.mtz', pdbin='/empty/path/fname.pdb', ridg_dist_sigm="0.52",

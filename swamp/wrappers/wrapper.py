@@ -1,7 +1,6 @@
 import abc
 import os
 import shutil
-import tempfile
 import logging
 
 ABC = abc.ABCMeta('ABC', (object,), {})
@@ -210,14 +209,3 @@ class Wrapper(ABC):
         phenix = PhenixCC(pdbin=pdbfile, workdir=workdir, mtzin=mtzfile, logger=logger)
         phenix.run()
         return phenix.local_CC, phenix.overall_CC
-
-    @staticmethod
-    def get_tempfile():
-        """Method to get a temporary file name
-
-        :returns temporary file name
-        :rtype str
-        """
-
-        temp_name = next(tempfile._get_candidate_names())
-        return os.path.join(os.environ['CCP4_SCR'], '%s' % temp_name)
