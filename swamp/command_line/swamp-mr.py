@@ -22,7 +22,9 @@ def parse_arguments():
     parser.add_argument("fastafile", type=check_path_exists, help="FASTA file with the sequence of the structure")
     parser.add_argument("conpred", type=check_path_exists, help="Residue contact prediction for the target structure")
     parser.add_argument("sspred", type=check_path_exists, help="Secondary structure prediction for the target protein")
-    parser.add_argument("-nprocs", type=int, nargs="?", default=1, help="Number of parallel processors to use")
+    parser.add_argument("-max_concurrent_jobs", type=int, nargs="?", default=1, help="Max no. of concurrent processes")
+    parser.add_argument("-max_array_size", type=int, nargs="?", default=None,
+                        help='Maximum allowed array size to be submitted to the job scheduler')
     parser.add_argument("-pdb_benchmark", type=check_path_exists, nargs="?", default=None,
                         help="PDB file with the solve structure (for benchmarking)")
     parser.add_argument("-platform", type=str, nargs="?", default='sge',
@@ -115,8 +117,8 @@ def main():
     # ------------------ CREATE MR TASK ARRAY AND LOAD INDIVIDUAL MR JOBS ------------------
 
     my_array = MrArray(id=args.id, target_mtz=args.mtzfile, max_concurrent_nprocs=args.nprocs, target_fa=args.fastafile,
-                       job_kill_time=args.job_kill_time, workdir=swamp_mr_dir, logger=logger,
-                       platform=args.platform, phased_mtz=args.mtz_phases, queue_name=args.queue,
+                       job_kill_time=args.job_kill_time, workdir=swamp_mr_dir, logger=logger, queue_name=args.queue,
+                       platform=args.platform, phased_mtz=args.mtz_phases, max_array_size=args.max_array_size,
                        queue_environment=args.environment)
 
     loaded_arrangements = {}

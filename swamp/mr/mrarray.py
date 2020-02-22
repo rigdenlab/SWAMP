@@ -21,6 +21,8 @@ class MrArray(Mr):
     :param int job_kill_time: kill time assigned to :py:obj:`~swamp.mr.mrjob.MrJob` instances (default None)
     :param `~swamp.logger.swamplogger.SwampLogger` logger: logging interface for the MR pipeline (default None)
     :param bool silent: if set to True the logger will not print messages
+    :param int max_array_size: set the maximum permitted number of :py:obj:`pyjob.Scripts` instances in a submitted \
+    :py:obj:`pyjob.ClusterTask` (default None)
     :ivar list results: A list with the figures of merit obtained after the completion of the pipeline
     :ivar bool error: True if errors have occurred at some point on the pipeline
     :ivar list job_list: A list of the :py:obj:`~swamp.mr.mrjob.MrJob` instances contained on this \
@@ -31,7 +33,6 @@ class MrArray(Mr):
     :py:obj:`~swamp.mr.mrarray.MrArray` instance
     :ivar str shell_interpreter: Indicates shell interpreter to execute \
     :py:obj:`~swamp.mr.mrjob.MrJob` (default '/bin/bash')
-    :ivar int max_array_size: the maximum permitted size of a task array (default 1000)
 
     :example:
 
@@ -44,7 +45,8 @@ class MrArray(Mr):
     """
 
     def __init__(self, id, workdir, target_mtz, target_fa, platform="sge", queue_name=None, logger=None,
-                 queue_environment=None, phased_mtz=None, max_concurrent_nprocs=1, job_kill_time=None, silent=False):
+                 max_array_size=None, queue_environment=None, phased_mtz=None, max_concurrent_nprocs=1,
+                 job_kill_time=None, silent=False):
 
         super(MrArray, self).__init__(id, target_fa, target_mtz, workdir, phased_mtz=phased_mtz,
                                       logger=logger, silent=silent)
@@ -61,7 +63,7 @@ class MrArray(Mr):
         self.job_dict = {}
         self.scripts = []
         self.shell_interpreter = "/bin/bash"
-        self.max_array_size = 1000
+        self.max_array_size = max_array_size
 
     def __repr__(self):
         return '{}(id={}, njobs={})'.format(self.__class__.__name__, self.id, len(self.job_list))
@@ -166,8 +168,11 @@ class MrArray(Mr):
 
         self.logger.info("Sending the MR task array to the HPC for execution")
 
-        all_scripts = [tuple(self.scripts[x:x + self.max_array_size]) for x in
-                       range(0, len(self.scripts), self.max_array_size)]
+        if self.max_array_size is not None:
+            all_scripts = [tuple(self.scripts[x:x + self.max_array_size]) for x in
+                           range(0, len(self.scripts), self.max_array_size)]
+        else:
+            all_scripts = (self.scripts,)
 
         for idx, scripts in enumerate(all_scripts, 1):
             self.logger.info('Sending task array %s / %s' % (idx, len(all_scripts)))
