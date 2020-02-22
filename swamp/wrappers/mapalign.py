@@ -173,8 +173,8 @@ class MapAlign(Wrapper):
         :raises EnvironmentError: if :py:attr:`~swamp.wrappers.wrapper.Wrapper.source` is not found in the system
         """
 
-        if not os.path.isfile(self.source) is None:
-            raise EnvironmentError("Cannot find %s executable!" % self.source)
+        if not os.path.isfile(self.source):
+            raise RuntimeError("Cannot find %s executable!" % self.source)
 
         self._check_alignment_input()
         self.logger.debug(" ".join(self.cmd))
