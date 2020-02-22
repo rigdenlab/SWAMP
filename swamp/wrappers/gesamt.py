@@ -38,7 +38,7 @@ class Gesamt(Wrapper):
     :ivar int n_align: number of aligned residues
     """
 
-    def __init__(self, workdir, mode, pdbin, gesamt_archive=None, pdbout=None, nthreads=1, hits_out=None, min1=0.1,
+    def __init__(self, workdir, mode, pdbin=None, gesamt_archive=None, pdbout=None, nthreads=1, hits_out=None, min1=0.1,
                  min2=0.1, pdb_archive=None, logger=None):
 
         super(Gesamt, self).__init__(workdir=workdir, logger=logger)
@@ -58,6 +58,14 @@ class Gesamt(Wrapper):
         self.min1 = min1
         self.min2 = min2
 
+        if self.pdbin is None and self.mode != 'make-archive':
+            self.logger.error('Need to provide at least one PDB file for gesamt!')
+            self.error = True
+        elif self.mode not in self.allowed_modes:
+            self.logger.error(
+                'Selected mode was not recognised! Allowed modes are: {}'.format(' '.join(self.allowed_modes)))
+            self.error = True
+
     # ------------------ Properties ------------------
 
     @property
@@ -68,6 +76,11 @@ class Gesamt(Wrapper):
     @pdbout.setter
     def pdbout(self, value):
         self._pdbout = value
+
+    @property
+    def allowed_modes(self):
+        """A list with the allowed values for :py:attr:`~swmap.wrappers.gesamt.Gesamt.mode`"""
+        return ['make-archive', 'alignment', 'search-archive']
 
     @property
     def wrapper_name(self):
@@ -117,7 +130,7 @@ class Gesamt(Wrapper):
             return cmd
 
         # Scan an archive
-        elif self.mode == "search-archive":
+        else:
             cmd = [self.source, self.pdbin, '-archive', self.gesamt_archive, '-o', self.hits_out]
             self._filthy_files.append(self.hits_out)
             if self.nthreads is not None:
@@ -127,13 +140,6 @@ class Gesamt(Wrapper):
             if self.min2 is not None:
                 cmd.append('-min2=%s' % self.min2)
             return cmd
-
-        # Unkown mode
-        else:
-            self.error = True
-            self.logger.error("Unkown mode! %s" % self.mode)
-            self.logger.warning('Allowed modes are: %s' % ",".join(['alignment', "search-archive", "make-archive"]))
-            return None
 
     # ------------------ General methods ------------------
 
@@ -206,7 +212,7 @@ class Gesamt(Wrapper):
             qscore_mark = "quality Q"
             rmsd_mark = "r.m.s.d"
             n_align_mark = "Nalign"
-            seqid_mark = "this will not be here"
+            seqid_mark = "SEQ_ID IS NOT FOUND IN MULTIPLE STRCUT. ALIGNMENT"
 
         qscore = np.nan
         rmsd = np.nan

@@ -16,8 +16,6 @@ class PhenixParserTestCase(unittest.TestCase):
         self.assertTrue(parser.error)
         self.assertEqual('NA', parser.local_CC)
 
-
-
     def test_2(self):
         stdout_contents = """#                       get_cc_mtz_pdb
 #
