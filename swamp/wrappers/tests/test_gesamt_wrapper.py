@@ -329,7 +329,7 @@ class GesamtWrapperTestCase(unittest.TestCase):
         try:
             pd.testing.assert_frame_equal(df, gesamt.summary_results)
         except AssertionError as e:
-            raise self.failureException('Non identical pd.DataFrame') from e
+            raise self.failureException(e)
 
         self.addCleanup(os.remove, gesamt.hits_out)
 
