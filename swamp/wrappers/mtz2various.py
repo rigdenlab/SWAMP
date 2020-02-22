@@ -52,13 +52,13 @@ class Mtz2Various(Wrapper):
 
     @property
     def wrapper_name(self):
-        """The name of this wrapper (mtz2various)"""
+        """The name of this `~swamp.wrapper.wrapper.Wrapper` child class (mtz2various)"""
         return "mtz2various"
 
     @property
     def cmd(self):
         """Command to be executed on the shell"""
-        return ["mtz2various", 'HKLIN', self.mtzin, 'HKLOUT', self.hklout]
+        return [self.source, 'HKLIN', self.mtzin, 'HKLOUT', self.hklout]
 
     def get_scores(self, logfile=None):
         """Abstract method to get scores (not implemented in this class)"""

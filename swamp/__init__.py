@@ -78,13 +78,3 @@ else:
     QSCORE_MTX_PCKL = os.path.join(DIST_MTX_DIR, 'qscore_mtx_protocol2.pckl')
     RMSD_MTX_PCKL = os.path.join(DIST_MTX_DIR, 'rmsd_mtx_protocol2.pckl')
     NALIGN_MTX_PCKL = os.path.join(DIST_MTX_DIR, 'nalign_mtx_protocol2.pckl')
-
-SRC_MAPALIGN = os.path.join(os.environ["CCP4"], "bin", "map_align")
-SRC_ALEIGEN = os.path.join(os.environ["CCP4"], "bin", "aleigen")
-SRC_WEIGENVECT = os.path.join(os.environ["CCP4"], "bin", "weigenvect")
-if not os.path.isfile(SRC_ALEIGEN):
-    SRC_ALEIGEN = None
-if not os.path.isfile(SRC_WEIGENVECT):
-    SRC_WEIGENVECT = None
-if not os.path.isfile(SRC_MAPALIGN):
-    SRC_MAPALIGN = None

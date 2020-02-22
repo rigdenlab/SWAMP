@@ -1,11 +1,12 @@
 import os
-import swamp
 import conkit.io
 import numpy as np
 from pyjob import cexec
 from swamp.utils import get_tempfile
 from swamp.parsers import AleigenParser
 from swamp.wrappers.mapalign import MapAlign
+
+SRC_WEIGENVECT = os.path.join(os.environ["CCP4"], "bin", "weigenvect")
 
 
 class AlEigen(MapAlign):
@@ -84,13 +85,8 @@ class AlEigen(MapAlign):
 
     @property
     def wrapper_name(self):
-        """The name of this wrapper (aleigen)"""
+        """The name of this `~swamp.wrapper.wrapper.Wrapper` child class (aleigen)"""
         return 'aleigen'
-
-    @property
-    def source(self):
-        """Location of the executable file of aleigen"""
-        return swamp.SRC_ALEIGEN
 
     # ------------------ Some general methods ------------------
 
@@ -118,20 +114,19 @@ class AlEigen(MapAlign):
         :param str map_format: file format of the input contact map file (default 'aleigen')
         """
 
-        if swamp.SRC_WEIGENVECT is None:
+        if SRC_WEIGENVECT is None:
             raise EnvironmentError("Cannot find weigenvect binary executable!")
 
         if map_format != 'aleigen':
             tmpfile = get_tempfile()
             conkit.io.convert(fname_in=cmap, format_in=map_format, fname_out=tmpfile, format_out='aleigen')
-            cmd = [swamp.SRC_WEIGENVECT, tmpfile]
+            cmd = [SRC_WEIGENVECT, tmpfile]
         else:
             tmpfile = None
-            cmd = [swamp.SRC_WEIGENVECT, cmap]
+            cmd = [SRC_WEIGENVECT, cmap]
 
         with open(vector_output, 'w') as fhandle:
             cexec(cmd, stdout=fhandle)
 
         if tmpfile is not None:
             os.remove(tmpfile)
-

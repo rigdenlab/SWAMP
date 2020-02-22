@@ -62,15 +62,14 @@ class wRefmac(Wrapper):
 
     @property
     def wrapper_name(self):
-        """The name of this wrapper (refmac)"""
-        return "refmac"
+        """The name of this `~swamp.wrapper.wrapper.Wrapper` child class (refmac)"""
+        return "refmac5"
 
     @property
     def cmd(self):
         """Command to be executed on the shell"""
 
-        return ["refmac5", 'hklin', self.mtzin, 'hklout', self.mtzout, 'xyzin',
-                self.pdbin, 'xyzout', self.pdbout]
+        return [self.source, 'hklin', self.mtzin, 'hklout', self.mtzout, 'xyzin', self.pdbin, 'xyzout', self.pdbout]
 
     @property
     def summary_results(self):

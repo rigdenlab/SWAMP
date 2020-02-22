@@ -175,7 +175,7 @@ class RefmacWrapperTestCase(unittest.TestCase):
         refmac = MockRefmac(mtzin='/empty/path/fname.mtz', pdbin='/empty/path/fname.pdb', ridg_dist_sigm="0.52",
                             workdir='/empty/path/workdir', make_hydr='Y', weight_matrix="0.21", ncyc="140")
 
-        self.assertListEqual(refmac.cmd, ["refmac5", 'hklin', '/empty/path/fname.mtz', 'hklout',
+        self.assertListEqual(refmac.cmd, [os.path.join(os.environ['CCP4'], 'bin', "refmac5"), 'hklin', '/empty/path/fname.mtz', 'hklout',
                                           '/empty/path/workdir/refmac_out.mtz', 'xyzin', '/empty/path/fname.pdb',
                                           'xyzout', '/empty/path/workdir/refmac_out.pdb'])
 

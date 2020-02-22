@@ -71,7 +71,7 @@ class Gesamt(Wrapper):
 
     @property
     def wrapper_name(self):
-        """The name of this wrapper (gesamt)"""
+        """The name of this `~swamp.wrapper.wrapper.Wrapper` child class (gesamt)"""
         return "gesamt"
 
     @property
@@ -89,11 +89,6 @@ class Gesamt(Wrapper):
         return None
 
     @property
-    def _SRC_GESAMT(self):
-        """Location of the executable binary gesamt file"""
-        return os.path.join(os.environ['CCP4'], 'bin', 'gesamt')
-
-    @property
     def cmd(self):
         """Command to be executed in the shell"""
 
@@ -103,11 +98,11 @@ class Gesamt(Wrapper):
                 self.logger.error('Impossible to create archive, need to provide location!')
                 self.error = True
                 return None
-            return [self._SRC_GESAMT, '--make-archive', self.gesamt_archive, '-pdb', self.pdb_archive]
+            return [self.source, '--make-archive', self.gesamt_archive, '-pdb', self.pdb_archive]
 
         # Align structures
         elif self.mode == "alignment":
-            cmd = [self._SRC_GESAMT]
+            cmd = [self.source]
             if not isinstance(self.pdbin, list) and not isinstance(self.pdbin, tuple):
                 self.pdbin = list(self.pdbin)
             if len(self.pdbin) < 2:
@@ -123,7 +118,7 @@ class Gesamt(Wrapper):
 
         # Scan an archive
         elif self.mode == "search-archive":
-            cmd = [self._SRC_GESAMT, self.pdbin, '-archive', self.gesamt_archive, '-o', self.hits_out]
+            cmd = [self.source, self.pdbin, '-archive', self.gesamt_archive, '-o', self.hits_out]
             self._filthy_files.append(self.hits_out)
             if self.nthreads is not None:
                 cmd.append('-nthreads=%s' % self.nthreads)

@@ -67,13 +67,13 @@ class Shelxe(Wrapper):
 
     @property
     def wrapper_name(self):
-        """The name of this wrapper (shelxe)"""
+        """The name of this `~swamp.wrapper.wrapper.Wrapper` child class (shelxe)"""
         return "shelxe"
 
     @property
     def cmd(self):
         """Command to be executed on the shell"""
-        return ["shelxe", os.path.basename(self.input_pda)] + [x for x in self.keywords.split()]
+        return [self.source, os.path.basename(self.input_pda)] + [x for x in self.keywords.split()]
 
     @property
     def keywords(self):

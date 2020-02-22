@@ -280,8 +280,8 @@ class ShelxeWrapperTestCase(unittest.TestCase):
         shelxe = MockShelxe(mtzin='/empty/path/fname.mtz', pdbin='/empty/path/fname.pdb', density_modif_ncyc='2',
                             workdir='/empty/path/workdir', solvent='0.6', autotracing_ncyc='40', resolution=1,
                             nreflections=30000, init_time='7')
-        self.assertListEqual(shelxe.cmd, ["shelxe", 'shelxe-input.pda', '-s0.6', '-a40', '-m2', '-t7', '-l3.0',
-                                          '-n', '-q', '-f', '-e1.0', '-o'])
+        self.assertListEqual(shelxe.cmd, [os.path.join(os.environ['CCP4'], 'bin', "shelxe"), 'shelxe-input.pda',
+                                          '-s0.6', '-a40', '-m2', '-t7', '-l3.0', '-n', '-q', '-f', '-e1.0', '-o'])
         shelxe.run()
         self.addCleanup(os.remove, shelxe.pdbout)
 

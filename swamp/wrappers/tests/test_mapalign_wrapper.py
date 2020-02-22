@@ -1,3 +1,4 @@
+import os
 import unittest
 import numpy as np
 from swamp.wrappers.mapalign import MapAlign
@@ -5,11 +6,6 @@ from swamp.wrappers.mapalign import MapAlign
 
 class MockMapAlign(MapAlign):
     """A class to mock :py:obj:`~swmap.wrappers.mapalign.MapAlign` for testing purposes"""
-
-    @property
-    def source(self):
-        """Override :py:attr:`~swmap.wrappers.mapalign.MapAlign.source` with dummy variable"""
-        return '/empty/path/map_align'
 
     def run(self):
         """Override :py:func:`~swmap.wrappers.mapalign.MapAlign.run` so that it does not execute \
@@ -45,7 +41,8 @@ class MapAlignWrapperTestCase(unittest.TestCase):
         mapalign = MockMapAlign(workdir='/empty/path/workdir', map_a='/empty/path/map_a.psicov', format_b='psicov',
                                 map_b='/empty/path/map_b.psicov', pdb_b='/empty/path/pdb_b', gap_o=-8, sep_cut=6,
                                 format_a='psicov', pdb_a='/empty/path/pdb_a', gap_e=-4.6)
-        self.assertListEqual(mapalign.cmd, ['/empty/path/map_align', '-a', '/empty/path/workdir/map_a.mapalign', '-b',
+        self.assertListEqual(mapalign.cmd, [os.path.join(os.environ['CCP4'], 'bin', 'map_align'), '-a',
+                                            '/empty/path/workdir/map_a.mapalign', '-b',
                                             '/empty/path/workdir/map_b.mapalign', "-sep_cut", '6', "-gap_e", '-4.6',
                                             "-gap_o", '-8', '-silent'])
         alignment = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14,

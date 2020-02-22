@@ -1,3 +1,4 @@
+import os
 import unittest
 import numpy as np
 from swamp.wrappers.aleigen import AlEigen
@@ -5,11 +6,6 @@ from swamp.wrappers.aleigen import AlEigen
 
 class MockAleigen(AlEigen):
     """A class to mock :py:obj:`~swmap.wrappers.aleigen.AlEigen` for testing purposes"""
-
-    @property
-    def source(self):
-        """Override :py:attr:`~swmap.wrappers.aleigen.AlEigen.source` with dummy variable"""
-        return '/empty/path/aleigen'
 
     def run(self):
         """Override :py:func:`~swmap.wrappers.aleigen.AlEigen.run` so that it does not execute \
@@ -79,9 +75,9 @@ class AlEigenWrapperTestCase(unittest.TestCase):
                               map_b='/empty/path/map_b.psicov', pdb_b='/empty/path/pdb_b', format_a='psicov',
                               eigenvectors=('/empty/path/eigen_a', '/empty/path/eigen_b'), get_matrix=True,
                               n_eigen="15", pdb_a='/empty/path/pdb_a')
-        self.assertListEqual(aleigen.cmd, ['/empty/path/aleigen', '/empty/path/workdir/map_a.aleigen',
-                                           '/empty/path/workdir/map_b.aleigen', '15', '-e', '/empty/path/eigen_a',
-                                           '/empty/path/eigen_b', '-m'])
+        self.assertListEqual(aleigen.cmd, [os.path.join(os.environ['CCP4'], 'bin', 'aleigen'),
+                                           '/empty/path/workdir/map_a.aleigen', '/empty/path/workdir/map_b.aleigen',
+                                           '15', '-e', '/empty/path/eigen_a', '/empty/path/eigen_b', '-m'])
         alignment = {0: 11, 1: 12, 2: 15, 3: 16, 4: 18, 5: 19, 6: 20, 7: 21, 8: 22, 9: 23, 10: 24, 11: 25, 12: 26,
                      13: 27, 14: 29, 15: 30, 16: 33, 17: 34, 18: 37, 19: 52, 20: 53, 22: 54, 23: 55, 24: 56, 25: 57,
                      26: 59, 27: 60, 28: 63, 29: 64, 30: 66, 31: 67, 32: 72, 33: 74, 34: 75, 35: 76, 36: 78, 37: 79,
@@ -90,7 +86,7 @@ class AlEigenWrapperTestCase(unittest.TestCase):
         aleigen.error = True
         aleigen.run()
         self.assertDictEqual(alignment, aleigen.alignment)
-        self.assertListEqual(['/empty/path/workdir/map_a.psicov', '/empty/path/workdir/map_b.psicov', 0.073469, 101,
+        self.assertListEqual(['/empty/path/map_a.psicov', '/empty/path/map_b.psicov', 0.073469, 101,
                               144, 9.0, len(alignment), np.nan, np.nan, np.nan, np.nan], aleigen.summary_results)
 
 

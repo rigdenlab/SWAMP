@@ -111,7 +111,7 @@ class Phaser(Wrapper):
 
     @property
     def wrapper_name(self):
-        """The name of this wrapper (phaser)"""
+        """The name of this `~swamp.wrapper.wrapper.Wrapper` child class (phaser)"""
         return "phaser"
 
     @property

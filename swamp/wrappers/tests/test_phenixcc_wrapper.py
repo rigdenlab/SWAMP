@@ -98,7 +98,8 @@ class PhenixCCWrapperTestCase(unittest.TestCase):
         phenix._check_error()
         self.assertTrue(phenix.error)
         phenix.error = False
-        self.assertListEqual(phenix.cmd, ["phenix.get_cc_mtz_pdb", '/empty/path/fname.mtz', '/empty/path/fname.pdb'])
+        self.assertListEqual(phenix.cmd, [os.path.join(os.environ['CCP4'], 'bin', "phenix.get_cc_mtz_pdb"),
+                                          '/empty/path/fname.mtz', '/empty/path/fname.pdb'])
         phenix.run()
         self.assertTrue(os.path.isfile(phenix.logfile))
         os.mkdir(os.path.join(os.environ['CCP4_SCR'], "temp_dir"))

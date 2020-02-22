@@ -77,6 +77,11 @@ class Wrapper(ABC):
     # ------------------ Some general properties ------------------
 
     @property
+    def source(self):
+        """Location of the executable binary file"""
+        return os.path.join(os.environ['CCP4'], 'bin', self.wrapper_name)
+
+    @property
     def wrapper_header(self):
         """Wrapper header to be displayed in the logger on start"""
 

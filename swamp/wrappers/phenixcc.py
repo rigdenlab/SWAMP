@@ -35,13 +35,13 @@ class PhenixCC(Wrapper):
 
     @property
     def wrapper_name(self):
-        """The name of this wrapper (phenix_cc)"""
-        return "phenix_cc"
+        """The name of this `~swamp.wrapper.wrapper.Wrapper` child class (phenix_cc)"""
+        return "phenix_cc.get_cc_mtz_pdb"
 
     @property
     def cmd(self):
         """Command to be executed on the shell"""
-        return ["phenix.get_cc_mtz_pdb", self.mtzin, self.pdbin]
+        return [self.source, self.mtzin, self.pdbin]
 
     @property
     def keywords(self):

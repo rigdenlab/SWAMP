@@ -1,5 +1,4 @@
 import os
-import swamp
 import conkit.io
 import numpy as np
 from pyjob import cexec
@@ -68,13 +67,8 @@ class MapAlign(Wrapper):
 
     @property
     def wrapper_name(self):
-        """The name of this wrapper (aleigen)"""
-        return "mapalign"
-
-    @property
-    def source(self):
-        """Location of the executable file of mapalign"""
-        return swamp.SRC_MAPALIGN
+        """The name of this `~swamp.wrapper.wrapper.Wrapper` child class (aleigen)"""
+        return "map_align"
 
     @property
     def cmd(self):
@@ -176,11 +170,11 @@ class MapAlign(Wrapper):
     def run(self):
         """Run the :py:attr:`~swamp.wrappers.mapalign.MapAlign.cmd` and store the stdout
 
-        :raises EnvironmentError: if :py:attr:`~swamp.wrappers.mapaling.MapAlign.source` is not found in the system
+        :raises EnvironmentError: if :py:attr:`~swamp.wrappers.wrapper.Wrapper.source` is not found in the system
         """
 
-        if self.source is None:
-            raise EnvironmentError("Cannot find %s binary executable!" % self.wrapper_name)
+        if not os.path.isfile(self.source) is None:
+            raise EnvironmentError("Cannot find %s executable!" % self.source)
 
         self._check_alignment_input()
         self.logger.debug(" ".join(self.cmd))
@@ -197,4 +191,3 @@ class MapAlign(Wrapper):
             self.benchmark()
 
         self._cleanup_files()
-
