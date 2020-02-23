@@ -180,6 +180,10 @@ class Phaser(Wrapper):
 
     # ------------------ Methods ------------------
 
+    def _run(self):
+        """Override :py:func:`~swamp.wrappers.wrapper.Wrapper._run`"""
+        pass
+
     def register_solution(self, pdbfile, ermsd=None, ident=None, sol_fname=None):
         """Add information for an already existing solution
 
