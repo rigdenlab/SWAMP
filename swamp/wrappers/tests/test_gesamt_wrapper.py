@@ -289,7 +289,7 @@ class GesamtWrapperTestCase(unittest.TestCase):
     def test_1(self):
         gesamt = MockGesamt(workdir='/empty/path/workdir', mode='alignment', pdbout='/empty/path/pdbout',
                             pdbin=('/empty/path/pdb_a', '/empty/path/pdb_b'))
-
+        self.assertIsNone(gesamt.keywords)
         self.assertListEqual(gesamt.cmd, [os.path.join(os.environ['CCP4'], 'bin', 'gesamt'), '/empty/path/pdb_a',
                                           '/empty/path/pdb_b', '-o', '/empty/path/pdbout'])
         gesamt.run()
@@ -361,4 +361,177 @@ class GesamtWrapperTestCase(unittest.TestCase):
         gesamt = MockGesamt(workdir='/empty/path/workdir', mode='dummy-mode', pdb_archive=None,
                             gesamt_archive='/empty/path/gesamt-archive')
 
+        self.assertTrue(gesamt.error)
+
+    def test_10(self):
+        gesamt = MockGesamt(workdir='/empty/path/workdir', mode='alignment', pdbout='/empty/path/pdbout',
+                            pdbin=('/empty/path/pdb_a', '/empty/path/pdb_b'))
+        gesamt.logcontents = b''
+        gesamt.get_scores()
+        self.assertTrue(gesamt.error)
+
+    def test_11(self):
+        gesamt = MockGesamt(workdir='/empty/path/workdir', mode='alignment', pdbout='/empty/path/pdbout',
+                            pdbin=('/empty/path/pdb_a', '/empty/path/pdb_b'))
+        gesamt.logcontents = """ GESAMT: General Efficient Structural Alignment of Macromolecular Targets
+ ------------------------------------------------------------------------
+ Version 1.16 of 14-Jan-2020, built with MMDB v.2.0.20
+ 
+ ###############################################################
+ ###############################################################
+ ###############################################################
+ ### CCP4 7.1.000: Gesamt           version 7.1.000 :         ##
+ ###############################################################
+ User: filo  Run date: 23/ 2/2020 Run time: 21:28:28 
+
+
+ Please reference: Collaborative Computational Project, Number 4. 2011.
+ "Overview of the CCP4 suite and current developments". Acta Cryst. D67, 235-242.
+ as well as any specific reference in the program write-up.
+
+$TEXT:Reference: $$Please cite$$
+E. Krissinel (2012). Enhanced fold recognition using efficient
+short fragment clustering. J. Mol. Biochem. 1(2) 76-85.
+$$
+<!--SUMMARY_BEGIN-->
+
+ ===============================================================================
+
+ ... reading FIXED structure : file '/home/filo/opt/CCP4/ccp4-7.0/lib/py2/swamp/library/db/pdb/5fvn_27A_29A.pdb', selection '*'
+          0 atoms selected with warning (rc=15)
+      ***** ERROR #15 READ:
+
+ File can not be opened.
+
+
+            crystal data not found
+ ... reading MOVING structure: file '/home/filo/opt/CCP4/ccp4-7.0/lib/py2/swamp/library/db/pdb/5fvn_23A_25A.pdb', selection '*'
+          0 atoms selected with warning (rc=15)
+      ***** ERROR #15 READ:
+
+ File can not be opened.
+
+
+            crystal data not found
+<!--SUMMARY_END-->
+
+ ===============================================================================
+
+ CPU stage 1 (clustering):   0.00001 secs
+ CPU stage 2 (refinement):   0.00000 secs
+
+ ===============================================================================
+
+ Query      /home/filo/opt/CCP4/ccp4-7.0/lib/py2/swamp/library/db/pdb/5fvn_27A_29A.pdb(*)
+ and Target /home/filo/opt/CCP4/ccp4-7.0/lib/py2/swamp/library/db/pdb/5fvn_23A_25A.pdb(*)
+
+ are DISSIMILAR and cannot be reasonably aligned.
+
+ ===============================================================================
+ Gesamt:  Normal termination
+"""
+        gesamt.get_scores()
+        self.assertTrue(gesamt.error)
+
+    def test_12(self):
+        gesamt = MockGesamt(workdir='/empty/path/workdir', mode='alignment', pdbout='/empty/path/pdbout',
+                            pdbin=('/empty/path/pdb_a', '/empty/path/pdb_b'))
+        gesamt.logcontents = """
+ GESAMT: General Efficient Structural Alignment of Macromolecular Targets
+ ------------------------------------------------------------------------
+ Version 1.15 of 25-Jan-2017, built with MMDB v.2.0.17
+ 
+ ###############################################################
+ ###############################################################
+ ###############################################################
+ ### CCP4 7.0.073: Gesamt           version 7.0.073 :         ##
+ ###############################################################
+ User: filo  Run date: 23/ 2/2020 Run time: 21:49:18 
+
+
+ Please reference: Collaborative Computational Project, Number 4. 2011.
+ "Overview of the CCP4 suite and current developments". Acta Cryst. D67, 235-242.
+ as well as any specific reference in the program write-up.
+
+$TEXT:Reference: $$Please cite$$
+E. Krissinel (2012). Enhanced fold recognition using efficient
+short fragment clustering. J. Mol. Biochem. 1(2) 76-85.
+$$
+<!--SUMMARY_BEGIN-->
+
+ ===========================================================
+ ... reading file '/home/filo/opt/CCP4/ccp4-7.0/share/swamp/pdb/5fvn_29A_31A.pdb', selection '*':
+         17 atoms selected
+ ... reading file '/home/filo/opt/CCP4/ccp4-7.0/share/swamp/pdb/5fvn_19A_21A.pdb', selection '*':
+         17 atoms selected
+ ... reading file '/home/filo/opt/CCP4/ccp4-7.0/share/swamp/pdb/5fvn_17A_19A.pdb', selection '*':
+         17 atoms selected
+ ... reading file '/home/filo/opt/CCP4/ccp4-7.0/share/swamp/pdb/5fvn_15A_17A.pdb', selection '*':
+         18 atoms selected
+
+ Parameter Q-score:                3.000 angstroms
+ Weighted superposition is not used
+ Number of threads used:           1
+
+
+ CPU stage 1 (cross-alignments):   0.00005 secs
+ CPU stage 2 (refinement):         0.00000 secs
+
+
+
+ ALIGNMENT ERROR 2
+ ===========================================================
+ Gesamt:  Normal termination
+"""
+        gesamt.get_scores()
+        self.assertTrue(gesamt.error)
+
+    def test_13(self):
+        gesamt = MockGesamt(workdir='/empty/path/workdir', mode='alignment', pdbout='/empty/path/pdbout',
+                            pdbin=('/empty/path/pdb_a', '/empty/path/pdb_b'))
+        gesamt.logcontents = """
+ GESAMT: General Efficient Structural Alignment of Macromolecular Targets
+ ------------------------------------------------------------------------
+ Version 1.16 of 14-Jan-2020, built with MMDB v.2.0.20
+ 
+ ###############################################################
+ ###############################################################
+ ###############################################################
+ ### CCP4 7.1.000: Gesamt           version 7.1.000 :         ##
+ ###############################################################
+ User: filo  Run date: 23/ 2/2020 Run time: 21:43:27 
+
+
+ Please reference: Collaborative Computational Project, Number 4. 2011.
+ "Overview of the CCP4 suite and current developments". Acta Cryst. D67, 235-242.
+ as well as any specific reference in the program write-up.
+
+$TEXT:Reference: $$Please cite$$
+E. Krissinel (2012). Enhanced fold recognition using efficient
+short fragment clustering. J. Mol. Biochem. 1(2) 76-85.
+$$
+<!--SUMMARY_BEGIN-->
+
+ ===========================================================
+ ... reading file '/home/filo/opt/CCP4/ccp4-7.0/lib/py2/swamp/library/db/pdb/5fvn_29A_31A.pdb', selection '*':
+          0 atoms selected with warning (rc=15)
+      ***** ERROR #15 READ:
+
+ File can not be opened.
+
+
+
+ Parameter Q-score:                3.000 angstroms
+ Weighted superposition is not used
+ Number of threads used:           1
+
+
+
+ STOP DUE TO READ ERRORS
+ --- check input file format
+
+ ===========================================================
+ Gesamt:  Normal termination
+"""
+        gesamt.get_scores()
         self.assertTrue(gesamt.error)

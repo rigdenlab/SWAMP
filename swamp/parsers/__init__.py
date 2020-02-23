@@ -79,13 +79,6 @@ def TopconsParser(*args, **kwargs):
     return TopconsParser(*args, **kwargs)
 
 
-def GesamtParser(*args, **kwargs):
-    """:py:obj:`~swamp.parsers.gesamtparser.GesamtParser` instance"""
-    from swamp.parsers.gesamtparser import GesamtParser
-
-    return GesamtParser(*args, **kwargs)
-
-
 def GesamtErrorCodes(*args, **kwargs):
     """:py:obj:`~swamp.parsers.gesamtparser.GesamtErrorCodes` instance"""
     from swamp.parsers.gesamtparser import GesamtErrorCodes

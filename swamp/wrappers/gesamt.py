@@ -3,8 +3,8 @@ import gemmi
 import itertools
 import threading
 from pyjob import cexec
-from swamp.parsers import GesamtParser, GesamtErrorCodes
 from swamp.wrappers.wrapper import Wrapper
+from swamp.parsers.gesamtparser import GesamtParser, GesamtErrorCodes
 from swamp.utils import ThreadResults, invert_hiearchy, get_tempfile
 
 
@@ -153,10 +153,14 @@ class Gesamt(Wrapper):
 
         if parser.error:
             self.error = True
-            if parser.error == GesamtErrorCodes().DISSIMILAR:
+            if parser.error == GesamtErrorCodes.DISSIMILAR:
                 self.logger.warning("%s are to dissimilar to be aligned!" % (" ".join(self.pdbin)))
-            elif parser.error == GesamtErrorCodes().ERROR_2:
+            elif parser.error == GesamtErrorCodes.ERROR_2:
                 self.logger.warning("Alignment of (%s) returned ALIGNMENT ERROR 2!" % (" ".join(self.pdbin)))
+            elif parser.error == GesamtErrorCodes.READ_ERRORS:
+                self.logger.warning('Read errors have occurred while reading: %s' % (" ".join(self.pdbin)))
+            elif parser.error == GesamtErrorCodes.NO_STDOUT:
+                self.logger.warning('No stdout found while trying to align: %s' % (" ".join(self.pdbin)))
             else:
                 raise ValueError('Unkown gesamt error code!')
 

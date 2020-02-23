@@ -302,6 +302,13 @@ $$
         self.assertTrue(parser.error)
         self.assertEqual(parser.error, GesamtErrorCodes.ERROR_2)
 
+    def test_5(self):
+        STDOUT = b''
+        parser = GesamtParser(mode='alignment', stdout=STDOUT)
+        parser.parse()
+        self.assertTrue(parser.error)
+        self.assertEqual(parser.error, GesamtErrorCodes.NO_STDOUT)
+
 
 if __name__ == '__main__':
     unittest.main()
