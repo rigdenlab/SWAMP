@@ -356,3 +356,9 @@ class GesamtWrapperTestCase(unittest.TestCase):
 
         self.assertIsNone(gesamt.cmd)
         self.assertTrue(gesamt.error)
+
+    def test_9(self):
+        gesamt = MockGesamt(workdir='/empty/path/workdir', mode='dummy-mode', pdb_archive=None,
+                            gesamt_archive='/empty/path/gesamt-archive')
+
+        self.assertTrue(gesamt.error)
