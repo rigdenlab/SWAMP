@@ -41,7 +41,7 @@ class Wrapper(ABC):
     # ------------------ Abstract methods and properties ------------------
 
     @abc.abstractmethod
-    def run(self):
+    def _run(self):
         """Abstract method to run the wrapper"""
         pass
 
@@ -156,21 +156,31 @@ class Wrapper(ABC):
 
     # ------------------ Some general methods ------------------
 
+    def run(self):
+        """Method to execute the :py:attr:`~swamp.wrappers.wrapper.Wrapper.cmd` of this \
+        :py:obj:`~swamp.wrappers.wrapper.Wrapper` instance"""
+
+        if not os.path.isfile(self.source):
+            raise EnvironmentError("Couldn't find aleigen binary!")
+
+        self._run()
+
     def make_workdir(self):
-        """Create the workdir for the wrapper"""
+        """Create the :py:attr:`~swamp.wrappers.wrapper.Wrapper.workdir`"""
 
         if not os.path.isdir(self.workdir):
             os.mkdir(self.workdir)
 
     def _remove_workdir(self):
-        """Method to remove the workdir after running wrapper"""
+        """Method to remove the :py:attr:`~swamp.wrappers.wrapper.Wrapper.workdir`"""
 
         if os.path.isdir(self.workdir):
             os.chdir(os.path.dirname(os.path.dirname(self.workdir)))
             shutil.rmtree(self.workdir)
 
     def make_logfile(self, fname=None):
-        """Write the log contents into the logfile
+        """Write the :py:attr:`~swamp.wrappers.wrapper.Wrapper.logcontents` into the \
+        :py:attr:`~swamp.wrappers.wrapper.Wrapper.logfile`
 
         :param fname: specify a file name to write the log (default None)
         :type fname: None, str
@@ -188,7 +198,7 @@ class Wrapper(ABC):
             self.logger.warning("Impossible to create a logfile, no file name was set!")
 
     def _cleanup_files(self):
-        """Method to clean up temporary files after the wrapper is executed"""
+        """Method to clean up :py:attr:`~swamp.wrappers.wrapper.Wrapper._filthy_files` after the wrapper is executed"""
 
         for fname in self._filthy_files:
             if fname is not None and os.path.isfile(fname):

@@ -64,7 +64,7 @@ class Mtz2Various(Wrapper):
         """Abstract method to get scores (not implemented in this class)"""
         pass
 
-    def run(self):
+    def _run(self):
         """Run the :py:attr:`~swamp.wrappers.mtz2various.Mtz2Various.cmd` and store the stdout"""
 
         self.logger.info(self.wrapper_header)

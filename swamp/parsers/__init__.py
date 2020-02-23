@@ -79,6 +79,13 @@ def TopconsParser(*args, **kwargs):
     return TopconsParser(*args, **kwargs)
 
 
+def GesamtParser(*args, **kwargs):
+    """:py:obj:`~swamp.parsers.gesamtparser.GesamtParser` instance"""
+    from swamp.parsers.gesamtparser import GesamtParser
+
+    return GesamtParser(*args, **kwargs)
+
+
 def MtzParser(*args, **kwargs):
     """:py:obj:`~swamp.parsers.mtzparser.MtzParser` instance"""
     from swamp.parsers.mtzparser import MtzParser

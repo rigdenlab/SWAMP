@@ -167,14 +167,11 @@ class MapAlign(Wrapper):
             self.qscore = gesamt.qscore
             self.n_align = gesamt.n_align
 
-    def run(self):
+    def _run(self):
         """Run the :py:attr:`~swamp.wrappers.mapalign.MapAlign.cmd` and store the stdout
 
         :raises EnvironmentError: if :py:attr:`~swamp.wrappers.wrapper.Wrapper.source` is not found in the system
         """
-
-        if not os.path.isfile(self.source):
-            raise RuntimeError("Cannot find %s executable!" % self.source)
 
         self._check_alignment_input()
         self.logger.debug(" ".join(self.cmd))

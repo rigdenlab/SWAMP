@@ -109,7 +109,7 @@ class wRefmac(Wrapper):
             self.local_CC, self.overall_CC = self.get_cc(os.path.join(self.workdir, "phenix"), self.phased_mtz,
                                                          self.pdbout)
 
-    def run(self):
+    def _run(self):
         """Run :py:attr:`~swamp.wrappers.wrefmac.wRefmac.cmd` in the shell"""
 
         if not self.silent_start:

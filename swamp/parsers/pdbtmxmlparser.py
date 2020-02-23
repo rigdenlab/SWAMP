@@ -36,8 +36,8 @@ class PdbtmXmlParser(Parser):
                                        "length", "pdb_region"])
 
     def parse(self):
-        """Method to parse :py:attr:`~swamp.parsers.parser.fname` and store \
-        :py:attr:`~swamp.parsers.pdbtmxmlparser.ss2 annotation`"""
+        """Method to parse :py:attr:`~swamp.parsers.parser.Parser.fname` and store \
+        :py:attr:`~swamp.parsers.pdbtmxmlparser.PdbtmXmlParser.ss2 annotation`"""
 
         if self.error:
             self.logger.warning("Previous errors prevent parsing PDBTM file!")

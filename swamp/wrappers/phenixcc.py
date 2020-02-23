@@ -39,6 +39,11 @@ class PhenixCC(Wrapper):
         return "phenix.get_cc_mtz_pdb"
 
     @property
+    def source(self):
+        """Override :py:attr:`~swamp.wrappers.wrapper.Wrapper.source` to include PHENIX/build/bin instead of CCP4/bin"""
+        return os.path.join(os.environ['PHENIX'], 'build', 'bin', self.wrapper_name)
+
+    @property
     def cmd(self):
         """Command to be executed on the shell"""
         return [self.source, self.mtzin, self.pdbin]
@@ -70,7 +75,7 @@ class PhenixCC(Wrapper):
         except OSError:
             self.logger.warning("Unable to clean files after phenix.get_cc! Current wd : %s" % self.workdir)
 
-    def run(self):
+    def _run(self):
         """Run :py:attr:`~swamp.wrappers.phenixcc.PhenixCC.cmd` and store the results"""
 
         # Manage workdirs

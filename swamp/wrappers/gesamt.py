@@ -2,9 +2,8 @@ import os
 import gemmi
 import itertools
 import threading
-import numpy as np
-import pandas as pd
 from pyjob import cexec
+from swamp.parsers import GesamtParser
 from swamp.wrappers.wrapper import Wrapper
 from swamp.utils import ThreadResults, invert_hiearchy, get_tempfile
 
@@ -103,7 +102,7 @@ class Gesamt(Wrapper):
 
     @property
     def cmd(self):
-        """Command to be executed in the shell"""
+        """Command to be executed on :py:func:`~swamp.wrappers.wrapper.Wrapper.run`"""
 
         # Create an archive
         if self.mode == "make-archive":
@@ -144,18 +143,24 @@ class Gesamt(Wrapper):
     # ------------------ General methods ------------------
 
     def get_scores(self, logfile=None):
-        """Method to extract the scores and figures of merit out of the stdout and log file
+        """Use a :py:obj:`~swamp.parsers.gesamtparser.GesamtParser` instance to extract the scores and figures of \
+        merit out of the :py:attr:`~swamp.wrappers.wrapper.Wrapper.logcontents` and \
+        :py:attr:`~swamp.wrappers.gesamt.Gesamt.hits_out`
 
         :param logfile: Not in use
         """
 
-        if self.mode == "search-archive":
-            self.summary_results = self.parse_hitfile(self.hits_out)
-        elif self.mode == "alignment":
-            self.qscore, self.rmsd, self.seq_id, self.n_align = self.parse_stdout(self.logcontents, len(self.pdbin))
+        parser = GesamtParser(fname=self.hits_out, mode=self.mode, stdout=self.logcontents)
+        parser.parse()
 
-    def run(self):
-        """Run :py:attr:`~swamp.wrappers.gesamt.Gesamt.cmd` and parse the results
+        if self.mode == "search-archive":
+            self.summary_results = parser.summary
+        elif self.mode == "alignment":
+            self.qscore, self.rmsd, self.seq_id, self.n_align = parser.summary
+
+    def _run(self):
+        """Run :py:attr:`~swamp.wrappers.gesamt.Gesamt.cmd` and parse the results using \
+        :py:func:`~swamp.wrappers.gesamt.Gesamt.get_scores`
 
         :raises TypeError: command line command is malformed, please report if this occurs
         """
@@ -193,97 +198,6 @@ class Gesamt(Wrapper):
         self._cleanup_files()
 
     # ------------------ Static methods ------------------
-
-    @staticmethod
-    def parse_stdout(stdout, n_models):
-        """Method to retrieve qscore, rmsd, sequence identity and no. of aligned residues from gesamt stdout
-
-        :param str stdout: gesamt stdout to be parsed
-        :param int n_models: number of models that were used in the structural alignment to generate the provided stdout
-        :returns: qscore, rmsd, sequence identity and no. of aligned residues (tuple)
-        """
-
-        if n_models == 2:
-            qscore_mark = "Q-score"
-            rmsd_mark = "RMSD"
-            n_align_mark = "Aligned residues"
-            seqid_mark = "Sequence Id"
-        else:
-            qscore_mark = "quality Q"
-            rmsd_mark = "r.m.s.d"
-            n_align_mark = "Nalign"
-            seqid_mark = "SEQ_ID IS NOT FOUND IN MULTIPLE STRCUT. ALIGNMENT"
-
-        qscore = np.nan
-        rmsd = np.nan
-        n_align = np.nan
-        seq_id = np.nan
-        for line in stdout.split("\n"):
-            if len(line.split()) != 0 and line.split()[0] != "#":
-                if qscore_mark in line and qscore is np.nan:
-                    qscore = float(line.rstrip().lstrip().split(":")[-1].split()[0].rstrip().lstrip())
-                elif rmsd_mark in line and rmsd is np.nan:
-                    rmsd = float(line.rstrip().lstrip().split(":")[-1].split()[0].rstrip().lstrip())
-                elif n_align_mark in line and n_align is np.nan:
-                    n_align = int(line.rstrip().lstrip().split(":")[-1].split()[0].rstrip().lstrip())
-                elif seqid_mark in line and seq_id is np.nan:
-                    seq_id = float(line.rstrip().lstrip().split(":")[-1].split()[0].rstrip().lstrip())
-        return qscore, rmsd, seq_id, n_align
-
-    @staticmethod
-    def parse_hitfile(fname):
-        """Method to parse a gesamt .hit output file
-
-        :param str fname: file name of the .hit output file
-        :returns: a dataframe with the results contained in the hit file (`pandas.Dataframe`)
-        """
-
-        df = []
-        with open(fname, "r") as fhandle:
-            for line in fhandle:
-                if line[0] != "#":
-                    line = line[20:].split()
-                    df.append([line[-6], line[-5], line[-4], line[-3], line[-2], line[-1]])
-        df = pd.DataFrame(df)
-        df.columns = ["qscore", "rmsd", "seq_id", "n_align", "n_res", "fname"]
-        return df
-
-    @staticmethod
-    def get_pairwise_qscores(stdout):
-        """Method to get the pairwise qscores of a given alignmnet between several models in an ensemble
-
-        :param str stdout: gesamt stdout for the command
-        :returns: qscores_dict: a dictionary with the pairwise qscores for each of the models in the alignment (dict)
-        """
-
-        qscores_dict = {}
-        structure_id_dict = {}
-        qscores_mark = "(o) pairwise Q-scores"
-        file_mark = "... reading file"
-        rmsd_mark = "(o) pairwise r.m.s.d."
-        is_qscores = False
-
-        for line in stdout.split("\n"):
-
-            # Store file names and structure ids
-            if file_mark in line:
-                fname = line.split("'")[1]
-                structure_id = "S%s" % str(len(qscores_dict.keys()) + 1).zfill(3)
-                qscores_dict[fname] = None
-                structure_id_dict[structure_id] = fname
-            # Qscores will start appearing now
-            elif qscores_mark in line:
-                is_qscores = True
-            # Store the qscore in the dictionary
-            elif is_qscores and line.split("|")[0].rstrip().lstrip() in structure_id_dict.keys():
-                structure_id = line.split("|")[0].rstrip().lstrip()
-                idx = int(structure_id[1:])
-                qscores_dict[structure_id_dict[structure_id]] = float(line.split()[idx].rstrip().lstrip())
-            # If we reach the rmsd mark, break the loop
-            elif rmsd_mark in line:
-                break
-
-        return qscores_dict
 
     @staticmethod
     def get_optimum_alignment(pdbfiles, nthreads=1, logger=None):

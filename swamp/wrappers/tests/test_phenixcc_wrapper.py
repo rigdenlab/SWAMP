@@ -8,6 +8,11 @@ class MockPhenixCC(PhenixCC):
     """A class to mock :py:obj:`~swmap.wrappers.phenixcc.PhenixCC` for testing purposes"""
 
     @property
+    def source(self):
+        """Override :py:attr:`~swmap.wrappers.wrapper.Wrapper.source` so it includes CCP dir for testing"""
+        return os.path.join(os.environ['CCP4'], 'bin', self.wrapper_name)
+
+    @property
     def logfile(self):
         """Override :py:attr:`~swmap.wrappers.wrapper.Wrapper.logfile` so it has a setter"""
         return self._logfile

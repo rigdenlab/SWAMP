@@ -126,7 +126,7 @@ class Shelxe(Wrapper):
         parser.parse()
         self.cc, self.acl, self.cc_eobs_ecalc, self.average_cc_delta, self.solution = parser.summary
 
-    def run(self):
+    def _run(self):
         """Run :py:attr:`~swamp.wrappers.shelxe.Shelxe.cmd` and store the results"""
 
         if not self.silent_start:
