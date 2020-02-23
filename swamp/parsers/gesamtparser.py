@@ -1,6 +1,15 @@
 import numpy as np
 import pandas as pd
+from enum import Enum
 from swamp.parsers.parser import Parser
+
+
+class GesamtErrorCodes(Enum):
+    """An enumerator to handle the possible gesamt error codes"""
+    DISSIMILAR = 1
+    ERROR_2 = 2
+    NO_STDOUT = 3
+    READ_ERRORS = 4
 
 
 class GesamtParser(Parser):
@@ -58,6 +67,22 @@ class GesamtParser(Parser):
         :param int n_models: number of models that were used in the structural alignment to generate the provided stdout
         :returns: qscore, rmsd, sequence identity and no. of aligned residues (tuple)
         """
+
+        if self.stdout == b'':
+            self.error = GesamtErrorCodes.NO_STDOUT
+            self.logger.error("Something went wrong, no gesamt stdout to parse! Exiting now...")
+            return
+
+        elif 'DISSIMILAR' in self.stdout:
+            self.error = GesamtErrorCodes.DISSIMILAR
+            return
+
+        elif 'ALIGNMENT ERROR 2' in self.stdout:
+            self.error = GesamtErrorCodes.ERROR_2
+            return
+        elif 'STOP DUE TO READ ERRORS' in self.stdout:
+            self.error = GesamtErrorCodes.READ_ERRORS
+            return
 
         n_models = 0
         for line in self.stdout.split('\n'):

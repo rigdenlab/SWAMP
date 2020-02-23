@@ -86,6 +86,13 @@ def GesamtParser(*args, **kwargs):
     return GesamtParser(*args, **kwargs)
 
 
+def GesamtErrorCodes(*args, **kwargs):
+    """:py:obj:`~swamp.parsers.gesamtparser.GesamtErrorCodes` instance"""
+    from swamp.parsers.gesamtparser import GesamtErrorCodes
+
+    return GesamtErrorCodes(*args, **kwargs)
+
+
 def MtzParser(*args, **kwargs):
     """:py:obj:`~swamp.parsers.mtzparser.MtzParser` instance"""
     from swamp.parsers.mtzparser import MtzParser

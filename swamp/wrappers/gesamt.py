@@ -3,7 +3,7 @@ import gemmi
 import itertools
 import threading
 from pyjob import cexec
-from swamp.parsers import GesamtParser
+from swamp.parsers import GesamtParser, GesamtErrorCodes
 from swamp.wrappers.wrapper import Wrapper
 from swamp.utils import ThreadResults, invert_hiearchy, get_tempfile
 
@@ -115,8 +115,6 @@ class Gesamt(Wrapper):
         # Align structures
         elif self.mode == "alignment":
             cmd = [self.source]
-            if not isinstance(self.pdbin, list) and not isinstance(self.pdbin, tuple):
-                self.pdbin = list(self.pdbin)
             if len(self.pdbin) < 2:
                 self.error = True
                 self.logger.error('Need to provide at least two structures for alignment!')
@@ -150,10 +148,19 @@ class Gesamt(Wrapper):
         :param logfile: Not in use
         """
 
-        parser = GesamtParser(fname=self.hits_out, mode=self.mode, stdout=self.logcontents)
+        parser = GesamtParser(fname=self.hits_out, mode=self.mode, stdout=self.logcontents, logger=self.logger)
         parser.parse()
 
-        if self.mode == "search-archive":
+        if parser.error:
+            self.error = True
+            if parser.error == GesamtErrorCodes().DISSIMILAR:
+                self.logger.warning("%s are to dissimilar to be aligned!" % (" ".join(self.pdbin)))
+            elif parser.error == GesamtErrorCodes().ERROR_2:
+                self.logger.warning("Alignment of (%s) returned ALIGNMENT ERROR 2!" % (" ".join(self.pdbin)))
+            else:
+                raise ValueError('Unkown gesamt error code!')
+
+        elif self.mode == "search-archive":
             self.summary_results = parser.summary
         elif self.mode == "alignment":
             self.qscore, self.rmsd, self.seq_id, self.n_align = parser.summary
@@ -177,23 +184,8 @@ class Gesamt(Wrapper):
             self.logger.debug(self.mode)
             self.error = True
             return
+
         self.logcontents = cexec(self.cmd, permit_nonzero=True)
-
-        if self.logcontents == b'':
-            self.error = True
-            self.logger.error("Something went wrong, no gesamt stdout! Exiting now...")
-            return
-
-        elif 'DISSIMILAR' in self.logcontents:
-            self.error = True
-            self.logger.warning("%s are to dissimilar to be aligned!" % (" ".join(self.pdbin)))
-            return
-
-        elif 'ALIGNMENT ERROR 2' in self.logcontents:
-            self.error = True
-            self.logger.warning("%s alignment returned ALIGNMENT ERROR 2!" % (" ".join(self.pdbin)))
-            return
-
         self.get_scores()
         self._cleanup_files()
 
