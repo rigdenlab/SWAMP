@@ -16,7 +16,7 @@ class MTZLabels(Enum):
     sigi_plus = re.compile(r"[Ss][Ii][Gg][Ii]\(\+\)")
     f_plus = re.compile(r"[Ff][Pp]?\(\+\)")
     sigf_plus = re.compile(r"[Ss][Ii][Gg][Ff][Pp]?\(\+\)")
-    i_minus = re.compile(r"[Ss][Ii][Gg][Ii]\(-\)")
+    i_minus = re.compile(r"[Ii]\(-\)")
     sigi_minus = re.compile(r"[Ss][Ii][Gg][Ii]\(-\)")
     f_minus = re.compile(r"[Ff][Pp]?\(-\)")
     sigf_minus = re.compile(r"[Ss][Ii][Gg][Ff][Pp]?\(-\)")
@@ -37,8 +37,8 @@ class MtzParser(Parser):
 
     def __init__(self, fname, logger=None):
 
-        self.reflection_file = gemmi.read_mtz_file(fname)
-        self.all_labels = [column.label for column in self.reflection_file.columns]
+        self.reflection_file = None
+        self.all_labels = None
         self.f = None
         self.sigf = None
         self.i = None
@@ -52,6 +52,7 @@ class MtzParser(Parser):
         self.sigf_minus = None
         self.i_minus = None
         self.sigi_minus = None
+        self.read_reflections()
 
         super(MtzParser, self).__init__(fname, logger=logger)
 
@@ -60,6 +61,13 @@ class MtzParser(Parser):
         """Tuple with all the parsed label names"""
         return (self.f, self.sigf, self.i, self.sigi, self.free, self.f_plus, self.sigf_plus, self.i_plus,
                 self.sigi_plus, self.f_minus, self.sigf_minus, self.i_minus, self.sigi_minus)
+
+    def read_reflections(self):
+        """Read the data in :py:attr:`~swamp.parsers.mtzparser.Mtzparser.reflection_file` file using \
+        :py:func:`gemmi.read_mtz_file`"""
+
+        self.reflection_file = gemmi.read_mtz_file(self.fname)
+        self.all_labels = [column.label for column in self.reflection_file.columns]
 
     def parse(self):
         """Parse the input mtz file and retrieve the column names of the labels as described
@@ -77,4 +85,3 @@ class MtzParser(Parser):
         if not any([label for label in self.summary if label is not None]):
             self.logger.error('Cannot find any column names at %s' % self.fname)
             self.error = True
-
