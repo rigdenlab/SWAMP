@@ -51,14 +51,7 @@ class TargetData(object):
         """Get all the information required to perform MR on the given target and store it into corresponding attributes
         of this :py:obj:`~swamp.mr.targetdata.TargetData` instance"""
 
-        target_chains = [str(chain.seq) for chain in
-                         list(SeqIO.parse(self.fasta_fname, "fasta", alphabet=generic_protein))]
-        target_chains = list(set(target_chains))
-        self.mw = 0.0
-        for seq in target_chains:
-            seq = seq.replace("X", "A")
-            self.mw += round(molecular_weight(seq, "protein"), 2)
-        self.seq_length = sum([len(seq) for seq in target_chains])
+        self.mw, self.seq_length = self.read_fasta(self.fasta_fname)
 
         mtz_parser = MtzParser(self.mtz_fname, logger=self.logger)
         self.nreflections = mtz_parser.nreflections
@@ -69,22 +62,45 @@ class TargetData(object):
         mtz_parser.parse()
         if mtz_parser.i is None and mtz_parser.f is not None:
             self.use_f = True
-        self.estimate_crystal_content(mtz_parser.reflection_file)
         self.f, self.sigf, self.i, self.sigi, self.free, self.f_plus, self.sigf_plus, self.i_plus, self.sigi_plus, \
         self.f_minus, self.sigf_minus, self.i_minus, self.sigi_minus = mtz_parser.summary
 
-    def estimate_crystal_content(self, reflection_file):
+        self.ncopies, self.solvent = self.estimate_contents(mtz_parser.reflection_file.cell.volume_per_image(), self.mw)
+
+    @staticmethod
+    def read_fasta(fname):
+        """Extract information about the target's sequence from a fasta file
+
+        :param str fname: the file name of the fasta file of interest
+        :returns the combined molecular weight and length of the unique sequences in the fasta file (tuple)
+        """
+
+        target_chains = [str(chain.seq) for chain in list(SeqIO.parse(fname, "fasta", alphabet=generic_protein))]
+        target_chains = list(set(target_chains))
+        mw = 0.0
+        for seq in target_chains:
+            seq = seq.replace("X", "A")
+            mw += round(molecular_weight(seq, "protein"), 2)
+        seq_length = sum([len(seq) for seq in target_chains])
+
+        return mw, seq_length
+
+    @staticmethod
+    def estimate_contents(cell_volume, mw):
         """Estimate the number of copies and the solvent content of the crystal
 
-        :param `gemmi.Mtz` reflection_file: file with the reflections used to estimate the crystal content
+        :param float cell_volume: the volume of the crystal's cell
+        :param float mw: molecular weight of each copy of the structure
+        :returns: the no. of copies in the asu and the solvent content (tuple)
         """
 
         for ncopies in [1, 2, 3, 4, 5]:
 
-            matthews = reflection_file.cell.volume_per_image() / (self.mw * ncopies)
+            matthews = cell_volume / (mw * ncopies)
             protein_fraction = 1. / (6.02214e23 * 1e-24 * 1.35 * matthews)
-            self.solvent = round((1 - protein_fraction), 1)
+            solvent = round((1 - protein_fraction), 1)
 
             if round(matthews, 3) <= 3.5:
-                self.ncopies = ncopies
                 break
+
+        return ncopies, solvent
