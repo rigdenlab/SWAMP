@@ -9,6 +9,7 @@ __email__ = "filomeno.sanchez-rodriguez@liv.ac.uk"
 
 import os
 import gzip
+import shutil
 import tempfile
 import logging
 from swamp import version
@@ -105,6 +106,14 @@ def get_tempfile():
 
     temp_name = next(tempfile._get_candidate_names())
     return os.path.join(os.environ['CCP4_SCR'], '%s.pdb' % temp_name)
+
+
+def remove(path):
+    if os.path.exists(path):
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
 
 
 def create_tempfile(content, mode="w"):

@@ -33,9 +33,7 @@ class MrJob(object):
         self.phased_mtz = None
         self.parent_array = None
         self.searchmodel_list = []
-
-        if not os.path.isdir(self.workdir):
-            os.makedirs(self.workdir)
+        self.make_workdir()
 
     def __repr__(self):
         return '{}(id={}, workdir="{}")'.format(self.__class__.__name__, self.id, self.workdir)
@@ -129,3 +127,8 @@ EOF
         """
 
         self.searchmodel_list.append(kwargs)
+
+    def make_workdir(self):
+        """Create the :py:attr:`~swamp.mr.mrjob.MrJob.workdir`"""
+        if not os.path.isdir(self.workdir):
+            os.makedirs(self.workdir)
