@@ -99,8 +99,7 @@ class SearchJob(ABC):
     def _python_script(self):
         """Python script to create and execute an identical :py:obj:`~swamp.search.searchjob.SearchJob` instance"""
 
-        script = 'cd {}\n{} << EOF\nfrom swamp.search import SearchJob\n'.format(self.workdir,
-                                                                                                   self.python_interpreter)
+        script = 'cd {}\n{} << EOF\nfrom swamp.search import SearchJob\n'.format(self.workdir, self.python_interpreter)
 
         attributes = ['id', 'workdir', 'query', 'template_library', 'con_format', 'library_format', 'pdb_library',
                       'query_pdb_benchmark', 'template_subset', 'algorithm']
