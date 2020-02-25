@@ -456,19 +456,3 @@ class Phaser(Wrapper):
         PolyALA.renumber_residues(pdbin=tmp_file)
         PolyALA.transfer_flags_pdb(pdb_ref=pdbfile, pdb_file=tmp_file)
         shutil.move(tmp_file, pdbfile)
-
-    @staticmethod
-    def check_intensities(input_mtz):
-        """Determine if a mtz file contains intensities columns (preferred over amplitudes) using \
-        :py:obj:`~swamp.parsers.mtzparser.MtzParser`
-
-        :param str input_mtz: mtz file name of interest
-        :returns True if intensity labels are found in the mtz file (bool)
-        """
-
-        mtz_head = MtzParser(input_mtz)
-        mtz_head.parse()
-        if mtz_head.i is not None and mtz_head.sigi is not None:
-            return True
-        else:
-            return False

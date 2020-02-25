@@ -6,6 +6,7 @@ import shutil
 import subprocess
 from Bio import SeqIO
 from swamp.mr.mr import Mr
+from swamp.mr.targetdata import TargetData
 from swamp.wrappers import Phaser, wRefmac, Shelxe
 from Bio.Alphabet import generic_protein
 from Bio.SeqUtils import molecular_weight
@@ -79,6 +80,7 @@ class MrRun(Mr):
         self.idealhelix_run = None
         self.phaser_packcutoff = phaser_packcutoff
         self.phaser_peaks_rotcutoff = phaser_peaks_rotcutoff
+        self.target = TargetData(target_fa, target_mtz, phased_mtz_fname=phased_mtz, logger=self.logger)
 
     # ------------------ Some general properties ------------------
 
@@ -100,32 +102,6 @@ class MrRun(Mr):
         return os.path.join(self.searchmodel_dir, "searchmodel_{}_{}.pdb")
 
     @property
-    def target_info(self):
-        """Dictionary to contain useful information about the target
-
-        :raises: ValueError if the target's mtz and fasta files were not provided
-        """
-
-        if self.target_mtz is None or self.target_fa is None:
-            self.error = True
-            raise ValueError('Need to setup target mtz and fasta files before running MR pipeline!')
-
-        MW, solvent, nchains_asu, nresidues_chain, resolution, spacegroup, spacegroup_symbol, n_reflections, \
-        use_f = self.characterise_target(self.target_fa, self.target_mtz)
-
-        return {'fastafile': self.target_fa,
-                'mtzfile': self.target_mtz,
-                'resolution': resolution,
-                'use_f': use_f,
-                'MW': MW,
-                'phasedmtz': self.phased_mtz,
-                'solvent': solvent,
-                'nchains_asu': nchains_asu,
-                'nresidues_chain': nresidues_chain,
-                'n_reflections': n_reflections,
-                }
-
-    @property
     def phaser_info(self):
         """Dictionary to use as **kwargs for :py:obj:`~swamp.wrappers.wphaser.Phaser`"""
 
@@ -136,9 +112,9 @@ class MrRun(Mr):
                 'threads': self.threads,
                 'phased_mtz': self.phased_mtz,
                 'mtzfile': self.target_mtz,
-                'mw': self.target_info['MW'],
+                'mw': self.target.mw,
                 'packcutoff': self.phaser_packcutoff,
-                'nchains_asu': self.target_info['nchains_asu'],
+                'nchains_asu': self.target.ncopies,
                 'sgalternative': self.phaser_sgalternative,
                 'peaks_rotcutoff': self.phaser_peaks_rotcutoff
                 }
@@ -162,10 +138,10 @@ class MrRun(Mr):
                 'logger': self.logger,
                 'pdbin': self.refmac.pdbout,
                 'mtzin': self.target_mtz,
-                'solvent': self.target_info['solvent'],
-                'nreflections': self.target_info['n_reflections'],
-                'use_f': self.target_info['use_f'],
-                'resolution': self.target_info['resolution']
+                'solvent': self.target.solvent,
+                'nreflections': self.target.nreflections,
+                'use_f': self.target.use_f,
+                'resolution': self.target.resolution
                 }
 
     @property
@@ -279,7 +255,7 @@ class MrRun(Mr):
         self.refmac.run()
         self.refmac.make_logfile()
 
-        # If didn't give output, abort
+        # If there is a problem, abort
         if self.refmac.error:
             self.logger.warning("Previous error prevents pipeline moving forward... Exiting now!")
             self.append_results()
@@ -316,7 +292,7 @@ class MrRun(Mr):
 
         # Set up input parameters based on original MR run parameters with some tweaks
         size = 20
-        n_helices = int(self.target_info['nresidues_chain'] / size)
+        n_helices = int(self.target.seq_length / size)
         n_helices -= 2 * len(self.searchmodel_list)
         input_params = {'id': self.id,
                         'workdir': os.path.join(self.idealhelices_workdir),
@@ -419,50 +395,3 @@ class MrRun(Mr):
             self.phaser.register_solution(**self.solution)
         self.refmac = wRefmac(**self.refmac_info)
         self.shelxe = Shelxe(**self.shelxe_info)
-
-    # ------------------ Some static methods ------------------
-
-    @staticmethod
-    def characterise_target(target_fa, target_mtz):
-        """Method to characterise a given target
-    
-        :param str target_fa: filename of the fasta file of the target
-        :param str target_mtz: filename of the mtz file of the target
-        :returns: tuple containing target's characteristics
-        """
-
-        # Sequence information
-        target_chains = [str(chain.seq) for chain in list(SeqIO.parse(target_fa, "fasta", alphabet=generic_protein))]
-        target_chains = list(set(target_chains))
-        target_molecular_weight = 0.0
-        for seq in target_chains:
-            seq = seq.replace("X", "A")
-            target_molecular_weight += round(molecular_weight(seq, "protein"), 2)
-        seq_length = sum([len(seq) for seq in target_chains])
-
-        # Basic crystal information
-        reflection_file = gemmi.read_mtz_file(target_mtz)
-        n_reflections = reflection_file.nreflections
-        spacegroup_symbol = reflection_file.spacegroup.hm
-        target_space_group = spacegroup_symbol.replace(' ', '')
-        resolution = reflection_file.resolution_high()
-
-        # MTZ column labels
-        mtz_labels = MtzParser(target_mtz)
-        mtz_labels.parse()
-        if mtz_labels.i is None and mtz_labels.f is not None:
-            use_f = True
-        else:
-            use_f = False
-
-        # Estimate ncopies and solvent content
-        for ncopies in [1, 2, 3, 4, 5]:
-            matthews = reflection_file.cell.volume_per_image() / (target_molecular_weight * ncopies)
-            protein_fraction = 1. / (6.02214e23 * 1e-24 * 1.35 * matthews)
-            solvent = round((1 - protein_fraction), 1)
-
-            if round(matthews, 3) <= 3.5:
-                break
-
-        return target_molecular_weight, solvent, ncopies, seq_length, resolution, target_space_group, \
-               spacegroup_symbol, n_reflections, use_f

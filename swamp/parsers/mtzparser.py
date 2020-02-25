@@ -54,6 +54,9 @@ class MtzParser(Parser):
         self.sigf_minus = None
         self.i_minus = None
         self.sigi_minus = None
+        self.resolution = None
+        self.nreflections = None
+        self.spacegroup_symbol = None
         self.read_reflections()
 
     @property
@@ -68,6 +71,9 @@ class MtzParser(Parser):
 
         self.reflection_file = gemmi.read_mtz_file(self.fname)
         self.all_labels = [column.label for column in self.reflection_file.columns]
+        self.nreflections = self.reflection_file.nreflections
+        self.spacegroup_symbol = self.reflection_file.spacegroup.hm
+        self.resolution = self.reflection_file.resolution_high()
 
     def parse(self):
         """Parse the input mtz file and retrieve the column names of the labels as described
