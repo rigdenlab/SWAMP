@@ -14,7 +14,7 @@ import warnings
 
 SWAMP_DIR = os.path.join(os.path.dirname(__file__), "swamp")
 REQUIREMENTS = os.path.join(os.path.dirname(__file__), "requirements.txt")
-PACKAGES = ["parsers", "utils", "wrappers"]
+PACKAGES = ["parsers", "utils", "wrappers", "mr"]
 
 
 def parse_arguments():
