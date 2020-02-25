@@ -29,6 +29,7 @@ class MtzParserTestCase(unittest.TestCase):
         parser.parse()
         self.assertTupleEqual(parser.summary, (b'FP', b'SIGFP', b'i', b'sigi', b'Free', b'F(+)', b'sigF(+)', b'I(+)',
                                                b'sigi(+)', b'fp(-)', b'SIGFP(-)', b'i(-)', b'SIGI(-)'))
+        self.assertEqual(parser.fname, '/empty/path/fname.mtz')
 
     def test_2(self):
         parser = MockMtzParser('/empty/path/fname.mtz')

@@ -37,6 +37,8 @@ class MtzParser(Parser):
 
     def __init__(self, fname, logger=None):
 
+        super(MtzParser, self).__init__(fname, logger=logger)
+
         self.reflection_file = None
         self.all_labels = None
         self.f = None
@@ -53,8 +55,6 @@ class MtzParser(Parser):
         self.i_minus = None
         self.sigi_minus = None
         self.read_reflections()
-
-        super(MtzParser, self).__init__(fname, logger=logger)
 
     @property
     def summary(self):
