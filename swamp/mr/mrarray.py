@@ -82,12 +82,7 @@ class MrArray(Mr):
     def __getitem__(self, id):
         """Return the job with the given id"""
         if isinstance(id, slice):
-            indexes_to_keep = set(range(*id.indices(len(self))))
-            copy_to_return = self.copy()
-            for i, job in enumerate(self):
-                if i not in indexes_to_keep:
-                    copy_to_return.remove(job.id)
-            return copy_to_return
+            raise NotImplementedError('MrArray does not support slicing yet!')
         elif isinstance(id, int):
             return self.job_list[id]
         else:

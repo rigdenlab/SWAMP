@@ -17,6 +17,7 @@ class MrJobTestCase(unittest.TestCase):
 /empty/path/python << EOF
 from swamp.mr import MrRun
 mr_run = MrRun(id='test', workdir='%s', target_fa='/empty/path/target.fasta', target_mtz='/empty/path/target.mtz')
+mr_run.phased_mtz = "/empty/path/phases.mtz"
 mr_run.add_searchmodel(arg1="arg1", arg2="arg2", arg3="3")
 if not mr_run.error:
     mr_run.run()
@@ -31,6 +32,7 @@ EOF
         job.add_searchmodel(arg1='arg1', arg2='arg2', arg3=3)
         job.target_fa = '/empty/path/target.fasta'
         job.target_mtz = '/empty/path/target.mtz'
+        job.phased_mtz = '/empty/path/phases.mtz'
         self.assertEqual(python_script, job.python_script)
         self.assertIsInstance(job.script, Script)
         self.assertEqual(python_script, job.script[0])
@@ -39,7 +41,7 @@ EOF
         pickle_fname = os.path.join(WORKDIR, "results.pckl")
         job = MrJob(id='test', workdir=WORKDIR, python_interpreter='/empty/path/python')
         results = RESULTS(
-            results=['SEARC', 'RUN', 'LLG', 'TFZ', 'local_CC', 'overall_CC', 'rfree', 'rfactor', 'local_CC',
+            results=['SEARCH', 'RUN', 'LLG', 'TFZ', 'local_CC', 'overall_CC', 'rfree', 'rfactor', 'local_CC',
                      'overall_CC', 'cc', 'acl', 'is_extended', 'solution'])
         with open(pickle_fname, 'wb') as fhandle:
             dill.dump(results, fhandle)
