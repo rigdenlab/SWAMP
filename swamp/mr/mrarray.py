@@ -106,8 +106,8 @@ class MrArray(Mr):
 
     @property
     def cleanup_dir_list(self):
-        """List of directories to cleanup after completion of the pipeline (None)"""
-        return None
+        """List of directories to cleanup after pipeline completion :py:attr:`~swamp.mr.mrarray.MrArray.workdir`"""
+        return [self.workdir]
 
     @property
     def _other_task_info(self):

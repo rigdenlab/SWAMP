@@ -4,14 +4,10 @@ import shlex
 import swamp
 import shutil
 import subprocess
-from Bio import SeqIO
 from swamp.mr.mr import Mr
 from swamp.mr.targetdata import TargetData
 from swamp.wrappers import Phaser, wRefmac, Shelxe
-from Bio.Alphabet import generic_protein
-from Bio.SeqUtils import molecular_weight
 from swamp.utils import decompress
-from swamp.parsers import MtzParser
 from swamp.searchmodel import Core, PolyALA
 
 

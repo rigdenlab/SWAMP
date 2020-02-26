@@ -19,10 +19,16 @@ class MrArrayTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.isdir(WORKDIR))
         self.addCleanup(remove, WORKDIR)
-        self.assertIsNone(array.cleanup_dir_list)
+        self.assertListEqual(array.cleanup_dir_list, [WORKDIR])
         self.assertDictEqual(array._other_task_info, {'directory': WORKDIR, 'shell': "/bin/bash", 'runtime': 1440,
                                                       'queue': 'dummy_queue', 'max_array_size': 100,
                                                       'environment': 'dummy_env'})
+        self.assertListEqual(array._result_table_fields,
+                             ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE",
+                              "RFMC_RFACT", "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED",
+                              "SOLUTION"])
+        self.assertEqual(os.path.join(WORKDIR, "results.pckl"), array.result_pickle_fname)
+        self.assertEqual(os.path.join(WORKDIR, "results.table"), array.result_table_fname)
 
     def test_2(self):
         array = MrArray(id='test', workdir=WORKDIR, target_mtz='/empty/path/target.mtz', queue_environment='dummy_env',
@@ -118,3 +124,41 @@ class MrArrayTestCase(unittest.TestCase):
              'overall_CC_2', 'cc_2', 'acl_2', 'is_extended_2', 'solution_2'],
             ['SEARCH_3', 'RUN_3', 'LLG_3', 'TFZ_3', 'local_CC_3', 'overall_CC_3', 'rfree_3', 'rfactor_3', 'local_CC_3',
              'overall_CC_3', 'cc_3', 'acl_3', 'is_extended_3', 'solution_3']])
+
+        array.create_result_table_outfile()
+        self.assertTrue(os.path.isfile(array.result_table_fname))
+        self.addCleanup(remove, array.result_table_fname)
+        expected_table = """+-----------+--------+-------+-------+-------------+--------------+------------+------------+-------------+--------------+---------+----------+---------------+------------+
+| SEARCH ID | RUN ID |  LLG  |  TFZ  | PHSR_CC_LOC | PHSR_CC_ALL  | RFMC_RFREE | RFMC_RFACT | RFMC_CC_LOC | RFMC_CC_ALL  | SHXE_CC | SHXE_ACL |  IS_EXTENDED  |  SOLUTION  |
++-----------+--------+-------+-------+-------------+--------------+------------+------------+-------------+--------------+---------+----------+---------------+------------+
+|  SEARCH_3 | RUN_3  | LLG_3 | TFZ_3 |  local_CC_3 | overall_CC_3 |  rfree_3   | rfactor_3  |  local_CC_3 | overall_CC_3 |   cc_3  |  acl_3   | is_extended_3 | solution_3 |
+|  SEARCH_2 | RUN_2  | LLG_2 | TFZ_2 |  local_CC_2 | overall_CC_2 |  rfree_2   | rfactor_2  |  local_CC_2 | overall_CC_2 |   cc_2  |  acl_2   | is_extended_2 | solution_2 |
+|  SEARCH_1 | RUN_1  | LLG_1 | TFZ_1 |  local_CC_1 | overall_CC_1 |  rfree_1   | rfactor_1  |  local_CC_1 | overall_CC_1 |   cc_1  |  acl_1   | is_extended_1 | solution_1 |
++-----------+--------+-------+-------+-------------+--------------+------------+------------+-------------+--------------+---------+----------+---------------+------------+"""
+        with open(array.result_table_fname, 'r') as fhandle:
+            actual_table = "".join(fhandle.readlines())
+        self.assertEqual(expected_table, actual_table)
+
+    def test_5(self):
+        array = MrArray(id='test', workdir=WORKDIR, target_mtz='/empty/path/target.mtz', queue_environment='dummy_env',
+                        target_fa='/empty/path/target.fasta', max_concurrent_nprocs=100, queue_name='dummy_queue',
+                        job_kill_time=1440, platform='local', phased_mtz='/empty/path/phases.mtz')
+
+        self.addCleanup(remove, WORKDIR)
+        array.logger = None
+        array.store_pickle()
+        self.assertTrue(os.path.isfile(array.result_pickle_fname))
+        self.addCleanup(remove, array.result_pickle_fname)
+        with open(array.result_pickle_fname, 'rb') as fhandle:
+            test_array = dill.load(fhandle)
+        self.assertEqual(vars(test_array), vars(array))
+
+    def test_6(self):
+        array = MrArray(id='test', workdir=WORKDIR, target_mtz='/empty/path/target.mtz', queue_environment='dummy_env',
+                        target_fa='/empty/path/target.fasta', max_concurrent_nprocs=100, queue_name='dummy_queue',
+                        job_kill_time=1440, platform='local', phased_mtz='/empty/path/phases.mtz')
+
+        self.addCleanup(remove, WORKDIR)
+        self.assertTrue(os.path.isdir(WORKDIR))
+        array._cleanup_files()
+        self.assertFalse(os.path.isdir(WORKDIR))
