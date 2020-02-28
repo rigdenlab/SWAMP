@@ -20,7 +20,8 @@ class MrResultsTestCase(unittest.TestCase):
         search_2_run_2 = os.path.join(MR_DIR, 'search_2', 'run_2')
         directories = [WORKDIR, MR_DIR, search_1, search_1_run_1, search_2, search_2_run_1, search_2_run_2]
         for directory in directories:
-            os.mkdir(directory)
+            if not os.path.isdir(directory):
+                os.mkdir(directory)
         self.addCleanup(remove, WORKDIR)
 
         results = RESULTS(
