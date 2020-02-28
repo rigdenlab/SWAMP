@@ -41,9 +41,9 @@ class MrResultsTestCase(unittest.TestCase):
             dill.dump(results, fhandle)
 
         results = MrResults(swamp_workdir=WORKDIR)
-        self.assertTupleEqual((os.path.join(search_2_run_2, 'results.pckl'),
+        self.assertTupleEqual((os.path.join(search_1_run_1, 'results.pckl'),
                                os.path.join(search_2_run_1, 'results.pckl'),
-                               os.path.join(search_1_run_1, 'results.pckl')), results.pickle_list)
+                               os.path.join(search_2_run_2, 'results.pckl')), results.pickle_list)
         self.assertListEqual([['SEARCH_2', 'RUN_2', 'LLG', 'TFZ', 'local_CC', 'overall_CC', 'rfree', 'rfactor',
                                'local_CC', 'overall_CC', '9', 'acl', 'is_extended', 'solution'],
                               ['SEARCH_2', 'RUN_1', 'LLG', 'TFZ', 'local_CC', 'overall_CC', 'rfree', 'rfactor',
