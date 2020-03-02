@@ -1,14 +1,9 @@
 import os
-import gemmi
-import shlex
 import swamp
-import shutil
-import subprocess
 from swamp.mr.mr import Mr
 from swamp.mr.targetdata import TargetData
+from swamp.mr.searchmodel import SearchModel
 from swamp.wrappers import Phaser, wRefmac, Shelxe
-from swamp.utils import decompress
-from swamp.searchmodel import Core, PolyALA
 
 
 class MrRun(Mr):
@@ -93,11 +88,6 @@ class MrRun(Mr):
         return os.path.join(self.workdir, "searchmodels")
 
     @property
-    def prepared_searchmodel_fname(self):
-        """Filename of the modified search model"""
-        return os.path.join(self.searchmodel_dir, "searchmodel_{}_{}.pdb")
-
-    @property
     def phaser_info(self):
         """Dictionary to use as **kwargs for :py:obj:`~swamp.wrappers.wphaser.Phaser`"""
 
@@ -152,19 +142,13 @@ class MrRun(Mr):
                 and x.split("_")[-1] == "homogenous.pdb"]
 
     @property
-    def idealhelix_fname(self):
-        """File name of the ideal helix to be used to extend the solution"""
-        return os.path.join(swamp.IDEALHELICES_DIR, 'ensemble_20_nativebfact_homogenous.pdb.gz')
-
-    @property
     def idealhelices_workdir(self):
         """Directory where the ideal helices solution extension will take place"""
         return os.path.join(self.workdir, "ideal_helices")
 
     # ------------------ Some general methods ------------------
 
-    def add_searchmodel(self, id, ensemble_code, ermsd=0.1, nsearch=1, disable_check=True, mod='unmod',
-                        model='ensemble'):
+    def add_searchmodel(self, **kwargs):
         """Add a search model to :py:attr:`~swamp.mr.mrrun.MrRun.phaser`
 
         :param str id: unique identifier for the search model to be added
@@ -176,39 +160,15 @@ class MrRun(Mr):
         :param str model: indicate if the search model is an ensemble or a centroid (default 'ensemble')
         """
 
-        if ensemble_code == 'idealhelix':
-            gzfile = os.path.join(self.idealhelix_fname)
-            pdbfile = os.path.join(self.workdir, 'idealhelix.pdb')
-        else:
-            gzfile = os.path.join(swamp.ENSEMBLE_DIR, '%s_%s.pdb.gz' % (model, ensemble_code))
-            pdbfile = os.path.join(self.workdir, '%s_%s.pdb' % (model, ensemble_code))
-
-        if not os.path.isfile(gzfile):
-            self.logger.error('Search model file not found! %s\nMake sure the ensemble code is correct!' % gzfile)
-            self.error = True
-            return
-
-        if self.searchmodel_list and id in [x['id'] for x in self.searchmodel_list]:
+        if self.searchmodel_list and id in [x.id for x in self.searchmodel_list]:
             self.logger.error('A searchmodel with the same id has been already added!')
             self.error = True
             return
 
-        decompress(gzfile, pdbfile)
+        searchmodel = SearchModel(**kwargs, workdir=self.searchmodel_dir)
 
-        if mod != 'unmod':
-            fname = self.prepared_searchmodel_fname.format(id, mod)
-            self.prepare_search_model(modification=mod, pdbin=pdbfile, workdir=self.searchmodel_dir, pdbout=fname)
-        else:
-            fname = pdbfile
-
-        if not self.error:
-            self.searchmodel_list.append({
-                'id': id,
-                'pdbfile': fname,
-                'ermsd': ermsd,
-                'nsearch': nsearch,
-                'disable_check': disable_check
-            })
+        if not searchmodel.error:
+            self.searchmodel_list.append(searchmodel)
         else:
             self.logger.warning('Previous errors prevent adding the searchmodel!')
             return
@@ -308,66 +268,11 @@ class MrRun(Mr):
                         }
         # Run  MR pipeline using the ideal helix as search model and manage results
         self.idealhelix_run = MrRun(**input_params)
-        self.idealhelix_run.add_searchmodel('idealhelix', ensemble_code='idealhelix', nsearch=5)
+        self.idealhelix_run.add_searchmodel(id='idealhelix', ensemble_code='idealhelix', nsearch=5)
         self.idealhelix_run.is_extended = 'YES'
         self.idealhelix_run.register_solution(pdbfile=self.refmac.pdbout, ermsd=0.1)
         self.idealhelix_run.run()
         self.results += self.idealhelix_run.results
-
-    def prepare_search_model(self, modification='polyala', **kwargs):
-        """ Method to prepare the search model with a given modification protocol
-
-        :param str modification: indicates the modification to be used (default 'polyala')
-        :param dict kwargs: arguments to be passed to :py:obj:`~swamp.searchmodel.searchmodel.SearchModel`
-        :raises: ValueError if the modification is not recognised (valid mods: unmod, polyala, core)
-        """
-
-        self.logger.info('Preparing searchmodel for MR run (modification: %s)' % modification)
-
-        if modification == "unmod":
-            shutil.copyfile(kwargs['pdbin'], kwargs['pdbout'])
-            return
-        elif modification == "polyala":
-            prep = PolyALA(**kwargs)
-        elif modification == "core":
-            prep = Core(**kwargs)
-        else:
-            raise ValueError('Unrecognised search model preparation mode: %s' % modification)
-
-        prep.prepare()
-
-        if prep.error:
-            self.error = True
-            self.logger.warning("Search model modification wasn't completed due to previous errors...")
-
-    def characterise_searchmodel(self, searchmodel_filename):
-        """Method to characterise a given search model (no. of models, no. of residues and avg. qscore of the ensemble)
-    
-        :param str searchmodel_filename: filename of the pdb file of the search model
-        :returns: tuple containing the number of models, number of residues and average qscore of the ensemble
-        """
-
-        # Read hierarchy
-        hierarchy = gemmi.read_structure(searchmodel_filename)
-        hierarchy.remove_ligands_and_waters()
-
-        # Get the qscore
-        gesamtEXE = os.path.join(os.environ["CCP4"], "bin", "gesamt")
-        for model in hierarchy:
-            gesamtEXE += " %s -s /%s/" % (searchmodel_filename, model.name)
-        process_args = shlex.split(gesamtEXE, posix=False)
-        p = subprocess.Popen(process_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        stdout, stderr = p.communicate()
-        avg_qscore = "NA"
-        for line in stdout.split("\n"):
-            if "Q-score" in line:
-                avg_qscore = line.rstrip().lstrip().split(":")[1].split()[0].rstrip().lstrip()
-                break
-        if avg_qscore == "NA":
-            self.logger.warning("Something went wrong getting the avg. Qscore of the search model!")
-
-        # Return data
-        return len(hierarchy), len([residue for model in hierarchy for chain in model for residue in chain]), avg_qscore
 
     # ------------------ Some hidden methods ------------------
 
@@ -385,8 +290,8 @@ class MrRun(Mr):
             return
 
         self.phaser = Phaser(**self.phaser_info)
-        for searchmodel_info in self.searchmodel_list:
-            self.phaser.add_searchmodel(**searchmodel_info)
+        for searchmodel in self.searchmodel_list:
+            self.phaser.add_searchmodel(**searchmodel.phaser_info)
         if self.solution is not None:
             self.phaser.register_solution(**self.solution)
         self.refmac = wRefmac(**self.refmac_info)

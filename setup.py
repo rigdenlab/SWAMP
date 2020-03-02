@@ -81,12 +81,10 @@ if __name__ == "__main__":
 
     if args.tests:
         # Mock CCP4 directories for Travis CI
-        ccp4_root = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-        ccp4_scr = os.path.abspath(os.path.join(os.path.dirname(__file__), "CCP4_SCR"))
-        os.environ['CCP4'] = ccp4_root
-        os.environ['CCP4_SCR'] = ccp4_scr
-        if not os.path.isdir(ccp4_scr):
-            os.mkdir(ccp4_scr)
+        os.environ['CCP4'] = os.path.abspath(os.path.join(os.path.dirname(__file__), "CCP4"))
+        os.environ['CCP4_SCR'] = os.path.abspath(os.path.join(os.environ['CCP4'], "CCP4_SCR"))
+        if not os.path.isdir(os.environ['CCP4_SCR']):
+            os.makedirs(os.environ['CCP4_SCR'])
 
         test = SWAMPUnittestFramework()
         test.run()
