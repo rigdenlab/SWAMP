@@ -1189,6 +1189,7 @@ ENDMDL
 END"""
 
 
+@unittest.skipIf('THIS_IS_TRAVIS' in os.environ, "not implemented in Travis CI")
 class SearchModelTestCase(unittest.TestCase):
 
     @classmethod
