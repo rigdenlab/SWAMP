@@ -14,6 +14,9 @@ Solving structures With Alpha helical Membrane Pairs
    :target: https://travis-ci.com/rigdenlab/SWAMP
    :alt: CI Status
 
+.. image:: https://codecov.io/gh/rigdenlab/SWAMP/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/rigdenlab/SWAMP
+
 About SWAMP
 +++++++++++
 
