@@ -1189,7 +1189,6 @@ ENDMDL
 END"""
 
 
-@unittest.skipIf('THIS_IS_TRAVIS' in os.environ, "not implemented in Travis CI")
 class SearchModelTestCase(unittest.TestCase):
 
     @classmethod
@@ -1221,6 +1220,7 @@ class SearchModelTestCase(unittest.TestCase):
                               'pdbfile': os.path.join(os.environ['CCP4_SCR'], 'searchmodel_test', 'ensemble_3.pdb')},
                              searchmodel.phaser_info)
 
+    @unittest.skipIf('THIS_IS_TRAVIS' in os.environ, "not implemented in Travis CI")
     def test_2(self):
 
         searchmodel = SearchModel(id='test', ensemble_code='5', ermsd=0.6, nsearch=3, disable_check=False,
@@ -1246,10 +1246,10 @@ class SearchModelTestCase(unittest.TestCase):
         searchmodel._check_output()
         self.assertTrue(searchmodel.error)
 
-    def test_5(self):
+    def test_3(self):
         searchmodel = SearchModel(id='test', ensemble_code='idealhelix', ermsd=0.6, nsearch=3, disable_check=False,
                                   workdir=os.path.join(os.environ['CCP4_SCR'], 'searchmodel_test'),
-                                  mod='polyala', model='centroid')
+                                  mod='unmod', model='centroid')
 
         self.assertEqual(os.path.join(swamp.IDEALHELICES_DIR, 'ensemble_20_nativebfact_homogenous.pdb.gz'),
                          searchmodel.idealhelix_fname)
