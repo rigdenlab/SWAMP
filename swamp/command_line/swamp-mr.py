@@ -17,11 +17,11 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='SWAMP-MR: Contact assisted fragment based molecular replacement',
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("id", type=str, help='Unique identifier for this MR subroutine')
-    parser.add_argument("workdir", type=str, help='Working directory to perform MR')
     parser.add_argument("mtzfile", type=check_path_exists, help='MTZ file with the reflection data')
     parser.add_argument("fastafile", type=check_path_exists, help="FASTA file with the sequence of the structure")
     parser.add_argument("conpred", type=check_path_exists, help="Residue contact prediction for the target structure")
     parser.add_argument("sspred", type=check_path_exists, help="Secondary structure prediction for the target protein")
+    parser.add_argument("-workdir", type=str, nargs='?', default=None, help='Working directory to perform MR')
     parser.add_argument("-max_concurrent_procs", type=int, nargs="?", default=1, help="Max no. of concurrent processes")
     parser.add_argument("-max_array_size", type=int, nargs="?", default=None,
                         help='Maximum allowed array size to be submitted to the job scheduler')
@@ -82,11 +82,17 @@ def main():
 
     args = parse_arguments()
 
-    idx = 0
-    swamp_workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
-    while os.path.isdir(swamp_workdir):
-        idx += 1
-        swamp_workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)
+    if args.workdir is not None:
+        if os.path.isdir(args.workdir):
+            raise FileExistsError('Working directory already exists!')
+        swamp_workdir = args.workdir
+    else:
+        idx = 0
+        swamp_workdir = os.path.join(os.getcwd(), 'SWAMP_%s' % idx)
+        while os.path.isdir(swamp_workdir):
+            idx += 1
+            swamp_workdir = os.path.join(os.getcwd(), 'SWAMP_%s' % idx)
+
     os.mkdir(swamp_workdir)
     logfile = os.path.join(swamp_workdir, "swamp_%s.debug" % args.id)
     swamp_search_dir = os.path.join(swamp_workdir, 'swamp_search')
