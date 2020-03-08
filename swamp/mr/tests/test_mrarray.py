@@ -162,3 +162,41 @@ class MrArrayTestCase(unittest.TestCase):
         self.assertTrue(os.path.isdir(WORKDIR))
         array._cleanup_files()
         self.assertFalse(os.path.isdir(WORKDIR))
+
+    def test_7(self):
+        array = MrArray(id='test', workdir=WORKDIR, target_mtz='/empty/path/target.mtz', queue_environment='dummy_env',
+                        target_fa='/empty/path/target.fasta', max_concurrent_nprocs=100, queue_name='dummy_queue',
+                        job_kill_time=1440, platform='local', phased_mtz='/empty/path/phases.mtz')
+        self.assertListEqual(array._result_table_fields,
+                             ["SEARCH ID", "RUN ID", "LLG", "TFZ", "PHSR_CC_LOC", "PHSR_CC_ALL", "RFMC_RFREE",
+                              "RFMC_RFACT", "RFMC_CC_LOC", "RFMC_CC_ALL", "SHXE_CC", "SHXE_ACL", "IS_EXTENDED",
+                              "SOLUTION"])
+        self.assertDictEqual(array.init_params, {'id': 'test', 'job_kill_time': 1440, 'logger': None,
+                                                 'max_array_size': None, 'max_concurrent_nprocs': 100,
+                                                 'phased_mtz': '/empty/path/phases.mtz', 'platform': 'local',
+                                                 'queue_environment': 'dummy_env', 'queue_name': 'dummy_queue',
+                                                 'silent': False, 'target_fa': '/empty/path/target.fasta',
+                                                 'target_mtz': '/empty/path/target.mtz',
+                                                 'workdir': '/tmp/filo/test_workdir'})
+        self.assertEqual(array.pipeline_header, """\n**********************************************************************
+**********************           {}           ******************
+**********************************************************************
+
+""")
+
+        self.assertEqual("""Arguments provided:
+
+	id: test
+	workdir: /tmp/filo/test_workdir
+	target_mtz: /empty/path/target.mtz
+	target_fa: /empty/path/target.fasta
+	platform: local
+	queue_name: dummy_queue
+	logger: None
+	max_array_size: None
+	queue_environment: dummy_env
+	phased_mtz: /empty/path/phases.mtz
+	max_concurrent_nprocs: 100
+	job_kill_time: 1440
+	silent: False
+""", array._inform_args(**array.init_params))
