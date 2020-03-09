@@ -183,20 +183,11 @@ class MrArrayTestCase(unittest.TestCase):
 **********************************************************************
 
 """)
-
-        self.assertEqual("""Arguments provided:
-
-	id: test
-	workdir: %s
-	target_mtz: /empty/path/target.mtz
-	target_fa: /empty/path/target.fasta
-	platform: local
-	queue_name: dummy_queue
-	logger: None
-	max_array_size: None
-	queue_environment: dummy_env
-	phased_mtz: /empty/path/phases.mtz
-	max_concurrent_nprocs: 100
-	job_kill_time: 1440
-	silent: False
-""" % WORKDIR, array._inform_args(**array.init_params))
+        print(list(sorted(array._inform_args(**array.init_params).split('\n'))))
+        self.assertListEqual(['', '', '\tid: test', '\tjob_kill_time: 1440', '\tlogger: None', '\tmax_array_size: None',
+                              '\tmax_concurrent_nprocs: 100', '\tphased_mtz: /empty/path/phases.mtz',
+                              '\tplatform: local', '\tqueue_environment: dummy_env', '\tqueue_name: dummy_queue',
+                              '\tsilent: False', '\ttarget_fa: /empty/path/target.fasta',
+                              '\ttarget_mtz: /empty/path/target.mtz', '\tworkdir: %s' % WORKDIR,
+                              'Arguments provided:'],
+                             list(sorted(array._inform_args(**array.init_params).split('\n'))))
