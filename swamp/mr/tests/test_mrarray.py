@@ -177,7 +177,7 @@ class MrArrayTestCase(unittest.TestCase):
                                                  'queue_environment': 'dummy_env', 'queue_name': 'dummy_queue',
                                                  'silent': False, 'target_fa': '/empty/path/target.fasta',
                                                  'target_mtz': '/empty/path/target.mtz',
-                                                 'workdir': '/tmp/filo/test_workdir'})
+                                                 'workdir': WORKDIR})
         self.assertEqual(array.pipeline_header, """\n**********************************************************************
 **********************           {}           ******************
 **********************************************************************
@@ -187,7 +187,7 @@ class MrArrayTestCase(unittest.TestCase):
         self.assertEqual("""Arguments provided:
 
 	id: test
-	workdir: /tmp/filo/test_workdir
+	workdir: %s
 	target_mtz: /empty/path/target.mtz
 	target_fa: /empty/path/target.fasta
 	platform: local
@@ -199,4 +199,4 @@ class MrArrayTestCase(unittest.TestCase):
 	max_concurrent_nprocs: 100
 	job_kill_time: 1440
 	silent: False
-""", array._inform_args(**array.init_params))
+""" % WORKDIR, array._inform_args(**array.init_params))
