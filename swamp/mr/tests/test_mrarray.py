@@ -183,7 +183,6 @@ class MrArrayTestCase(unittest.TestCase):
 **********************************************************************
 
 """)
-        print(list(sorted(array._inform_args(**array.init_params).split('\n'))))
         self.assertListEqual(['', '', '\tid: test', '\tjob_kill_time: 1440', '\tlogger: None', '\tmax_array_size: None',
                               '\tmax_concurrent_nprocs: 100', '\tphased_mtz: /empty/path/phases.mtz',
                               '\tplatform: local', '\tqueue_environment: dummy_env', '\tqueue_name: dummy_queue',

@@ -2,6 +2,7 @@ import os
 import swamp
 import unittest
 import joblib
+from operator import itemgetter
 from swamp.utils import remove, create_tempfile
 from swamp.search.searchtarget import SearchTarget
 
@@ -582,30 +583,32 @@ class SearchTargetTestCase(unittest.TestCase):
 
         self.assertIsNone(search.results)
         search.results = search.recover_results()
-        self.assertListEqual([[1, '2_6', 11, 'MAP_A_0', 'MAP_B_0', 'CON_SCO_0', 'GAP_SCO_0', 'TOTAL_SCO_0', 'ALI_LEN_0',
-                               'QSCORE_0', 'RMSD_0', 'SEQ_ID_0', 'N_ALIGN_0'],
-                              [2, '1_7', 8, 'MAP_A_1', 'MAP_B_1', 'CON_SCO_1', 'GAP_SCO_1', 'TOTAL_SCO_1', 'ALI_LEN_1',
-                               'QSCORE_1', 'RMSD_1', 'SEQ_ID_1', 'N_ALIGN_1'],
-                              [3, '4_9', 7, 'MAP_A_2', 'MAP_B_2', 'CON_SCO_2', 'GAP_SCO_2', 'TOTAL_SCO_2', 'ALI_LEN_2',
-                               'QSCORE_2', 'RMSD_2', 'SEQ_ID_2', 'N_ALIGN_2'],
-                              [4, '3_5', 6, 'MAP_A_3', 'MAP_B_3', 'CON_SCO_3', 'GAP_SCO_3', 'TOTAL_SCO_3', 'ALI_LEN_3',
-                               'QSCORE_3', 'RMSD_3', 'SEQ_ID_3', 'N_ALIGN_3'],
-                              [5, '2_7', 5, 'MAP_A_4', 'MAP_B_4', 'CON_SCO_4', 'GAP_SCO_4', 'TOTAL_SCO_4', 'ALI_LEN_4',
-                               'QSCORE_4', 'RMSD_4', 'SEQ_ID_4', 'N_ALIGN_4'],
-                              [6, '3_4', 4, 'MAP_A_5', 'MAP_B_5', 'CON_SCO_5', 'GAP_SCO_5', 'TOTAL_SCO_5', 'ALI_LEN_5',
-                               'QSCORE_5', 'RMSD_5', 'SEQ_ID_5', 'N_ALIGN_5'],
-                              [7, '3_8', 3, 'MAP_A_6', 'MAP_B_6', 'CON_SCO_6', 'GAP_SCO_6', 'TOTAL_SCO_6', 'ALI_LEN_6',
-                               'QSCORE_6', 'RMSD_6', 'SEQ_ID_6', 'N_ALIGN_6'],
-                              [8, '4_10', 3, 'MAP_A_7', 'MAP_B_7', 'CON_SCO_7', 'GAP_SCO_7', 'TOTAL_SCO_7', 'ALI_LEN_7',
-                               'QSCORE_7', 'RMSD_7', 'SEQ_ID_7', 'N_ALIGN_7'],
+
+        self.assertListEqual([[11, '4_8', 1, 'MAP_A_10', 'MAP_B_10', 'CON_SCO_10', 'GAP_SCO_10', 'TOTAL_SCO_10',
+                               'ALI_LEN_10', 'QSCORE_10', 'RMSD_10', 'SEQ_ID_10', 'N_ALIGN_10'],
+                              [12, '9_10', 1, 'MAP_A_11', 'MAP_B_11', 'CON_SCO_11', 'GAP_SCO_11', 'TOTAL_SCO_11',
+                               'ALI_LEN_11', 'QSCORE_11', 'RMSD_11', 'SEQ_ID_11', 'N_ALIGN_11'],
                               [9, '4_5', 2, 'MAP_A_8', 'MAP_B_8', 'CON_SCO_8', 'GAP_SCO_8', 'TOTAL_SCO_8', 'ALI_LEN_8',
                                'QSCORE_8', 'RMSD_8', 'SEQ_ID_8', 'N_ALIGN_8'],
                               [10, '8_10', 2, 'MAP_A_9', 'MAP_B_9', 'CON_SCO_9', 'GAP_SCO_9', 'TOTAL_SCO_9',
                                'ALI_LEN_9', 'QSCORE_9', 'RMSD_9', 'SEQ_ID_9', 'N_ALIGN_9'],
-                              [11, '4_8', 1, 'MAP_A_10', 'MAP_B_10', 'CON_SCO_10', 'GAP_SCO_10', 'TOTAL_SCO_10',
-                               'ALI_LEN_10', 'QSCORE_10', 'RMSD_10', 'SEQ_ID_10', 'N_ALIGN_10'],
-                              [12, '9_10', 1, 'MAP_A_11', 'MAP_B_11', 'CON_SCO_11', 'GAP_SCO_11', 'TOTAL_SCO_11',
-                               'ALI_LEN_11', 'QSCORE_11', 'RMSD_11', 'SEQ_ID_11', 'N_ALIGN_11']], search.results)
+                              [7, '3_8', 3, 'MAP_A_6', 'MAP_B_6', 'CON_SCO_6', 'GAP_SCO_6', 'TOTAL_SCO_6', 'ALI_LEN_6',
+                               'QSCORE_6', 'RMSD_6', 'SEQ_ID_6', 'N_ALIGN_6'],
+                              [8, '4_10', 3, 'MAP_A_7', 'MAP_B_7', 'CON_SCO_7', 'GAP_SCO_7', 'TOTAL_SCO_7', 'ALI_LEN_7',
+                               'QSCORE_7', 'RMSD_7', 'SEQ_ID_7', 'N_ALIGN_7'],
+                              [6, '3_4', 4, 'MAP_A_5', 'MAP_B_5', 'CON_SCO_5', 'GAP_SCO_5', 'TOTAL_SCO_5', 'ALI_LEN_5',
+                               'QSCORE_5', 'RMSD_5', 'SEQ_ID_5', 'N_ALIGN_5'],
+                              [5, '2_7', 5, 'MAP_A_4', 'MAP_B_4', 'CON_SCO_4', 'GAP_SCO_4', 'TOTAL_SCO_4', 'ALI_LEN_4',
+                               'QSCORE_4', 'RMSD_4', 'SEQ_ID_4', 'N_ALIGN_4'],
+                              [4, '3_5', 6, 'MAP_A_3', 'MAP_B_3', 'CON_SCO_3', 'GAP_SCO_3', 'TOTAL_SCO_3', 'ALI_LEN_3',
+                               'QSCORE_3', 'RMSD_3', 'SEQ_ID_3', 'N_ALIGN_3'],
+                              [3, '4_9', 7, 'MAP_A_2', 'MAP_B_2', 'CON_SCO_2', 'GAP_SCO_2', 'TOTAL_SCO_2', 'ALI_LEN_2',
+                               'QSCORE_2', 'RMSD_2', 'SEQ_ID_2', 'N_ALIGN_2'],
+                              [2, '1_7', 8, 'MAP_A_1', 'MAP_B_1', 'CON_SCO_1', 'GAP_SCO_1', 'TOTAL_SCO_1', 'ALI_LEN_1',
+                               'QSCORE_1', 'RMSD_1', 'SEQ_ID_1', 'N_ALIGN_1'],
+                              [1, '2_6', 11, 'MAP_A_0', 'MAP_B_0', 'CON_SCO_0', 'GAP_SCO_0', 'TOTAL_SCO_0', 'ALI_LEN_0',
+                               'QSCORE_0', 'RMSD_0', 'SEQ_ID_0', 'N_ALIGN_0']],
+                             sorted(search.results, key=itemgetter(2)))
 
         for result in search.results:
             result[5] = result[2]
