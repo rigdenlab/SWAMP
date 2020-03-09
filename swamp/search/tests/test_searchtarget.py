@@ -1,6 +1,7 @@
 import os
 import swamp
 import unittest
+import joblib
 from swamp.utils import remove, create_tempfile
 from swamp.search.searchtarget import SearchTarget
 
@@ -506,8 +507,10 @@ class SearchTargetTestCase(unittest.TestCase):
         self.addCleanup(remove, topcons_fname)
 
         search = SearchTarget(workdir=os.path.join(os.environ['CCP4_SCR'], 'test'), conpred=conpred_fname,
-                              sspred=topcons_fname, target_pdb_benchmark=PDB_DUMY)
+                              sspred=topcons_fname, target_pdb_benchmark=PDB_DUMY, queue_environment='environ',
+                              platform='local', queue_name='queue', n_contacts_threshold=0)
         self.addCleanup(remove, os.path.join(os.environ['CCP4_SCR'], 'test'))
+        self.assertTrue(os.path.isdir(os.path.join(os.environ['CCP4_SCR'], 'test')))
 
         self.assertEqual(search.search_header, """**********************************************************************
 *****************            SWAMP SEARCH            *****************
@@ -517,4 +520,106 @@ class SearchTargetTestCase(unittest.TestCase):
         self.assertEqual(os.path.join(os.environ['CCP4_SCR'], 'test', "tmp_cmap_{}.map"), search._tmp_cmap)
         self.assertEqual(os.path.join(os.environ['CCP4_SCR'], 'test', "search_{}"), search._search_workdir)
         self.assertIsNone(search._tmp_pdb)
-        self.assertEqual(., search.template_library)
+        search.target.split()
+        self.assertFalse(search.target.error)
+        self.assertEqual(swamp.FRAG_MAPALIGN_DB, search.template_library)
+        self.assertEqual('mapalign', search.library_format)
+        self.assertDictEqual({'directory': os.path.join(os.environ['CCP4_SCR'], 'test'), 'shell': '/bin/bash',
+                              'name': 'swamp_search', 'queue': 'queue', 'environment': 'environ', 'processes': 1},
+                             search._other_task_info)
+        self.assertListEqual(["SUBTRGT_RANK", "SUBTRGT_ID", "N_CON_MAP_A", "MAP_A", "MAP_B", "CON_SCO", "GAP_SCO",
+                              "TOTAL_SCO", "ALI_LEN", "QSCORE", "RMSD", "SEQ_ID", "N_ALIGN"], search._column_reference)
+
+        self.assertIsNone(search.scripts)
+        self.assertIsNone(search.search_pickle_dict)
+
+        search._create_scripts()
+
+        self.assertEqual(12, len(search.scripts))
+        self.assertListEqual(
+            ['%s/search_1/search_1_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_10/search_10_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_11/search_11_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_12/search_12_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_2/search_2_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_3/search_3_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_4/search_4_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_5/search_5_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_6/search_6_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_7/search_7_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_8/search_8_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test'),
+             '%s/search_9/search_9_results.pckl' % os.path.join(os.environ['CCP4_SCR'], 'test')],
+            sorted(list(search.search_pickle_dict.keys())))
+
+    def test_2(self):
+        pdb_fname = create_tempfile(PDB_DUMY)
+        self.addCleanup(remove, pdb_fname)
+        conpred_fname = create_tempfile(CONPRED_DUMMY)
+        self.addCleanup(remove, conpred_fname)
+        topcons_fname = create_tempfile(TOPCONS_DUMY)
+        self.addCleanup(remove, topcons_fname)
+
+        search = SearchTarget(workdir=os.path.join(os.environ['CCP4_SCR'], 'test_2'), conpred=conpred_fname,
+                              sspred=topcons_fname, platform='sge', n_contacts_threshold=0,
+                              alignment_algorithm_name='mapalign')
+
+        self.addCleanup(remove, os.path.join(os.environ['CCP4_SCR'], 'test_2'))
+        search.target.split()
+
+        self.assertDictEqual({'directory': os.path.join(os.environ['CCP4_SCR'], 'test_2'), 'shell': '/bin/bash',
+                              'name': 'swamp_search', 'max_array_size': 1}, search._other_task_info)
+
+        search._create_scripts()
+
+        for idx, pickle in enumerate(search.search_pickle_dict.keys()):
+            if not os.path.isdir(os.path.dirname(pickle)):
+                os.makedirs(os.path.dirname(pickle))
+            self.addCleanup(remove, os.path.dirname(pickle))
+            joblib.dump([["MAP_A_%s" % idx, "MAP_B_%s" % idx, "CON_SCO_%s" % idx, "GAP_SCO_%s" % idx,
+                          "TOTAL_SCO_%s" % idx, "ALI_LEN_%s" % idx, "QSCORE_%s" % idx, "RMSD_%s" % idx,
+                          "SEQ_ID_%s" % idx, "N_ALIGN_%s" % idx]],
+                        pickle)
+
+        self.assertIsNone(search.results)
+        search.results = search.recover_results()
+        self.assertListEqual([[1, '2_6', 11, 'MAP_A_0', 'MAP_B_0', 'CON_SCO_0', 'GAP_SCO_0', 'TOTAL_SCO_0', 'ALI_LEN_0',
+                               'QSCORE_0', 'RMSD_0', 'SEQ_ID_0', 'N_ALIGN_0'],
+                              [2, '1_7', 8, 'MAP_A_1', 'MAP_B_1', 'CON_SCO_1', 'GAP_SCO_1', 'TOTAL_SCO_1', 'ALI_LEN_1',
+                               'QSCORE_1', 'RMSD_1', 'SEQ_ID_1', 'N_ALIGN_1'],
+                              [3, '4_9', 7, 'MAP_A_2', 'MAP_B_2', 'CON_SCO_2', 'GAP_SCO_2', 'TOTAL_SCO_2', 'ALI_LEN_2',
+                               'QSCORE_2', 'RMSD_2', 'SEQ_ID_2', 'N_ALIGN_2'],
+                              [4, '3_5', 6, 'MAP_A_3', 'MAP_B_3', 'CON_SCO_3', 'GAP_SCO_3', 'TOTAL_SCO_3', 'ALI_LEN_3',
+                               'QSCORE_3', 'RMSD_3', 'SEQ_ID_3', 'N_ALIGN_3'],
+                              [5, '2_7', 5, 'MAP_A_4', 'MAP_B_4', 'CON_SCO_4', 'GAP_SCO_4', 'TOTAL_SCO_4', 'ALI_LEN_4',
+                               'QSCORE_4', 'RMSD_4', 'SEQ_ID_4', 'N_ALIGN_4'],
+                              [6, '3_4', 4, 'MAP_A_5', 'MAP_B_5', 'CON_SCO_5', 'GAP_SCO_5', 'TOTAL_SCO_5', 'ALI_LEN_5',
+                               'QSCORE_5', 'RMSD_5', 'SEQ_ID_5', 'N_ALIGN_5'],
+                              [7, '3_8', 3, 'MAP_A_6', 'MAP_B_6', 'CON_SCO_6', 'GAP_SCO_6', 'TOTAL_SCO_6', 'ALI_LEN_6',
+                               'QSCORE_6', 'RMSD_6', 'SEQ_ID_6', 'N_ALIGN_6'],
+                              [8, '4_10', 3, 'MAP_A_7', 'MAP_B_7', 'CON_SCO_7', 'GAP_SCO_7', 'TOTAL_SCO_7', 'ALI_LEN_7',
+                               'QSCORE_7', 'RMSD_7', 'SEQ_ID_7', 'N_ALIGN_7'],
+                              [9, '4_5', 2, 'MAP_A_8', 'MAP_B_8', 'CON_SCO_8', 'GAP_SCO_8', 'TOTAL_SCO_8', 'ALI_LEN_8',
+                               'QSCORE_8', 'RMSD_8', 'SEQ_ID_8', 'N_ALIGN_8'],
+                              [10, '8_10', 2, 'MAP_A_9', 'MAP_B_9', 'CON_SCO_9', 'GAP_SCO_9', 'TOTAL_SCO_9',
+                               'ALI_LEN_9', 'QSCORE_9', 'RMSD_9', 'SEQ_ID_9', 'N_ALIGN_9'],
+                              [11, '4_8', 1, 'MAP_A_10', 'MAP_B_10', 'CON_SCO_10', 'GAP_SCO_10', 'TOTAL_SCO_10',
+                               'ALI_LEN_10', 'QSCORE_10', 'RMSD_10', 'SEQ_ID_10', 'N_ALIGN_10'],
+                              [12, '9_10', 1, 'MAP_A_11', 'MAP_B_11', 'CON_SCO_11', 'GAP_SCO_11', 'TOTAL_SCO_11',
+                               'ALI_LEN_11', 'QSCORE_11', 'RMSD_11', 'SEQ_ID_11', 'N_ALIGN_11']], search.results)
+
+        for result in search.results:
+            result[5] = result[2]
+
+        search._make_dataframe(search.results)
+        search.rank(consco_threshold=0)
+        self.assertListEqual(['MAP_0_B', 'MAP_1_B', 'MAP_2_B', 'MAP_3_B', 'MAP_4_B', 'MAP_5_B', 'MAP_6_B', 'MAP_7_B',
+                              'MAP_8_B', 'MAP_9_B', 'MAP_10_B', 'MAP_11_B'],
+                             search.ranked_searchmodels.searchmodels.tolist())
+        self.assertListEqual([11, 8, 7, 6, 5, 4, 3, 3, 2, 2, 1, 1], search.ranked_searchmodels.consco.tolist())
+
+        search.rank(consco_threshold=0, combine_searchmodels=True)
+
+        self.assertListEqual(
+            ['MAP_0_B MAP_10_B MAP_11_B MAP_1_B MAP_2_B MAP_3_B MAP_4_B MAP_5_B MAP_6_B MAP_7_B MAP_8_B MAP_9_B'],
+            search.ranked_searchmodels.searchmodels.tolist())
+        self.assertListEqual([4.416666666666667], search.ranked_searchmodels.consco.tolist())
