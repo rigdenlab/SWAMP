@@ -7,7 +7,7 @@ import argparse
 import traceback
 import pandas as pd
 from swamp.utils import compress, SwampLibrary
-from swamp.searchmodel import Core
+from swamp.mr.searchmodel import SearchModel
 from swamp.logger import SwampLogger
 from swamp.command_line import check_path_exists
 from swamp.clustering import Optics
@@ -135,10 +135,13 @@ def main():
 
             # CORE
             core_ensemble_fname = os.path.join(output_dir, 'core_%s.pdb' % ensebmle_id)
-            core = Core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), pdbin=full_ensemble_fname, logger=logger,
-                        pdbout=core_ensemble_fname)
-            core.prepare()
-            shutil.rmtree(core.workdir)
+            os.makedirs(os.path.join(swamp.TMP_DIR, 'core_workdir', 'models'))
+            model_list = SearchModel.split_models(directory=os.path.join(swamp.TMP_DIR, 'core_workdir'),
+                                                  pdbin=full_ensemble_fname)
+            SearchModel.extract_core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), model_list=model_list,
+                                     pdbout=core_ensemble_fname)
+            shutil.rmtree(os.path.join(swamp.TMP_DIR, 'core_workdir', 'models'))
+            shutil.rmtree(os.path.join(swamp.TMP_DIR, 'core_workdir'))
 
             # COMPRESS
             compress(full_ensemble_fname)

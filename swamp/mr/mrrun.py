@@ -165,7 +165,7 @@ class MrRun(Mr):
             self.error = True
             return
 
-        searchmodel = SearchModel(**kwargs, workdir=self.searchmodel_dir)
+        searchmodel = SearchModel(workdir=self.searchmodel_dir, **kwargs)
 
         if not searchmodel.error:
             self.searchmodel_list.append(searchmodel)

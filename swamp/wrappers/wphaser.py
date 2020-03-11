@@ -3,7 +3,6 @@ import shutil
 import collections
 from swamp.wrappers.wrapper import Wrapper
 from swamp.wrappers.wrefmac import wRefmac
-from swamp.searchmodel.polyala import PolyALA
 from swamp.parsers import MtzParser, PhaserParser
 from phaser import InputMR_DAT, runMR_DAT, InputMR_AUTO, runMR_AUTO
 
@@ -443,16 +442,3 @@ class Phaser(Wrapper):
         if not os.path.isfile(self.top_MTZfile):
             self.logger.warning("Phaser did not produce a mtz output file!")
             return
-
-    @staticmethod
-    def remove_side_chains(pdbfile):
-        """Method to remove the side chains of a given pdb file using :py:obj:`~swamp.searchmodel.polyala.PolyALA`
-
-        :param str pdbfile: filename of the pdb file to be modified
-        """
-
-        tmp_file = os.path.join(os.path.dirname(pdbfile), "phaser_out_polyALA.pdb")
-        PolyALA.truncate_polyALA(pdbin=pdbfile, pdbout=tmp_file)
-        PolyALA.renumber_residues(pdbin=tmp_file)
-        PolyALA.transfer_flags_pdb(pdb_ref=pdbfile, pdb_file=tmp_file)
-        shutil.move(tmp_file, pdbfile)
