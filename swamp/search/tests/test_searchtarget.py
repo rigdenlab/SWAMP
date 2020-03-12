@@ -615,14 +615,7 @@ class SearchTargetTestCase(unittest.TestCase):
 
         search._make_dataframe(search.results)
         search.rank(consco_threshold=0)
-        self.assertListEqual(
-            ['MAP_0_B', 'MAP_4_B', 'MAP_5_B', 'MAP_6_B', 'MAP_7_B', 'MAP_8_B', 'MAP_9_B', 'MAP_10_B', 'MAP_11_B',
-             'MAP_1_B', 'MAP_2_B', 'MAP_3_B'], search.ranked_searchmodels.searchmodels.tolist())
         self.assertListEqual([11, 8, 7, 6, 5, 4, 3, 3, 2, 2, 1, 1], search.ranked_searchmodels.consco.tolist())
 
         search.rank(consco_threshold=0, combine_searchmodels=True)
-
-        self.assertListEqual(
-            ['MAP_0_B MAP_10_B MAP_11_B MAP_1_B MAP_2_B MAP_3_B MAP_4_B MAP_5_B MAP_6_B MAP_7_B MAP_8_B MAP_9_B'],
-            search.ranked_searchmodels.searchmodels.tolist())
         self.assertListEqual([4.416666666666667], search.ranked_searchmodels.consco.tolist())
