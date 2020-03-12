@@ -1,4 +1,13 @@
 from swamp.parsers.parser import Parser
+from enum import Enum
+
+
+class PhaserScores(Enum):
+    """An enumerator that contains the figures of merit to be parsed from phaser logfile"""
+
+    LLG = 'LLG'
+    TFZ = 'TFZ'
+    RFZ = 'RFZ'
 
 
 class PhaserParser(Parser):
@@ -16,7 +25,7 @@ class PhaserParser(Parser):
     :example:
 
     >>> from swamp.parsers import PhaserParser
-    >>> my_parser = PhaserParser('<fname>', '<logcontents>')
+    >>> my_parser = PhaserParser('<fname>', '<stdout>')
     >>> my_parser.parse()
     """
 
@@ -41,24 +50,23 @@ class PhaserParser(Parser):
 
         # Parse the pdbout for LLG, TFZ and RFZ
         with open(self.fname, "r") as fhandle:
-            for line in fhandle:
-                if "Log-Likelihood Gain" in line:
-                    self.LLG = line.split(":")[1].rstrip().lstrip()
-                    continue
-                elif "TFZ" in line or "RFZ" in line:
-                    for score in line.split():
-                        if "TFZ==" in score:
-                            self.TFZ = score.split("==")[1].rstrip().lstrip()
-                        elif "TFZ=" in score:
-                            self.TFZ = score.split("=")[1].rstrip().lstrip()
-                        elif "RFZ==" in score:
-                            self.RFZ = score.split("==")[1].rstrip().lstrip()
-                        elif "RFZ=" in score:
-                            self.RFZ = score.split("=")[1].rstrip().lstrip()
-                    continue
-                # If LLG and TFZ are stored, break
-                if self.TFZ != "NA" and self.LLG != "NA" and self.RFZ != "NA":
-                    break
+            lines = fhandle.readlines()
+
+        llg_remark = [x for x in lines if 'REMARK' in x and "Log-Likelihood Gain" in x]
+        figures_of_merit_remark = [x for x in lines if ('REMARK' in x) and ("TFZ" in x or "RFZ" in x)]
+
+        if not any(figures_of_merit_remark):
+            self.error = True
+            self.logger.error('Cannot find REMARK entry with figures of merit!')
+            return
+
+        for attribute in PhaserScores:
+            values = [x for x in figures_of_merit_remark[0].split() if '%s=' % attribute.value in x]
+            if any(values):
+                self.__setattr__(attribute.value, values[-1].split("=")[-1].rstrip().lstrip())
+
+        if any(llg_remark):
+            self.LLG = llg_remark[0].split()[-1].rstrip().lstrip()
 
         # Parse the logfile for eLLG and VRMS
         ellg_reached = False
