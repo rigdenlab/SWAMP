@@ -173,34 +173,28 @@ class SearchJob(ABC):
         :raises ValueError: if the algorithm is not recognised (valid algorithms: 'aleigen', 'mapalign')
         """
 
+        result = {
+            'map_b': template,
+            'map_a': self.query,
+            'format_a': self.con_format,
+            'format_b': self.library_format,
+            'logger': self.logger
+        }
+
         if self.algorithm == 'mapalign':
-            return {
-                "pdb_a": self.query_pdb_benchmark,
-                "pdb_b": os.path.join(self.pdb_library, self._pdbfile_template(template)),
-                'workdir': self.workdir,
-                'map_b': template,
-                'map_a': self.query,
-                'format_a': self.con_format,
-                'format_b': self.library_format,
-                'logger': self.logger
-            }
-
+            result['workdir'] = self.workdir
         elif self.algorithm == 'aleigen':
-            return {
-                "pdb_a": self.query_pdb_benchmark,
-                "pdb_b": os.path.join(self.pdb_library, self._pdbfile_template(template)),
-                "workdir": self._job_dir_template(template),
-                "map_b": template,
-                "map_a": self.query,
-                "format_b": self.library_format,
-                "format_a": self.con_format,
-                'logger': self.logger,
-                "eigenvectors": (
-                    self.tmp_eigen_query, self.eigen_template.format(os.path.basename(template).split(".")[0]))
-            }
-
+            result['workdir'] = self._job_dir_template(template)
+            result["eigenvectors"] = self.tmp_eigen_query, self.eigen_template.format(os.path.basename(template).split(".")[0])
         else:
             raise ValueError("Unrecognised alignment tool! %s" % self.algorithm)
+
+        if self.pdb_library is not None:
+            result["pdb_b"] = os.path.join(self.pdb_library, self._pdbfile_template(template))
+        if self.query_pdb_benchmark is not None:
+            result["pdb_a"] = self.query_pdb_benchmark
+
+        return result
 
     def _make_workdir(self):
         """Method to crete the :py:attr:`~swamp.search.searchjob.SearchJob.workdir`"""
@@ -210,7 +204,10 @@ class SearchJob(ABC):
 
     def _pdbfile_template(self, mapfile):
         """Get the pdb file name for a given map file name"""
-        return os.path.join(self.pdb_library, "%s.pdb" % os.path.basename(mapfile).split(".")[0])
+        if self.pdb_library is None:
+            return None
+        else:
+            return os.path.join(self.pdb_library, "%s.pdb" % os.path.basename(mapfile).split(".")[0])
 
     def _job_dir_template(self, template):
         """Get the job directory for a given template name"""
