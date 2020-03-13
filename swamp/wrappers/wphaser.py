@@ -386,7 +386,7 @@ class Phaser(Wrapper):
 
         if self.phased_mtz is not None:
             self.local_CC, self.overall_CC = self.get_cc(os.path.join(self.workdir, "phenix"), self.phased_mtz, logfile)
-            if self.early_kill and (self.local_CC == "NA" or float(self.local_CC) < 0.1):
+            if self.early_kill and (self.local_CC == "NA" or float(self.local_CC) < 0.2):
                 self.abort_suggested = True
             else:
                 self.abort_suggested = False
