@@ -100,7 +100,7 @@ class TargetData(object):
             protein_fraction = 1. / (6.02214e23 * 1e-24 * 1.35 * matthews)
             solvent = round((1 - protein_fraction), 1)
 
-            if round(matthews, 3) <= 3.5:
+            if round(matthews, 3) <= 3.59:
                 break
 
         return ncopies, solvent
