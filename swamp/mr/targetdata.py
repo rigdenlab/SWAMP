@@ -103,4 +103,10 @@ class TargetData(object):
             if round(matthews, 3) <= 3.59:
                 break
 
+        if solvent <= 0.4 and ncopies != 1:
+            ncopies -= 1
+            matthews = cell_volume / (mw * ncopies)
+            protein_fraction = 1. / (6.02214e23 * 1e-24 * 1.35 * matthews)
+            solvent = round((1 - protein_fraction), 1)
+
         return ncopies, solvent
