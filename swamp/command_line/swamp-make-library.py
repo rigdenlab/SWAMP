@@ -13,8 +13,8 @@ from swamp.command_line import check_path_exists
 from swamp.clustering import Optics
 
 
-def parse_arguments():
-    """Parse command line arguments"""
+def create_argument_parser():
+    """Create a parser for the command line arguments"""
 
     parser = argparse.ArgumentParser(description='SWAMP-MAKE-LIBRARY: Create an ensemble library for SWAMP',
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -37,9 +37,7 @@ def parse_arguments():
     parser.add_argument("-min_cluster_size", type=int, nargs="?", default=2,
                         help='sklearn.OPTICS: min. no. of samples in a cluster')
 
-    args = parser.parse_args()
-
-    return args
+    return parser
 
 
 def get_homologs(homologs_fname):
@@ -68,7 +66,8 @@ def main():
 
     # ------------------ PARSE ARGUMENTS AND CREATE LOGGER ------------------
 
-    args = parse_arguments()
+    parser = create_argument_parser()
+    args = parser.parse_args()
 
     idx = 0
     workdir = os.path.join(args.workdir, 'SWAMP_%s' % idx)

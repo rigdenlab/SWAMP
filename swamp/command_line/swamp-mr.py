@@ -11,8 +11,8 @@ from swamp.mr import MrJob, MrArray, MrResults
 from swamp.command_line import check_path_exists
 
 
-def parse_arguments():
-    """Parse command line arguments for mr run"""
+def create_argument_parser():
+    """Create a parser for the command line arguments used in swamp-mr"""
 
     parser = argparse.ArgumentParser(description='SWAMP-MR: Contact assisted fragment based molecular replacement',
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -48,9 +48,7 @@ def parse_arguments():
                         help='Centroids used as search models as well (only if not combining search models)')
     parser.add_argument("-use_cores", action='store_true',
                         help='Core ensembles used as search models as well (only if not combining search models)')
-    args = parser.parse_args()
-
-    return args
+    return parser
 
 
 def get_centroid_id(frag_id):
@@ -80,7 +78,8 @@ def main():
 
     # ------------------ PARSE ARGUMENTS AND CREATE LOGGER ------------------
 
-    args = parse_arguments()
+    parser = create_argument_parser()
+    args = parser.parse_args()
 
     if args.workdir is not None:
         if os.path.isdir(args.workdir):

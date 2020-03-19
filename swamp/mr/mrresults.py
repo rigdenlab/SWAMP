@@ -6,6 +6,18 @@ from swamp.logger import SwampLogger
 from swamp.command_line import check_path_exists
 
 
+def create_argument_parser():
+    """Create a parser for the command line arguments used in swamp-results"""
+
+    parser = ArgumentParser()
+    parser.add_argument("swamp_workdir", type=check_path_exists,
+                        help="The workding directory where SWAMP results can be extracted")
+    parser.add_argument("-top_results", type=int, nargs="?", default=50, help='Number of top results to display')
+    parser.add_argument("-sort_by", type=str, nargs="?", default='SHXE_CC', help='Field to use for sorting results')
+
+    return parser
+
+
 class MrResults(object):
     """Class to handle the results py:obj:`~swamp.mr.mrarray.MrArray` instance
 
@@ -130,14 +142,7 @@ Recovering results now...
 
 
 if __name__ == "__main__":
-    # User input
-    parser = ArgumentParser()
-    parser.add_argument("swamp_workdir", type=check_path_exists,
-                        help="The workding directory where SWAMP results can be extracted")
-    parser.add_argument("-top_results", type=int, nargs="?", default=50, help='Number of top results to display')
-    parser.add_argument("-sort_by", type=str, nargs="?", default='SHXE_CC', help='Field to use for sorting results')
+    parser = create_argument_parser()
     args = parser.parse_args()
-
-    # Recover and display results
     results = MrResults(args.swamp_workdir)
     results.report_results(args.top_results)
