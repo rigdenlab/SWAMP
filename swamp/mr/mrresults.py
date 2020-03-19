@@ -80,7 +80,6 @@ Recovering results now...
             else:
                 self.logger.warning('Results out of bounds! %s' % ', '.join(result))
 
-        table.sortby = sort_by
         table.reversesort = True
 
         self.logger.info('Results retrieved. Showing top %s scoring results:\n\n%s' % (top, table.get_string()))
