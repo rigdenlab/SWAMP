@@ -135,7 +135,7 @@ def main():
             # CORE
             core_ensemble_fname = os.path.join(output_dir, 'core_%s.pdb' % ensebmle_id)
             os.makedirs(os.path.join(swamp.TMP_DIR, 'core_workdir', 'models'))
-            model_list = SearchModel.split_models(directory=os.path.join(swamp.TMP_DIR, 'core_workdir'),
+            model_list = SearchModel.split_models(directory=os.path.join(swamp.TMP_DIR, 'core_workdir', 'models'),
                                                   pdbin=full_ensemble_fname)
             SearchModel.extract_core(workdir=os.path.join(swamp.TMP_DIR, 'core_workdir'), model_list=model_list,
                                      pdbout=core_ensemble_fname)

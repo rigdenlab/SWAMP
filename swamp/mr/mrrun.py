@@ -72,6 +72,7 @@ class MrRun(Mr):
         self.phaser_packcutoff = phaser_packcutoff
         self.phaser_peaks_rotcutoff = phaser_peaks_rotcutoff
         self.target = TargetData(target_fa, target_mtz, phased_mtz_fname=phased_mtz, logger=self.logger)
+        self.target.get_info()
 
     # ------------------ Some general properties ------------------
 

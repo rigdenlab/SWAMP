@@ -45,8 +45,6 @@ class TargetData(object):
         self.sigi_minus = None
         self.logger = logger
 
-        self.get_info()
-
     def get_info(self):
         """Get all the information required to perform MR on the given target and store it into corresponding attributes
         of this :py:obj:`~swamp.mr.targetdata.TargetData` instance"""
