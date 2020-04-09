@@ -526,7 +526,7 @@ class SearchTargetTestCase(unittest.TestCase):
         self.assertEqual(swamp.FRAG_MAPALIGN_DB, search.template_library)
         self.assertEqual('mapalign', search.library_format)
         self.assertDictEqual({'directory': os.path.join(os.environ['CCP4_SCR'], 'test'), 'shell': '/bin/bash',
-                              'name': 'swamp_search', 'queue': 'queue', 'environment': 'environ', 'processes': 1},
+                              'name': 'swamp', 'queue': 'queue', 'environment': 'environ', 'processes': 1},
                              search._other_task_info)
         self.assertListEqual(["SUBTRGT_RANK", "SUBTRGT_ID", "N_CON_MAP_A", "MAP_A", "MAP_B", "CON_SCO", "GAP_SCO",
                               "TOTAL_SCO", "ALI_LEN", "QSCORE", "RMSD", "SEQ_ID", "N_ALIGN"], search._column_reference)
@@ -568,7 +568,7 @@ class SearchTargetTestCase(unittest.TestCase):
         search.target.split()
 
         self.assertDictEqual({'directory': os.path.join(os.environ['CCP4_SCR'], 'test_2'), 'shell': '/bin/bash',
-                              'name': 'swamp_search', 'max_array_size': 1}, search._other_task_info)
+                              'name': 'swamp', 'max_array_size': 1}, search._other_task_info)
 
         search._create_scripts()
 
