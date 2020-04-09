@@ -42,11 +42,6 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   api/searchmodel.rst
-
-.. toctree::
-   :maxdepth: 2
-
    api/utils.rst
 
 .. toctree::
