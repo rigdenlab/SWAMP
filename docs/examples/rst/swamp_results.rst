@@ -6,13 +6,13 @@ Retrieving SWAMP-MR results
 1. Running swamp-results
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-A full swamp-mr run can result quite time consuming, but uou don't need to wait until the full run is finished to check out if SWAMP already found a solution. We provide a command line tool to check the results obtained by SWAMP at any moment ``swamp-results``. To pull the results obtained in this tutorial, simply run:
+A full swamp-mr run can result quite time consuming, but you don't need to wait until the full run is finished to check out if SWAMP already found a solution. We provide a command line tool to check the results obtained by SWAMP at any moment: ``swamp-results``. To pull the results obtained in this tutorial, simply run:
 
 .. code-block:: shell
 
-    swamp-results SWAMP_0
+    swamp-results ./SWAMP_0
 
-You would normally need to specify the full path to the ``SWAMP_X`` of interest directory (e.g. ``SWAMP_0``, ``SWAMP_1``...etc.). There are more options available to control the output of the results, check them out :ref:`here <swamp_results_options>`. After running the above command, SWAMP will retrieve the results from the directory ``SWAMP_0/swamp_mr`` and display a table with the top 50 results (sorted by shelxe CC).
+You would normally need to specify the full path to the ``SWAMP_X`` directory of interest (e.g. ``SWAMP_0``, ``SWAMP_1``...etc.). There are more options available to control the output of the results, check them out :ref:`here <swamp_results_options>`. After running the above command, SWAMP will retrieve the results from the directory ``SWAMP_0/swamp_mr`` and display a table with the top 50 results (sorted by shelxe CC).
 
 
 2. Output table
