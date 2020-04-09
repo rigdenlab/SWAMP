@@ -9,7 +9,7 @@ In this tutorial you will use SWAMP to perform molecular replacement on a bacter
 1. Obtain predictions about your target structure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before running SWAMP, it is necessary to first obtain `transmembrane topology <http://topcons.cbr.su.se/>`_ and `residue contact <http://raptorx.uchicago.edu/ContactMap/>`_ predictions for your structure of interest. For the purpose of this example, the data has been already provided as ``1ucq.topcons`` and ``1ucq.psicov`` respectively. It is important to note that SWAMP will assume the provided contact prediction file is in ``psicov`` format, which is the default format of the server provided at the link. However, if you decide to use a different contact prediction tool, you can use `ConKit <https://github.com/rigdenlab/conkit>`_ tofeel free to convert across file formats.
+Before running SWAMP, it is necessary to first obtain `transmembrane topology <http://topcons.cbr.su.se/>`_ and `residue contact <http://raptorx.uchicago.edu/ContactMap/>`_ predictions for your structure of interest. For the purpose of this example, the data has been already provided as ``1ucq.topcons`` and ``1ucq.psicov`` respectively. It is important to note that SWAMP will assume the provided contact prediction file is in ``psicov`` format, which is the default format of the server provided at the link. However, if you decide to use a different contact prediction tool, you can use `ConKit <https://github.com/rigdenlab/conkit>`_ to convert across file formats.
 
 
 2. Running swamp-mr
@@ -19,10 +19,10 @@ Once all the required input files are gathered, SWAMP-MR can be executed on the 
 
 .. code-block:: shell
 
-    swamp-mr 1ucq /home/user/tutorial 1ucq.mtz 1ucq.fasta 1ucq.psicov 1ucq.topcons
+    swamp-mr 1ucq.mtz 1ucq.fasta 1ucq.psicov 1ucq.topcons
 
 
-Additional options are available, check them out :ref:`here <swamp_mr_options>`. After running the above command, SWAMP will create the directory ``<workdir>/SWAMP_0``. Within this directory, all the metadata that SWAMP uses to solve the structure of interest is stored. First, SWAMP will run a CMO scan of the target predicted contacts against the library of helical pairs Data for this scan can be found at ``<workdir>/SWAMP_0/swamp_scan``. After identifying the valid search models, SWAMP will run a try to solve the structure with a subroutine consisting of ``phaser`` for molecular replacement, ``refmac5`` for refinement and ``shelxe`` for model building and density modification. Results for this subroutine are found at ``<workdir>/SWAMP_0/swamp_mr``. Additionally, a full swamp-mr run can result quite time consuming, so if you wish to check out the results swamp has obtained at any given point you can use :ref:`swamp-results <swamp_results>`.
+Additional options are available, check them out :ref:`here <swamp_mr_options>`. After running the above command, SWAMP will create the directory ``<workdir>/SWAMP_0``. Within this directory, all the metadata that SWAMP uses to solve the structure of interest is stored. First, SWAMP will run a CMO scan of the target predicted contacts against the library of helical pairs. Metadata obtained with this scan can be found at ``<workdir>/SWAMP_0/swamp_scan``. After identifying the valid search models, SWAMP will a try to solve the structure with a subroutine consisting of ``phaser`` for molecular replacement, ``refmac5`` for refinement and ``shelxe`` for model building and density modification. Results for this subroutine are found at ``<workdir>/SWAMP_0/swamp_mr``. Additionally, a full swamp-mr run can result quite time consuming, so if you wish to check out the results swamp has obtained at any given point you can use :ref:`swamp-results <swamp_results>`.
 
 
 2. Table of results

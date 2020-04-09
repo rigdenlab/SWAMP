@@ -16,7 +16,6 @@ def create_argument_parser():
 
     parser = argparse.ArgumentParser(description='SWAMP-MR: Contact assisted fragment based molecular replacement',
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("id", type=str, help='Unique identifier for this MR subroutine')
     parser.add_argument("mtzfile", type=check_path_exists, help='MTZ file with the reflection data')
     parser.add_argument("fastafile", type=check_path_exists, help="FASTA file with the sequence of the structure")
     parser.add_argument("conpred", type=check_path_exists, help="Residue contact prediction for the target structure")
@@ -93,7 +92,7 @@ def main():
             swamp_workdir = os.path.join(os.getcwd(), 'SWAMP_%s' % idx)
 
     os.mkdir(swamp_workdir)
-    logfile = os.path.join(swamp_workdir, "swamp_%s.debug" % args.id)
+    logfile = os.path.join(swamp_workdir, "swamp_mr.debug")
     swamp_search_dir = os.path.join(swamp_workdir, 'swamp_search')
     swamp_mr_dir = os.path.join(swamp_workdir, 'swamp_mr')
 
@@ -121,7 +120,7 @@ def main():
 
     # ------------------ CREATE MR TASK ARRAY AND LOAD INDIVIDUAL MR JOBS ------------------
 
-    my_array = MrArray(id=args.id, target_mtz=args.mtzfile, max_concurrent_nprocs=args.max_concurrent_procs,
+    my_array = MrArray(id='swamp-mr', target_mtz=args.mtzfile, max_concurrent_nprocs=args.max_concurrent_procs,
                        target_fa=args.fastafile, queue_environment=args.environment, max_array_size=args.max_array_size,
                        job_kill_time=args.job_kill_time, workdir=swamp_mr_dir, logger=logger, queue_name=args.queue,
                        platform=args.platform, phased_mtz=args.mtz_phases)
