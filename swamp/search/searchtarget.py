@@ -157,7 +157,7 @@ class SearchTarget(object):
     def _other_task_info(self):
         """Dictionary with the extra **kwags passed to :py:obj:`pyjob.TaskFactory`"""
 
-        info = {'directory': self.workdir, 'shell': self.shell_interpreter, 'name': 'swamp_search'}
+        info = {'directory': self.workdir, 'shell': self.shell_interpreter, 'name': 'swamp'}
 
         if self.platform == 'local':
             info['processes'] = self.nthreads

@@ -172,7 +172,7 @@ class MrArray(Mr):
         for idx, scripts in enumerate(all_scripts, 1):
             self.logger.info('Sending task array %s / %s' % (idx, len(all_scripts)))
             with TaskFactory(self.platform, scripts, **self._other_task_info) as task:
-                task.name = 'swamp_%s' % idx
+                task.name = 'swamp'
                 task.run()
 
         self.logger.info('All tasks in the array have been completed!')
