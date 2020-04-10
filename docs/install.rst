@@ -15,7 +15,7 @@ Before installing SWAMP, make sure that your system has a CCP4 7.1 installation.
 2. Install dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-You can find a complete list of SWAMP dependencies at ``SWAMP/requirements.txt``. The easiest way to set up all of them is by simply running:
+You can find a complete list of SWAMP dependencies `here <https://raw.githubusercontent.com/rigdenlab/SWAMP/master/requirements.txt>`_. The easiest way to set up all of them is by simply running:
 
 .. code-block:: shell
 
