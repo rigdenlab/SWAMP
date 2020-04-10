@@ -3,7 +3,7 @@ import sys
 import unittest
 import collections
 from swamp.utils import touch, remove, create_tempfile
-from unittest.mock import MagicMock, patch
+from mock import MagicMock, patch
 
 sys.modules['phaser'] = MagicMock()
 from swamp.wrappers.wphaser import Phaser
