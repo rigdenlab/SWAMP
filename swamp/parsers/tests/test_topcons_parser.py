@@ -94,7 +94,7 @@ Predicted TOPCONS reliability (left column=sequence position; right column=relia
                         289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307,
                         308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326,
                         327, 328, 329, 330, 331, 332]
-        topology_out = [True, True, True, True, True, True, True, True, True, True, True, True, True, True, False,
+        topology_in = [True, True, True, True, True, True, True, True, True, True, True, True, True, True, False,
                         False, False, False, False, False, False, False, False, False, False, False, False, False,
                         False, False, False, False, False, False, False, False, False, False, False, False, False,
                         False, False, False, False, False, False, False, False, False, False, False, False, False,
@@ -119,7 +119,7 @@ Predicted TOPCONS reliability (left column=sequence position; right column=relia
                         False, False, False, False, False, False, False, False, False, False, False, False, True, True,
                         True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True,
                         True, True]
-        topology_in = [False, False, False, False, False, False, False, False, False, False, False, False, False, False,
+        topology_out = [False, False, False, False, False, False, False, False, False, False, False, False, False, False,
                        False, False, False, False, False, False, False, False, False, False, False, False, False, False,
                        False, False, False, False, False, False, False, True, True, True, True, True, True, False,
                        False, False, False, False, False, False, False, False, False, False, False, False, False, False,
@@ -181,6 +181,72 @@ Predicted TOPCONS reliability (left column=sequence position; right column=relia
         self.assertListEqual(topology_out, parser.residue_topology.out.tolist())
         self.assertListEqual(topology_membr, parser.residue_topology.membr.tolist())
         self.assertListEqual(topology_in, parser.residue_topology['in'].tolist())
+
+    def test_4(self):
+        file_contents = """##############################################################################
+TOPCONS2 result file
+Generated from http://topcons.net at 2020-05-16 13:27:08 CEST
+Total request time: 4033.8 seconds.
+##############################################################################
+Sequence number: 1
+Sequence name: 5XEF_1|Chain A|Flagellar protein fliS|Bacillus cereus (226900)
+Sequence length: 123 aa.
+Sequence:
+PDMQAWQRYMQNDIMTSNPIKNTIFIYERCIIEFRKLEELLNTFKLQDGDELLEKLERIFEELKLQLNPDITKDLYDSLFGLYDWISIQIQTMKVTREVKDIDAIVQVLQDLIDGYRGALENE
+
+
+TOPCONS predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+OCTOPUS predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+Philius predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+PolyPhobius predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+SCAMPI predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+SPOCTOPUS predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+Homology:
+No homologous hits found
+
+
+
+Predicted Delta-G-values (kcal/mol) (left column=sequence position; right column=Delta-G)
+
+10 11.433
+114 9.991
+
+Predicted TOPCONS reliability (left column=sequence position; right column=reliability)
+
+11	100.00
+112	100.00
+
+##############################################################################
+
+"""
+        expected_false = [False for x in range(0, 123)]
+        expected_true = [True for x in range(0, 123)]
+        fname = create_tempfile(content=file_contents)
+        self.addCleanup(os.remove, fname)
+        parser = TopconsParser(fname)
+        parser.parse()
+        self.assertIsNone(parser.tmhelices)
+        self.assertListEqual(expected_true, parser.residue_topology['out'].tolist())
+        self.assertListEqual(expected_false, parser.residue_topology['membr'].tolist())
+        self.assertListEqual(expected_false, parser.residue_topology['in'].tolist())
 
 
 if __name__ == '__main__':

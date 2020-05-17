@@ -45,17 +45,19 @@ class TopconsParser(Parser):
                 raise ValueError('TOPCONS file cannot be parsed. Please check it is TOPCONS format!')
             residues = []
             for index, ss_residue in enumerate(topcons_prediction):
-                if ss_residue == "i":
+                if ss_residue == "o":
                     residues.append([index + 1, True, False, False])
                 elif ss_residue == "M":
                     residues.append([index + 1, False, True, False])
                 else:
                     residues.append([index + 1, False, False, True])
 
-            self.residue_topology = pd.DataFrame(residues)
-            self.residue_topology.columns = ["idx", "out", "membr", "in"]
-
-        self._get_tmhelices_map()
+        self.residue_topology = pd.DataFrame(residues)
+        self.residue_topology.columns = ["idx", "out", "membr", "in"]
+        if any(self.residue_topology.membr.tolist()):
+            self._get_tmhelices_map()
+        else:
+            self.logger.warning('No TM helices were parsed from TOPCONS file!')
 
     def _get_tmhelices_map(self):
         """Create a datframe with the start/stop of the TM helices contained in the input file"""
