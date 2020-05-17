@@ -88,7 +88,6 @@ class MtzParserTestCase(unittest.TestCase):
         parser.reflection_file = MockGemmiMtz(mock_columns)
         parser.error = False
         parser.parse()
-        print(parser.summary)
         self.assertTupleEqual(parser.summary, (b'FP', b'SIGFP', None, None, b'FREE', None, None, None,
                                                None, None, None, None, None))
         self.assertEqual(parser.fname, '/empty/path/fname.mtz')
