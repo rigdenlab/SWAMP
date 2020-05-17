@@ -100,7 +100,8 @@ class MtzParser(Parser):
             return
 
         for label in MtzColumnLabels:
-            label_subset = [col.label for col in self.reflection_file.columns if col.type == MTZColumnTypes.__getattr__(label.name).value]
+            label_subset = [col.label for col in self.reflection_file.columns if
+                            col.type == MTZColumnTypes.__getattr__(label.name).value]
             matches = list(filter(label.value.match, label_subset))
             if any(matches):
                 self.__setattr__(label.name, matches[0].encode('utf-8'))
