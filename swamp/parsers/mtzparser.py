@@ -4,22 +4,40 @@ from enum import Enum
 from swamp.parsers.parser import Parser
 
 
-class MTZLabels(Enum):
+class MtzColumnLabels(Enum):
     """An enumerator that contains the regular expression used to detect the column labels of a given MTZ file"""
 
-    free = re.compile(r"[Ff][Rr][Ee][Ee]")
-    i = re.compile(r"[Ii]$")
-    sigi = re.compile(r"[Ss][Ii][Gg][Ii]$")
-    f = re.compile(r"[Ff][Pp]?$")
-    sigf = re.compile(r"[Ss][Ii][Gg][Ff][Pp]?$")
-    i_plus = re.compile(r"[Ii]\(\+\)")
-    sigi_plus = re.compile(r"[Ss][Ii][Gg][Ii]\(\+\)")
-    f_plus = re.compile(r"[Ff][Pp]?\(\+\)")
-    sigf_plus = re.compile(r"[Ss][Ii][Gg][Ff][Pp]?\(\+\)")
-    i_minus = re.compile(r"[Ii]\(-\)")
-    sigi_minus = re.compile(r"[Ss][Ii][Gg][Ii]\(-\)")
-    f_minus = re.compile(r"[Ff][Pp]?\(-\)")
-    sigf_minus = re.compile(r"[Ss][Ii][Gg][Ff][Pp]?\(-\)")
+    free = re.compile(r"^[Ff][Rr][Ee][Ee]")
+    i = re.compile(r"^[Ii]")
+    sigi = re.compile(r"^[Ss][Ii][Gg][Ii]")
+    f = re.compile(r"^[Ff][Pp]?")
+    sigf = re.compile(r"^[Ss][Ii][Gg][Ff][Pp]?")
+    i_plus = re.compile(r"^[Ii].*\(\+\)")
+    sigi_plus = re.compile(r"^[Ss][Ii][Gg][Ii].*\(\+\)")
+    f_plus = re.compile(r"^[Ff][Pp]?.*\(\+\)")
+    sigf_plus = re.compile(r"^[Ss][Ii][Gg][Ff][Pp]?.*\(\+\)")
+    i_minus = re.compile(r"^[Ii].*\(-\)")
+    sigi_minus = re.compile(r"^[Ss][Ii][Gg][Ii].*\(-\)")
+    f_minus = re.compile(r"^[Ff][Pp]?.*\(-\)")
+    sigf_minus = re.compile(r"^[Ss][Ii][Gg][Ff][Pp]?.*\(-\)")
+
+
+class MTZColumnTypes(Enum):
+    """An enumerator that contains the different types expected for each column of a given MTZ file"""
+
+    free = 'I'
+    i = 'J'
+    sigi = 'Q'
+    f = 'F'
+    sigf = 'Q'
+    i_plus = 'K'
+    sigi_plus = 'M'
+    f_plus = 'G'
+    sigf_plus = 'L'
+    i_minus = 'K'
+    sigi_minus = 'M'
+    f_minus = 'G'
+    sigf_minus = 'L'
 
 
 class MtzParser(Parser):
@@ -40,7 +58,6 @@ class MtzParser(Parser):
         super(MtzParser, self).__init__(fname, logger=logger)
 
         self.reflection_file = None
-        self.all_labels = None
         self.f = None
         self.sigf = None
         self.i = None
@@ -70,7 +87,6 @@ class MtzParser(Parser):
         :py:func:`gemmi.read_mtz_file`"""
 
         self.reflection_file = gemmi.read_mtz_file(self.fname)
-        self.all_labels = [column.label for column in self.reflection_file.columns]
         self.nreflections = self.reflection_file.nreflections
         self.spacegroup_symbol = self.reflection_file.spacegroup.hm
         self.resolution = self.reflection_file.resolution_high()
@@ -83,8 +99,9 @@ class MtzParser(Parser):
             self.logger.warning("Previous errors prevent parsing mtz file!")
             return
 
-        for label in MTZLabels:
-            matches = list(filter(label.value.match, self.all_labels))
+        for label in MtzColumnLabels:
+            label_subset = [col.label for col in self.reflection_file.columns if col.type == MTZColumnTypes.__getattr__(label.name).value]
+            matches = list(filter(label.value.match, label_subset))
             if any(matches):
                 self.__setattr__(label.name, matches[0].encode('utf-8'))
 
