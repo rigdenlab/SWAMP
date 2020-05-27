@@ -34,6 +34,8 @@ class TargetData(object):
         self.sigf = None
         self.i = None
         self.sigi = None
+        self.dp = None
+        self.sigdp = None
         self.free = None
         self.f_plus = None
         self.sigf_plus = None
@@ -60,8 +62,8 @@ class TargetData(object):
         mtz_parser.parse()
         if mtz_parser.i is None and mtz_parser.f is not None:
             self.use_f = True
-        self.f, self.sigf, self.i, self.sigi, self.free, self.f_plus, self.sigf_plus, self.i_plus, self.sigi_plus, \
-        self.f_minus, self.sigf_minus, self.i_minus, self.sigi_minus = mtz_parser.summary
+        self.f, self.sigf, self.i, self.sigi, self.free, self.dp, self.sigdp, self.f_plus, self.sigf_plus, \
+        self.i_plus, self.sigi_plus, self.f_minus, self.sigf_minus, self.i_minus, self.sigi_minus = mtz_parser.summary
 
         self.ncopies, self.solvent = self.estimate_contents(mtz_parser.reflection_file.cell.volume_per_image(), self.mw)
 
