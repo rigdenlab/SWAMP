@@ -53,8 +53,8 @@ class MtzParserTestCase(unittest.TestCase):
         parser.reflection_file = MockGemmiMtz(mock_columns)
         parser.error = False
         parser.parse()
-        self.assertTupleEqual(parser.summary, (b'FP', b'SIGFP', b'i', b'sigi', b'Free', b'F(+)', b'sigF(+)', b'I(+)',
-                                               b'sigi(+)', b'fp(-)', b'SIGFP(-)', b'i(-)', b'SIGI(-)'))
+        self.assertTupleEqual(parser.summary, (b'FP', b'SIGFP', b'i', b'sigi', b'Free', None, None, b'F(+)', b'sigF(+)',
+                                               b'I(+)', b'sigi(+)', b'fp(-)', b'SIGFP(-)', b'i(-)', b'SIGI(-)'))
         self.assertEqual(parser.fname, '/empty/path/fname.mtz')
 
     def test_2(self):
@@ -88,7 +88,7 @@ class MtzParserTestCase(unittest.TestCase):
         parser.reflection_file = MockGemmiMtz(mock_columns)
         parser.error = False
         parser.parse()
-        self.assertTupleEqual(parser.summary, (b'FP', b'SIGFP', None, None, b'FREE', None, None, None,
+        self.assertTupleEqual(parser.summary, (b'FP', b'SIGFP', None, None, b'FREE', None, None, None, None, None,
                                                None, None, None, None, None))
         self.assertEqual(parser.fname, '/empty/path/fname.mtz')
 
@@ -118,8 +118,8 @@ class MtzParserTestCase(unittest.TestCase):
         parser.parse()
 
         self.assertTupleEqual(parser.summary, (b'F_XDSdataset', b'SIGF_XDSdataset', b'IMEAN_XDSdataset',
-                                               b'SIGIMEAN_XDSdataset', b'FreeR_flag', b'F_XDSdataset(+)',
-                                               b'SIGF_XDSdataset(+)', b'I_XDSdataset(+)', b'SIGI_XDSdataset(+)',
-                                               b'F_XDSdataset(-)', b'SIGF_XDSdataset(-)', b'I_XDSdataset(-)',
-                                               b'SIGI_XDSdataset(-)'))
+                                               b'SIGIMEAN_XDSdataset', b'FreeR_flag', b'DANO_XDSdataset',
+                                               b'SIGDANO_XDSdataset', b'F_XDSdataset(+)', b'SIGF_XDSdataset(+)',
+                                               b'I_XDSdataset(+)', b'SIGI_XDSdataset(+)', b'F_XDSdataset(-)',
+                                               b'SIGF_XDSdataset(-)', b'I_XDSdataset(-)', b'SIGI_XDSdataset(-)'))
         self.assertEqual(parser.fname, '/empty/path/fname.mtz')

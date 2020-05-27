@@ -84,8 +84,8 @@ class MtzParser(Parser):
     @property
     def summary(self):
         """Tuple with all the parsed label names"""
-        return (self.f, self.sigf, self.i, self.sigi, self.free, self.f_plus, self.sigf_plus, self.i_plus,
-                self.sigi_plus, self.f_minus, self.sigf_minus, self.i_minus, self.sigi_minus)
+        return (self.f, self.sigf, self.i, self.sigi, self.free, self.dp, self.sigdp, self.f_plus, self.sigf_plus,
+                self.i_plus, self.sigi_plus, self.f_minus, self.sigf_minus, self.i_minus, self.sigi_minus)
 
     def read_reflections(self):
         """Read the data in :py:attr:`~swamp.parsers.mtzparser.Mtzparser.reflection_file` file using \
@@ -105,11 +105,9 @@ class MtzParser(Parser):
             return
 
         for label in MtzColumnLabels:
-            print(label)
             label_subset = [col.label for col in self.reflection_file.columns if
                             col.type == MTZColumnTypes.__getattr__(label.name).value]
             matches = list(filter(label.value.match, label_subset))
-            print(matches)
             if any(matches):
                 self.__setattr__(label.name, matches[0].encode('utf-8'))
 
