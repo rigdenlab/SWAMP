@@ -13,14 +13,14 @@ class MtzColumnLabels(Enum):
     sigf = re.compile(r"^[Ss][Ii][Gg][Ff][Pp]?")
     dp = re.compile(r"^[Dd][An]?[Nn]?[Oo]?[Pp]?")
     sigdp = re.compile(r"^[Ss][Ii][Gg][Dd][Aa]?[Nn]?[Oo]?[Pp]?")
-    i_plus = re.compile(r"^[Ii].*\(?\+?\)?[Pp]?[Ll]?[Uu]?[Ss]?")
-    sigi_plus = re.compile(r"^[Ss][Ii][Gg][Ii].*\(?\+?\)?[Pp]?[Ll]?[Uu]?[Ss]?")
-    f_plus = re.compile(r"^[Ff][Pp]?.*\(?\+?\)?[Pp]?[Ll]?[Uu]?[Ss]?")
-    sigf_plus = re.compile(r"^[Ss][Ii][Gg][Ff][Pp]?.*\(?\+?\)?[Pp]?[Ll]?[Uu]?[Ss]?")
-    i_minus = re.compile(r"^[Ii].*\(?-?\)?[Mm]?[Ii]?[Nn]?[Uu]?[Ss]?")
-    sigi_minus = re.compile(r"^[Ss][Ii][Gg][Ii].*\(?-?\)?[Mm]?[Ii]?[Nn]?[Uu]?[Ss]?")
-    f_minus = re.compile(r"^[Ff][Pp]?.*\(?-?\)?[Mm]?[Ii]?[Nn]?[Uu]?[Ss]?")
-    sigf_minus = re.compile(r"^[Ss][Ii][Gg][Ff][Pp]?.*\(?-?\)?[Mm]?[Ii]?[Nn]?[Uu]?[Ss]?")
+    i_plus = re.compile(r"^[Ii].*\(\+\)?[Pp]?[Ll]?[Uu]?[Ss]?")
+    sigi_plus = re.compile(r"^[Ss][Ii][Gg][Ii].*\(\+\)?[Pp]?[Ll]?[Uu]?[Ss]?")
+    f_plus = re.compile(r"^[Ff][Pp]?.*\(\+\)?[Pp]?[Ll]?[Uu]?[Ss]?")
+    sigf_plus = re.compile(r"^[Ss][Ii][Gg][Ff][Pp]?.*\(\+\)?[Pp]?[Ll]?[Uu]?[Ss]?")
+    i_minus = re.compile(r"^[Ii].*\(-\)?[Mm]?[Ii]?[Nn]?[Uu]?[Ss]?")
+    sigi_minus = re.compile(r"^[Ss][Ii][Gg][Ii].*\(-\)?[Mm]?[Ii]?[Nn]?[Uu]?[Ss]?")
+    f_minus = re.compile(r"^[Ff][Pp]?.*\(-\)?[Mm]?[Ii]?[Nn]?[Uu]?[Ss]?")
+    sigf_minus = re.compile(r"^[Ss][Ii][Gg][Ff][Pp]?.*\(-\)?[Mm]?[Ii]?[Nn]?[Uu]?[Ss]?")
 
 
 class MTZColumnTypes(Enum):
@@ -105,9 +105,11 @@ class MtzParser(Parser):
             return
 
         for label in MtzColumnLabels:
+            print(label)
             label_subset = [col.label for col in self.reflection_file.columns if
                             col.type == MTZColumnTypes.__getattr__(label.name).value]
             matches = list(filter(label.value.match, label_subset))
+            print(matches)
             if any(matches):
                 self.__setattr__(label.name, matches[0].encode('utf-8'))
 
