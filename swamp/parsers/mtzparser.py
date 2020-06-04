@@ -6,7 +6,7 @@ from swamp.parsers.parser import Parser
 
 class MtzColumnLabels(Enum):
     """An enumerator that contains the regular expression used to detect the column labels of a given MTZ file"""
-    free = re.compile(r"^.*?[Ff][Rr][Ee][Ee].*([Ff][Ll][Aa][Gg])?")
+    free = re.compile(r"^.*?[Ff][Rr][Ee][Ee].*")
     i = re.compile(r"^[Ii]")
     sigi = re.compile(r"^[Ss][Ii][Gg][Ii]")
     f = re.compile(r"^[Ff][Pp]?(?![Cc])(?![Ww][Tw])")

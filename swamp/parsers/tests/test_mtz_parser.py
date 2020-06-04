@@ -150,3 +150,30 @@ class MtzParserTestCase(unittest.TestCase):
                                                b'F_Plus', b'sigF_PLUS', b'Iplus', b'sigi(+)', b'f(-)', b'SIGFP(-)',
                                                b'iMINUS', b'SIGIminus'))
         self.assertEqual(parser.fname, '/empty/path/fname.mtz')
+
+    def test_6(self):
+        parser = MockMtzParser('/empty/path/fname.mtz')
+        mock_columns = [MockGemmiMtzColumn("Sigi_(-)", "M"),
+                        MockGemmiMtzColumn("F", "F"),
+                        MockGemmiMtzColumn("FWT", "F"),
+                        MockGemmiMtzColumn("F_Plus", "G"),
+                        MockGemmiMtzColumn("f(-)", "G"),
+                        MockGemmiMtzColumn("sigF_PLUS", "L"),
+                        MockGemmiMtzColumn("sigi_something_(+)", "M"),
+                        MockGemmiMtzColumn("SIGFPMINUS", "L"),
+                        MockGemmiMtzColumn("dummy-label", "E"),
+                        MockGemmiMtzColumn("SA_FLAG", "I"),
+                        MockGemmiMtzColumn("SIGFP", "Q"),
+                        MockGemmiMtzColumn("sigi_something", "Q"),
+                        MockGemmiMtzColumn("i", "J"),
+                        MockGemmiMtzColumn("I_plus", "K"),
+                        MockGemmiMtzColumn("iMINUS", "K"),
+                        MockGemmiMtzColumn("sigdanoP", "Q"),
+                        MockGemmiMtzColumn("danoP", "D")]
+        parser.reflection_file = MockGemmiMtz(mock_columns)
+        parser.error = False
+        parser.parse()
+        self.assertTupleEqual(parser.summary, (b'F', b'SIGFP', b'i', b'sigi_something', None, b'danoP', b'sigdanoP',
+                                               b'F_Plus', b'sigF_PLUS', b'I_plus', b'sigi_something_(+)', b'f(-)',
+                                               b'SIGFPMINUS', b'iMINUS', b'Sigi_(-)'))
+        self.assertEqual(parser.fname, '/empty/path/fname.mtz')
