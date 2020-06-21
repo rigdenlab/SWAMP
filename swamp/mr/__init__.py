@@ -35,8 +35,8 @@ if 'THIS_IS_READTHEDOCS' not in os.environ:
     if StrictVersion(prettytable.__version__) < StrictVersion("0.7.2"):
         raise RuntimeError("Prettytable must be version >= 0.7.2 to use SWAMP-MR")
 
-    if StrictVersion(dill.__version__[:-2]) < StrictVersion("0.3.1"):
-        raise RuntimeError("Dill must be version >= 0.3.1 to use SWAMP-MR")
+    if StrictVersion(dill.__version__[:-2]) < StrictVersion("0.3"):
+        raise RuntimeError("Dill must be version >= 0.3 to use SWAMP-MR")
 
 
 def Mr(*args, **kwargs):
