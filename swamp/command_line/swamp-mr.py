@@ -35,7 +35,7 @@ def create_argument_parser():
     parser.add_argument("-mtz_phases", type=check_path_exists, nargs="?", default=None,
                         help="MTZ file with phase information (for benchmarking)")
     parser.add_argument("-job_kill_time", type=int, nargs="?", default=4320, help='Maximum runtime of each MR run')
-    parser.add_argument("-ncontacts_threshold", type=int, nargs="?", default=28,
+    parser.add_argument("-ncontacts_threshold", type=int, nargs="?", default=35,
                         help='Minimum no. of interhelical contacts to compute CMO of subtarget')
     parser.add_argument("-consco_threshold", type=float, nargs="?", default=0.75,
                         help='Minimum CMO between predicted and observed contacts to use search model')
