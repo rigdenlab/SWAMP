@@ -3,7 +3,7 @@
 Performing molecular replacement with SWAMP
 -------------------------------------------
 
-In this tutorial you will use SWAMP to perform molecular replacement on a bacteriorhodopsin structure `1UCQ <https://www.rcsb.org/structure/1UCQ>`_. The required files for this have been provided `here <https://github.com/rigdenlab/SWAMP/tree/update_docs/docs/_static/data>`_.
+In this tutorial you will use SWAMP to perform molecular replacement on a bacteriorhodopsin structure `1UCQ <https://www.rcsb.org/structure/1UCQ>`_. The required files for this have been provided `here <https://github.com/rigdenlab/swamp-examples/archive/master.zip>`_.
 
 
 1. Obtain predictions about your target structure
