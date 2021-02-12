@@ -16,7 +16,7 @@ class MrJobTestCase(unittest.TestCase):
         python_script = """cd %s
 /empty/path/python << EOF
 from swamp.mr import MrRun
-mr_run = MrRun(id='test', workdir='%s', target_fa='/empty/path/target.fasta', target_mtz='/empty/path/target.mtz')
+mr_run = MrRun(id='test', workdir='%s', target_fa='/empty/path/target.fasta', target_mtz='/empty/path/target.mtz', extend_solution=False)
 mr_run.phased_mtz = "/empty/path/phases.mtz"
 mr_run.add_searchmodel(arg1="arg1", arg2="arg2", arg3="3")
 if not mr_run.error:
