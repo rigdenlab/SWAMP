@@ -23,17 +23,22 @@ class MrJob(object):
      :py:obj:`~swamp.mr.mrrun.MrRun` instance
      """
 
-    def __init__(self, id, workdir, python_interpreter=os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python')):
+    def __init__(self, id, workdir, python_interpreter=None, extend_solution=False):
 
         self.id = id
         self.workdir = workdir
-        self.python_interpreter = python_interpreter
         self.target_mtz = None
         self.target_fa = None
         self.phased_mtz = None
         self.parent_array = None
+        self.extend_solution = extend_solution
         self.searchmodel_list = []
         self.make_workdir()
+
+        if python_interpreter is None:
+            self.python_interpreter = os.path.join(os.environ['CCP4'], 'bin', 'ccp4-python')
+        else:
+            self.python_interpreter = python_interpreter
 
     def __repr__(self):
         return '{}(id={}, workdir="{}")'.format(self.__class__.__name__, self.id, self.workdir)
@@ -88,8 +93,8 @@ class MrJob(object):
         script = """cd {workdir}
 {python_interpreter} << EOF
 from swamp.mr import MrRun
-mr_run = MrRun(id='{id}', workdir='{workdir}', target_fa='{target_fa}', target_mtz='{target_mtz}')\n""".format(
-            **self.__dict__)
+mr_run = MrRun(id='{id}', workdir='{workdir}', target_fa='{target_fa}', target_mtz='{target_mtz}', \
+extend_solution={extend_solution})\n""".format(**self.__dict__)
 
         if self.phased_mtz is not None:
             script += 'mr_run.phased_mtz = "%s"\n' % self.phased_mtz

@@ -45,7 +45,7 @@ class MrRun(Mr):
 
     def __init__(self, id, workdir, target_fa, target_mtz, phased_mtz=None, threads=1, phaser_sgalternative="NONE",
                  phaser_early_kill=True, silent=False, save_disk_space=False, logger=None, phaser_packcutoff=None,
-                 phaser_timeout=1800, extend_solution=True, quiet_start=False, phaser_peaks_rotcutoff=None):
+                 phaser_timeout=1800, extend_solution=False, quiet_start=False, phaser_peaks_rotcutoff=None):
 
         super(MrRun, self).__init__(id, target_fa, target_mtz, workdir, phased_mtz=phased_mtz, logger=logger,
                                     silent=silent)

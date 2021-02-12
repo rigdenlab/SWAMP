@@ -30,6 +30,8 @@ def create_argument_parser():
                         help="Platform to execute MR runs (default sge)")
     parser.add_argument("-environment", type=str, nargs="?", default=None,
                         help="Select a environment for execution of HPC tasks (default None)")
+    parser.add_argument("-extend_solution", action='store_true',
+                        help='If set, extend partial MR solutions using helical ensembles')
     parser.add_argument("-queue", type=str, nargs="?", default=None,
                         help="Queue name to send jobs in the HPC (default None)")
     parser.add_argument("-mtz_phases", type=check_path_exists, nargs="?", default=None,
@@ -129,8 +131,7 @@ def main():
     n_searchmodels = len(list(my_rank.ranked_searchmodels.searchmodels))
     for rank, searchmodels in enumerate(list(my_rank.ranked_searchmodels.searchmodels), 1):
 
-        cmo = float(
-            my_rank.ranked_searchmodels[my_rank.ranked_searchmodels.searchmodels == searchmodels].consco.tolist()[0])
+        cmo = float(my_rank.ranked_searchmodels[my_rank.ranked_searchmodels.searchmodels == searchmodels].consco.tolist()[0])
         searchmodels = tuple([get_centroid_id(x) for x in searchmodels.split()])
         logger.debug('Loading search model no. %s/%s (CMO %s)' % (rank, n_searchmodels, cmo))
         workdir = os.path.join(my_array.workdir, 'search_%s' % rank)
@@ -143,7 +144,8 @@ def main():
 
                 logger.debug('Only one search model has been found in this search: %s' % combination)
                 mr_run_dir = os.path.join(workdir, 'run_1')
-                mr_job = MrJob('search_%s_run_1' % rank, mr_run_dir, python_interpreter=args.python_interpreter)
+                mr_job = MrJob('search_%s_run_1' % rank, mr_run_dir, python_interpreter=args.python_interpreter,
+                               extend_solution=args.extend_solution)
                 mr_job.add_searchmodel(id='1', ensemble_code=combination[0], mod='polyala')
                 loaded_arrangements[combination] = 'search_%s_run_1' % rank
                 my_array.add(mr_job)
