@@ -14,7 +14,7 @@ __version__ = version.__version__
 
 import os
 
-if 'THIS_IS_READTHEDOCS' not in os.environ:
+if 'DISABLE_DEPENDENCY_CHECKS' not in os.environ:
 
     if "CCP4" not in os.environ:
         raise RuntimeError("Cannot find CCP4 root directory")

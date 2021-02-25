@@ -11,7 +11,7 @@ __version__ = version.__version__
 import os
 import sys
 
-if 'THIS_IS_READTHEDOCS' not in os.environ:
+if 'DISABLE_DEPENDENCY_CHECKS' not in os.environ:
 
     from distutils.version import StrictVersion
 
