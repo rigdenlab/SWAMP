@@ -28,7 +28,7 @@ class SearchModel(ABC):
     """
 
     def __init__(self, id, ensemble_code, workdir, ermsd=0.1, nsearch=1, disable_check=True, mod='unmod',
-                 model='ensemble', logger=None):
+                 model='ensemble', pdb_fname_input=None, logger=None):
 
         self.id = id
         self.ensemble_code = ensemble_code
@@ -38,6 +38,7 @@ class SearchModel(ABC):
         self.nsearch = nsearch
         self.mod = mod
         self.model = model
+        self.pdb_fname_input = pdb_fname_input
         self.error = False
         self.modified_model_list = []
 
@@ -46,7 +47,10 @@ class SearchModel(ABC):
         else:
             self.logger = logger
 
-        if ensemble_code == 'idealhelix':
+        if self.model == 'external_input' and os.path.isfile(self.pdb_fname_input):
+            self._pdbfname = self.pdb_fname_input
+            return
+        elif ensemble_code == 'idealhelix':
             self.gzfile = os.path.join(self.idealhelix_fname)
             self._pdbfname = os.path.join(self.workdir, 'idealhelix.pdb')
         else:
