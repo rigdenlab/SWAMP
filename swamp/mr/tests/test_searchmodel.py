@@ -2326,7 +2326,8 @@ class SearchModelTestCase(unittest.TestCase):
         self.assertListEqual([os.path.join(os.environ['CCP4_SCR'], 'models', 'model_1.pdb'),
                               os.path.join(os.environ['CCP4_SCR'], 'models', 'model_2.pdb')],
                              models)
-        self.assertListEqual(['model_1.pdb', 'model_2.pdb'], os.listdir(os.path.join(os.environ['CCP4_SCR'], 'models')))
+        self.assertListEqual(['model_1.pdb', 'model_2.pdb'],
+                             sorted(os.listdir(os.path.join(os.environ['CCP4_SCR'], 'models'))))
 
     def test_7(self):
         searchmodel = SearchModel(id='test', ensemble_code='3', ermsd=0.6, nsearch=3, disable_check=False, mod='unmod',
