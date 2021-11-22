@@ -3,7 +3,7 @@ numpy
 pandas
 pyjob ==0.2.1
 sphinx-argparse
-sphinx_bootstrap_theme ==0.5.3
+sphinx_bootstrap_theme
 prettytable
 dill
 joblib
